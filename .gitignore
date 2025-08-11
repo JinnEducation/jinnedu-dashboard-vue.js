@@ -1,0 +1,11 @@
+# DONE REVIEWING: GITHUB COMMIT
+.vs
+.vscode
+.env
+.history
+dist.zip
+build
+dist
+public
+node_modules
+package-lock.json

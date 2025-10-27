@@ -63,35 +63,45 @@ export const setI18nLanguages = function setI18nLanguages(language, direction) {
   return language
 }
 
-export const getI18nLanguages = function getI18nLanguages(language) {
-  store.state.loading = true
-  let {languages} = store.state
-  if (!languages) languages = store.dispatch("getAPILanguages")
+export const getI18nLanguages = async function getI18nLanguages(language) {
+  try {
+    store.state.loading = true
 
-  Promise.resolve(languages).then(async () => {
-    const {direction} = languages.find((languageItem) => languageItem.shortname === language)
-    if (i18nLanguages.includes(language)) {
-      if (language !== i18n.locale) setI18nLanguages(language, direction)
-      return Promise.resolve().finally(() => {
-        setTimeout(() => {
-          store.state.loading = false
-        }, 1500)
-      })
+    // حمّل اللغات لو مش موجودة
+    let languages = store.state.languages
+    if (!Array.isArray(languages) || !languages.length) {
+      languages = await store.dispatch("getAPILanguages") // تأكد أنها ترجع Array
     }
 
-    return axiosClient
-      .get(`/locales/lang/${language}?${["v", Date.now()].join("=")}`)
-      .then((response) => {
-        i18nLanguages.push(language)
-        i18n.global.setLocaleMessage(language, response.data)
-        return setI18nLanguages(language, direction)
-      })
-      .finally(() => {
-        setTimeout(() => {
-          store.state.loading = false
-        }, 1500)
-      })
-  })
+    // طابق بالـ lowercase لتفادي اختلافات مثل ar vs ar-SA
+    const langKey = String(language || '').toLowerCase()
+    const matched = languages.find(l =>
+      String(l.shortname || l.short_name || '').toLowerCase() === langKey
+    )
+
+    if (!matched) {
+      console.warn(`Language "${language}" not found in languages array.`)
+      // ممكن تختار ترجع هنا أو تكمل بفول باك
+      store.state.loading = false
+      return
+    }
+
+    const direction = matched.direction || 'ltr'
+
+    if (i18nLanguages.includes(language)) {
+      if (language !== i18n.locale) setI18nLanguages(language, direction)
+      return
+    }
+
+    const { data } = await axiosClient.get(`/locales/lang/${language}?v=${Date.now()}`)
+    i18nLanguages.push(language)
+    i18n.global.setLocaleMessage(language, data)
+    return setI18nLanguages(language, direction)
+
+  } finally {
+    setTimeout(() => { store.state.loading = false }, 1500)
+  }
 }
+
 
 export default i18n

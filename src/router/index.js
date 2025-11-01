@@ -10,6 +10,7 @@ import DashboardLayout from "@/components/layouts/admin/dashboard.vue"
 import ForgotPassword from "@/views/admin/auth/forgot-password.vue"
 import NewPassword from "@/views/admin/auth/new-password.vue"
 import StudentSignIn from "@/views/admin/auth/student-sign-in.vue"
+import StudentSignInCheck from "@/views/admin/auth/student-sign-in-check.vue"
 import AdminSignIn from "@/views/admin/auth/admin-sign-in.vue"
 
 // import AdminSignIn from "@/views/admin/admin-sign-in.vue"sign-up-17-2-2025
@@ -431,6 +432,11 @@ const router = createRouter({
       redirect: {name: "sign-in"},
       component: AuthLayout,
       children: [
+        {
+          path: "/auth/sign-in-check",
+          name: "sign-in-check",
+          component: StudentSignInCheck
+        },
         {
           path: "/auth/sign-in",
           name: "sign-in",

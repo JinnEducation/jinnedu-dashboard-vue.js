@@ -78,6 +78,9 @@ import ContactUs from "@/views/admin/contact-us/index.vue"
 import Accounting from "@/views/admin/accounting/list.vue"
 import TutorFinance from "@/views/admin/finance/tutorFinance.vue"
 
+import MenusList from "@/views/admin/menus/list.vue"
+import MenusAdd from "@/views/admin/menus/add.vue"
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_APP_BASE_DIRECTORY),
   routes: [
@@ -98,6 +101,22 @@ const router = createRouter({
           path: "/dashboard/index",
           name: "index",
           component: Index
+        },
+        // Menu
+        {
+          path: "/dashboard/menu/index",
+          name: "menus-list",
+          component: MenusList
+        },
+        {
+          path: "/dashboard/menu/create",
+          name: "menus-add",
+          component: MenusAdd
+        },
+        {
+          path: "/dashboard/menu/update/:id",
+          name: "menus-update",
+          component: MenusAdd
         },
         // {
         //   path: "/profile",

@@ -1,6 +1,6 @@
 <!-- DONE REVIEWING: 23/06/2023 -->
 <template>
-  <toolbar :title="t('global.blog-management')" />
+  <toolbar :title="t('global.menu-management')" />
   <div id="kt_app_content" class="app-content flex-column-fluid">
     <div id="kt_app_content_container" class="app-container container-xxl">
       <div class="card">
@@ -16,8 +16,8 @@
                     fill="currentColor" />
                 </svg>
               </span>
-              <label for="search-blog" class="sr-only">{{ t("global.search-blog") }}</label>
-              <input id="search-blog" type="text" name="search-blog" :placeholder="t('global.search-blog')"
+              <label for="search-menu" class="sr-only">{{ t("global.search-menu") }}</label>
+              <input id="search-menu" type="text" name="search-menu" :placeholder="t('global.search-menu')"
                 data-kt-content-table-filter="search" class="form-control form-control-solid w-250px ps-14"
                 @keyup.enter="searchDataTableBodyRows" />
             </div>
@@ -25,7 +25,7 @@
           <div class="card-toolbar">
             <div data-kt-content-table-toolbar="base" class="d-flex justify-content-end">
               <template v-if="abilities.create">
-                <router-link :to="`/dashboard/blog/create`" class="btn btn-primary">
+                <router-link :to="`/dashboard/menu/create`" class="btn btn-primary">
                   <span class="svg-icon svg-icon-2">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
                       <rect x="11" y="20" rx="1" width="16" height="2" transform="rotate(-90 11 20)" fill="currentColor"
@@ -33,7 +33,7 @@
                       <rect x="4" y="11" rx="1" width="16" height="2" fill="currentColor" />
                     </svg>
                   </span>
-                  {{ t("global.add-button") }} {{ t("global.blog") }}
+                  {{ t("global.add-button") }} {{ t("global.menu") }}
                 </router-link>
               </template>
             </div>
@@ -54,17 +54,17 @@
               <h2 class="fs-2x fw-bold mb-10">{{ t("global.welcome") }}</h2>
               <p class="text-gray-400 fs-5 fw-semibold mb-13">
                 <span>
-                  {{ t("global.no-blog") }}
+                  {{ t("global.no-menu") }}
                 </span>
               </p>
               <template v-if="abilities.create">
-                <router-link :to="`/dashboard/blog/create`" class="btn btn-primary er fs-6 px-8 py-4">
-                  {{ t("global.add-button") }} {{ t("global.blog") }}
+                <router-link :to="`/dashboard/menu/create`" class="btn btn-primary er fs-6 px-8 py-4">
+                  {{ t("global.add-button") }} {{ t("global.menu") }}
                 </router-link>
               </template>
             </div>
             <div class="text-center px-5">
-              <img src="@/assets/media/illustrations/welcome.png" :alt="`Add Our blog Illustration`"
+              <img src="@/assets/media/illustrations/welcome.png" :alt="`Add Our menu Illustration`"
                 class="mw-100 mh-300px" />
             </div>
           </div>
@@ -75,55 +75,57 @@
               :items-total="itemsTotal" :page-current="currentPage" :items-per-page="itemsPerPage"
               :items-per-page-dropdown-enabled="true" :query-string="currentSearchQuery" @on-sort="onSort"
               @on-items-select="onItemsSelect">
-              <!-- رقم تسلسلي -->
-              <template #id="{ row: post }">
-                {{ data.indexOf(post) + 1 }}
+              <!-- Serial Number -->
+              <template #id="{ row: menu }">
+                {{ data.indexOf(menu) + 1 }}
               </template>
 
-              <!-- الصورة والعنوان -->
-              <template #title="{ row: post }">
-                <div class="d-flex align-items-center">
-                  <img
-                    :src="post.image"
-                    alt=""
-                    style="width:80px; height:56px; object-fit:cover; border-radius:6px; margin-right:12px;"
-                  >
-                  <div>
-                    <div class="fw-bold">
-                      {{ typeof post.title === 'object' ? post.title[languageId] : post.title }}
-                    </div>
-                    <div class="text-muted small">
-                      {{ typeof post.slug === 'object' ? post.slug[languageId] : post.slug }}
-                    </div>
-                  </div>
-                </div>
+              <!-- Title -->
+              <template #title="{ row: menu }">
+                <div class="fw-bold">{{ menu.title }}</div>
               </template>
 
-              <!-- المقتطف القصير -->
-              <template #description="{ row: post }">
-                <div class="text-muted small" v-html="typeof post.description === 'object' ? post.description[languageId] : post.description"></div>
+              <!-- Name -->
+              <template #name="{ row: menu }">
+                <span class="text-muted">{{ menu.name || '-' }}</span>
               </template>
 
-              <!-- التصنيف والكاتب والتاريخ -->
-              <template #category="{ row: post }">
-                <span class="small text-primary ms-3">{{ post.category?.name }}</span>
-              </template>
-              <template #author="{ row: post }">
-                <span class="small text-muted ms-2">✍️ {{ post.users?.name }}</span>
-              </template>
-              <template #date="{ row: post }">
-                <span class="small text-muted">📅 {{ post.date }}</span>  
+              <!-- Route -->
+              <template #route="{ row: menu }">
+                <span class="text-muted small">{{ menu.route || '-' }}</span>
               </template>
 
-              <!-- الحالة -->
-              <template #status="{ row: post }">
-                <span v-if="post.status === 'published'" class="text-success">Published</span>
-                <span v-else class="text-muted">Draft</span>
+              <!-- Slug -->
+              <template #slug="{ row: menu }">
+                <span class="text-muted small">{{ menu.slug || '-' }}</span>
               </template>
 
-              <!-- الأزرار -->
-              <template v-if="abilities.edit || abilities.destroy" #actions="{ row: post }">
-                <router-link v-if="abilities.edit" :to="`/dashboard/blog/update/${post.id}`" aria-label="Update"
+              <!-- Type -->
+              <template #type="{ row: menu }">
+                <span class="badge badge-light-info">{{ menu.type || '-' }}</span>
+              </template>
+
+              <!-- Status -->
+              <template #status="{ row: menu }">
+                <span v-if="menu.status === 1 || menu.status === '1'" class="badge badge-light-success">Active</span>
+                <span v-else class="badge badge-light-secondary">Inactive</span>
+              </template>
+
+              <!-- Invisible -->
+              <template #invisible="{ row: menu }">
+                <span v-if="menu.invisible === 1 || menu.invisible === '1'" class="badge badge-light-warning">Hidden</span>
+                <span v-else class="badge badge-light-success">Visible</span>
+              </template>
+
+              <!-- Sortable -->
+              <template #sortable="{ row: menu }">
+                <span v-if="menu.sortable === 1 || menu.sortable === '1'" class="badge badge-light-primary">Yes</span>
+                <span v-else class="badge badge-light-secondary">No</span>
+              </template>
+
+              <!-- Actions -->
+              <template v-if="abilities.edit || abilities.destroy" #actions="{ row: menu }">
+                <router-link v-if="abilities.edit" :to="`/dashboard/menu/update/${menu.id}`" aria-label="Update"
                   class="btn btn-icon btn-light-success edittooltip me-2">
                   <span class="svg-icon svg-icon-success">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem">
@@ -139,7 +141,7 @@
                 </router-link>
 
                 <button v-if="abilities.destroy" type="button" aria-label="Delete"
-                  class="btn btn-icon btn-light-danger deletetooltip" @click="deleteBlog(post.id)">
+                  class="btn btn-icon btn-light-danger deletetooltip" @click="deletemenu(menu.id)">
                   <span class="svg-icon svg-icon-danger">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem">
                       <path
@@ -165,29 +167,21 @@
 import Toolbar from "@/components/admin/dashboard/toolbar.vue"
 import DataTable from "@/components/admin/data-table/index.vue"
 import axiosClient from "@/plugins/axios"
-import getMenuAbilities from "@/plugins/get-menu-abilities"
 import arraySort from "array-sort"
 import { computed, defineComponent, onBeforeMount, onMounted, provide, ref } from "vue"
 import { useI18n } from "vue-i18n"
-import { useRoute } from "vue-router"
 import { useStore } from "vuex"
 
 export default defineComponent({
-  name: "contents-list",
+  name: "menus-list",
   components: { Toolbar, DataTable },
   setup() {
-    const route = useRoute()
-    const path = computed(() => route.path)
     const store = useStore()
-    const language = ref(store.state.language)
     const languages = computed(() => store.state.languages)
     const languageId = ref(null)
     const lang = languages.value.find((element) => element.shortname === store.state.language)
     languageId.value = lang ? lang.id : null
 
-    const { userInfo } = store.state
-    const userInfoObject = JSON.parse(userInfo)
-    const userType = userInfoObject.user.type
     const { t } = useI18n()
     const loading = ref(false)
     const header = ref([
@@ -201,29 +195,29 @@ export default defineComponent({
         columnName: t("global.title"),
         columnLabel: "title",
         sortEnabled: true,
-        columnWidth: 220
+        columnWidth: 200
       },
       {
-        columnName: t("global.description"),
-        columnLabel: "description",
-        sortEnabled: false,
-        columnWidth: 250
-      },
-      {
-        columnName: t("global.category"),
-        columnLabel: "category",
-        sortEnabled: true,
-        columnWidth: 160
-      },
-      {
-        columnName: t("global.author"),
-        columnLabel: "author",
+        columnName: t("global.name"),
+        columnLabel: "name",
         sortEnabled: true,
         columnWidth: 150
       },
       {
-        columnName: t("global.date"),
-        columnLabel: "date",
+        columnName: t("global.route"),
+        columnLabel: "route",
+        sortEnabled: true,
+        columnWidth: 180
+      },
+      {
+        columnName: "Slug",
+        columnLabel: "slug",
+        sortEnabled: true,
+        columnWidth: 150
+      },
+      {
+        columnName: "Type",
+        columnLabel: "type",
         sortEnabled: true,
         columnWidth: 120
       },
@@ -234,17 +228,31 @@ export default defineComponent({
         columnWidth: 100
       },
       {
+        columnName: "Invisible",
+        columnLabel: "invisible",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
+        columnName: "Sortable",
+        columnLabel: "sortable",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
         columnName: t("global.actions"),
         columnLabel: "actions",
         sortEnabled: false,
         columnWidth: 150
       }
     ])
+
+
     const data = ref([])
     const itemsTotal = ref(0)
     const currentPage = ref(0)
     const itemsPerPage = ref(0)
-    const initOurblog = ref([])
+    const initOurmenu = ref([])
     const idsSelected = ref([])
     const abilities = ref({
       // index: false,
@@ -266,12 +274,12 @@ export default defineComponent({
     const getDataTableBodyRows = function getDataTableBodyRows(queryString = "") {
       loading.value = true
       axiosClient
-        .get(`/blog${queryString}`)
+        .get(`/menus${queryString}`)
         .then((response) => {
           data.value = response.data.data
           itemsTotal.value = response.data.meta.total
           currentPage.value = response.data.meta.current_page
-          itemsPerPage.value = response.data.meta.per_pages
+          itemsPerPage.value = response.data.meta.per_page ?? response.data.meta.per_pages
         })
         .finally(() => {
           loading.value = false
@@ -294,7 +302,7 @@ export default defineComponent({
       else idsSelected.value = [...idsSelected.value, ...itemsSelected]
     }
 
-    const deleteBlog = (id) => {
+    const deletemenu = (id) => {
       Swal.fire({
         icon: "error",
         text: t("global.ensure-delete"),
@@ -305,10 +313,10 @@ export default defineComponent({
         customClass: { confirmButton: "btn btn-danger", cancelButton: "btn btn-active-light" }
       }).then((result) => {
         if (result.isConfirmed) {
-          axiosClient.delete(`/blog/${id}`).then(() => {
+          axiosClient.delete(`/menus/${id}`).then(() => {
             Swal.fire({
               icon: "success",
-              text: t("global.course-deleted-successfully"),
+              text: t("global.menu-deleted-successfully"),
               confirmButtonText: t("global.thank-you"),
               buttonsStyling: false,
               customClass: { confirmButton: "btn btn-primary" }
@@ -319,52 +327,24 @@ export default defineComponent({
       })
     }
 
-    const deleteFewOurblog = function deleteFewOurblog() {
+    const deleteFewOurmenu = function deleteFewOurmenu() {
       idsSelected.value.forEach((item) => {
-        deleteBlog(item)
+        deletemenu(item)
       })
 
       idsSelected.value.length = 0
     }
 
-    const registerblog = function registerblog(id) {
-      loading.value = true
-      axiosClient
-        .post(`/blog/register-as-tutor/${id}`)
-        .then(() => {
-          getDataTableBodyRows()
-          Swal.fire({
-            icon: "success",
-            text: t("global.course-registered-successfully"),
-            confirmButtonText: t("global.thank-you"),
-            buttonsStyling: false,
-            customClass: { confirmButton: "btn btn-primary" }
-          })
-        })
-        .catch(() => {
-          Swal.fire({
-            icon: "error",
-            text: t("global.errors-detected"),
-            confirmButtonText: t("global.got-it"),
-            buttonsStyling: false,
-            customClass: { confirmButton: "btn btn-danger" }
-          })
-        })
-        .finally(() => {
-          loading.value = false
-        })
-    }
 
     provide("getDataTableBodyRows", getDataTableBodyRows)
     onBeforeMount(() => {
       data.value = []
       loading.value = false
       getDataTableBodyRows()
-      // getMenuAbilities(path.value, abilities)
     })
 
     onMounted(() => {
-      initOurblog.value.splice(0, data.value.length, ...data.value)
+      initOurmenu.value.splice(0, data.value.length, ...data.value)
     })
 
     return {
@@ -381,9 +361,8 @@ export default defineComponent({
       searchDataTableBodyRows,
       onSort,
       onItemsSelect,
-      deleteBlog,
-      deleteFewOurblog,
-      registerblog,
+      deletemenu,
+      deleteFewOurmenu,
       languageId
     }
   }

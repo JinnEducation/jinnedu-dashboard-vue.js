@@ -82,6 +82,9 @@ import MenusAdd from "@/views/admin/menus/add.vue"
 // blog
 import OurBlogList from "@/views/admin/blog/list.vue"
 import OurArticalADD from "@/views/admin/blog/add.vue"
+// cateqblog
+import CateqBlogList from "@/views/admin/cateqblog/list.vue"
+import CateqBlogADD from "@/views/admin/cateqblog/add.vue"
 // sliders
 import SlidersList from "@/views/admin/slider/list.vue"
 import SliderAdd from "@/views/admin/slider/add.vue"
@@ -328,6 +331,22 @@ const router = createRouter({
           path: "/dashboard/blog/update/:id",
           name: "private-artical-update",
           component: OurArticalADD
+        },
+        // cateqblog
+        {
+          path: "/dashboard/cateqblog/index",
+          name: "cateqblog-list",
+          component: CateqBlogList
+        },
+        {
+          path: "/dashboard/cateqblog/create",
+          name: "cateqblog-create",
+          component: CateqBlogADD
+        },
+        {
+          path: "/dashboard/cateqblog/update/:id",
+          name: "cateqblog-update",
+          component: CateqBlogADD
         },
         // sliders
         {

@@ -37,7 +37,6 @@ import LabelsList from "@/views/admin/labels/list.vue"
 import LanguagesList from "@/views/admin/languages/list.vue"
 import OurCourseList from "@/views/admin/courses/list.vue"
 import TutorOurCourse from "@/views/admin/courses/tutor-index.vue"
-import OurBlogList from "@/views/admin/blog/list.vue"
 import RolesList from "@/views/admin/roles/list.vue"
 import SectionList from "@/views/admin/sections/list.vue"
 import TranslationsList from "@/views/admin/translations/list.vue"
@@ -63,7 +62,6 @@ import ContentAdd from "@/views/admin/contents/add.vue"
 import ExamAdd from "@/views/admin/exams/add.vue"
 import GroupClassAdd from "@/views/admin/group-classes/add.vue"
 import OurCourseADD from "@/views/admin/courses/add.vue"
-import OurArticalADD from "@/views/admin/blog/add.vue"
 import RoleAdd from "@/views/admin/roles/add.vue"
 import SectionAdd from "@/views/admin/sections/add.vue"
 import payoutAdd from "@/views/admin/payout/add.vue"
@@ -80,6 +78,13 @@ import TutorFinance from "@/views/admin/finance/tutorFinance.vue"
 
 import MenusList from "@/views/admin/menus/list.vue"
 import MenusAdd from "@/views/admin/menus/add.vue"
+
+// blog
+import OurBlogList from "@/views/admin/blog/list.vue"
+import OurArticalADD from "@/views/admin/blog/add.vue"
+// sliders
+import SlidersList from "@/views/admin/slider/list.vue"
+import SliderAdd from "@/views/admin/slider/add.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_APP_BASE_DIRECTORY),
@@ -323,6 +328,22 @@ const router = createRouter({
           path: "/dashboard/blog/update/:id",
           name: "private-artical-update",
           component: OurArticalADD
+        },
+        // sliders
+        {
+          path: "/dashboard/slider/index",
+          name: "slider-list",
+          component: SlidersList
+        },
+        {
+          path: "/dashboard/slider/create",
+          name: "slider-create",
+          component: SliderAdd
+        },
+        {
+          path: "/dashboard/slider/update/:id",
+          name: "slider-update",
+          component: SliderAdd
         },
         // EXAM ROUTES
         {

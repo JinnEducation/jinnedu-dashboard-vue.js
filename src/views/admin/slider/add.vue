@@ -92,34 +92,6 @@
               </div>
             </div>
 
-            <!-- Commented: status, category, date - not needed for slider -->
-            <!-- 
-            <div class="card card-flush py-4">
-              <div class="card-header">
-                <div class="card-title">
-                  <h2>{{ t("global.status") }}</h2>
-                </div>
-              </div>
-              <div class="card-body pt-0">
-                <el-form-item prop="status">
-                  <el-select
-                    v-model="data.status"
-                    name="status-select"
-                    :placeholder="t('global.select-status')"
-                    :filterable="true"
-                    :clearable="true">
-                    <template v-if="statusValues.length > 0">
-                      <el-option
-                        v-for="item in statusValues"
-                        :key="item"
-                        :value="item"
-                        :label="item" />
-                    </template>
-                  </el-select>
-                </el-form-item>
-              </div>
-            </div>
-            -->
           </div>
 
           <!-- Main Content -->
@@ -140,7 +112,20 @@
                       :placeholder="t('global.title')" />
                   </el-form-item>
                 </div>
-
+                <!-- Sub Title -->
+                <div class="fv-row">
+                  <label for="sub-title" class="required form-label">
+                    {{ t("global.sub-title") }}
+                  </label>
+                  <el-form-item :prop="`sub_title.${slot.language.id}`">
+                    <el-input
+                      id="sub-title"
+                      v-model="data.sub_title[slot.language.id]"
+                      type="text"
+                      name="sub-title"
+                      :placeholder="t('global.sub-title')" />
+                  </el-form-item>
+                </div>
                 <!-- Button Name -->
                 <div class="mb-10 fv-row">
                   <label for="btn-name" class="required form-label">
@@ -156,20 +141,7 @@
                   </el-form-item>
                 </div>
 
-                <!-- Sub Title -->
-                <div class="fv-row">
-                  <label for="sub-title" class="required form-label">
-                    {{ t("global.sub-title") }}
-                  </label>
-                  <el-form-item :prop="`sub_title.${slot.language.id}`">
-                    <el-input
-                      id="sub-title"
-                      v-model="data.sub_title[slot.language.id]"
-                      type="text"
-                      name="sub-title"
-                      :placeholder="t('global.sub-title')" />
-                  </el-form-item>
-                </div>
+
               </div>
             </languages-tabs>
 

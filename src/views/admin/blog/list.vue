@@ -83,11 +83,8 @@
               <!-- الصورة والعنوان -->
               <template #title="{ row: post }">
                 <div class="d-flex align-items-center">
-                  <img
-                    :src="post.image"
-                    alt=""
-                    style="width:80px; height:56px; object-fit:cover; border-radius:6px; margin-right:12px;"
-                  >
+                  <img :src="post.image" alt=""
+                    style="width:80px; height:56px; object-fit:cover; border-radius:6px; margin-right:12px;">
                   <div>
                     <div class="fw-bold">
                       {{ typeof post.title === 'object' ? post.title[languageId] : post.title }}
@@ -101,18 +98,18 @@
 
               <!-- المقتطف القصير -->
               <template #description="{ row: post }">
-                <div class="text-muted small" v-html="typeof post.description === 'object' ? post.description[languageId] : post.description"></div>
+                <div class="text-muted small truncate-lines"
+                  v-html="typeof post.description === 'object' ? post.description[languageId] : post.description"></div>
               </template>
-
               <!-- التصنيف والكاتب والتاريخ -->
               <template #category="{ row: post }">
-                <span class="small text-primary ms-3">{{ post.category?.name }}</span>
+                <span class="small text-primary ms-3">{{ post.relations.categ_blog_id?.name }}</span>
               </template>
               <template #author="{ row: post }">
-                <span class="small text-muted ms-2">✍️ {{ post.users?.name }}</span>
+                <span class="small text-muted ms-2">✍️ {{ post.author }}</span>
               </template>
               <template #date="{ row: post }">
-                <span class="small text-muted">📅 {{ post.date }}</span>  
+                <span class="small text-muted">📅 {{ post.date }}</span>
               </template>
 
               <!-- الحالة -->
@@ -247,20 +244,20 @@ export default defineComponent({
     const initOurblog = ref([])
     const idsSelected = ref([])
     const abilities = ref({
-      // index: false,
-      // create: false,
-      // edit: false,
-      // destroy: false,
-      // show: false,
-      // registerTutor: false,
-      // unRegisterTutor: false
-      index: true,
-      create: true,
-      edit: true,
-      destroy: true,
-      show: true,
-      registerTutor: true,
-      unRegisterTutor: true
+      index: false,
+      create: false,
+      edit: false,
+      destroy: false,
+      show: false,
+      registerTutor: false,
+      unRegisterTutor: false
+      // index: true,
+      // create: true,
+      // edit: true,
+      // destroy: true,
+      // show: true,
+      // registerTutor: true,
+      // unRegisterTutor: true
     })
 
     const getDataTableBodyRows = function getDataTableBodyRows(queryString = "") {
@@ -276,6 +273,12 @@ export default defineComponent({
         .finally(() => {
           loading.value = false
         })
+      if (userType === 2) {
+        abilities.value.index = true
+        abilities.value.create = true
+        abilities.value.edit = true
+        abilities.value.destroy = true
+      }
     }
 
     const currentSearchQuery = ref("")
@@ -360,7 +363,8 @@ export default defineComponent({
       data.value = []
       loading.value = false
       getDataTableBodyRows()
-      // getMenuAbilities(path.value, abilities)
+
+      getMenuAbilities(path.value, abilities)
     })
 
     onMounted(() => {
@@ -389,3 +393,14 @@ export default defineComponent({
   }
 })
 </script>
+
+<style scoped>
+.truncate-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* 🔢 عدد الأسطر اللي بدك تظهرها */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>

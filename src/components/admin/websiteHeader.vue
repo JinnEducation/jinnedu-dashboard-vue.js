@@ -377,7 +377,7 @@
               </li>
             </ul>
           </div> -->
-          <a class="search-btn" :href="`${baseUrl}/tutors/`"
+          <!-- <a class="search-btn" href="#"
             ><svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -392,7 +392,7 @@
                 d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
             </svg>
             {{ $t("global.search") }}</a
-          >
+          > -->
         </div>
         <div>
           <button type="button" class="open-menu-btn" @click="toggleMenuResponsive">
@@ -431,11 +431,11 @@
             </button>
             <ul>
               <li>
-                <a class="navbar-link" :href="`${baseUrl}`"> {{ $t("global.home") }}</a>
+                <a class="navbar-link" :href="`${baseUrl}${language}/`"> {{ $t("global.home") }}</a>
               </li>
               <li>
-                <a class="navbar-link" :href="`${baseUrl}/categories/`">
-                  {{ $t("global.courses") }}</a
+                <a class="navbar-link" :href="`${baseUrl}${language}/blog/`">
+                  {{ $t("global.blog") }}</a
                 >
               </li>
               <li ref="activeClassesRef" class="position-relative">
@@ -459,12 +459,12 @@
                   class="navbar-links-custom"
                   :class="{active: isActiveClasses}">
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/group-classes/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/online-group-classes/`">
                       {{ $t("global.group-classes") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/tutors/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/tutors/`">
                       {{ $t("global.tutors") }}</a
                     >
                   </li>
@@ -472,7 +472,7 @@
               </li>
               <li ref="helpRef" class="position-relative">
                 <button type="button" @click="toggleHelp">
-                  {{ $t("global.help") }}
+                  {{ $t("global.help-center") }}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -490,65 +490,18 @@
                   aria-labelledby="navbar-categories-toggle"
                   class="navbar-links-custom"
                   :class="{active: isActiveHelp}">
-                  <li
-                    v-for="(category, index) in categories.filter((c) => c.type === 'tab')"
-                    :key="index"
-                    aria-hidden="true">
-                    <a
-                      class="navbar-menu-link"
-                      :href="`${baseUrl}/our-courses/?category_id=${category.id}`">
-                      <!-- {{ category.name }} -->
-                      {{
-                        category.langs.find(
-                          (lang) => Number(lang.language_id) === Number(languageId)
-                        )?.title
-                      }}
-                    </a>
+                  <li aria-hidden="true">
+                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/help-for-students/`">
+                      {{ $t("global.help-center") }}</a
+                    >
+                  </li>
+                  <li aria-hidden="true">
+                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/contact-us/`">
+                      {{ $t("global.contact-us") }}</a
+                    >
                   </li>
                 </ul>
               </li>
-              <!-- <li ref="libraryRef" class="position-relative">
-                <button type="button" @click="toggleLibrary">
-                  {{ $t("global.library") }}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    aria-hidden="true">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
-                  </svg>
-                </button>
-                <ul
-                  aria-labelledby="navbar-categories-toggle"
-                  class="navbar-links-custom"
-                  :class="{active: isActiveLibrary}">
-                  <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/library/?type=images`">
-                      {{ $t("global.images") }}</a
-                    >
-                  </li>
-                  <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/library/?type=videos`">
-                      {{ $t("global.videos") }}</a
-                    >
-                  </li>
-                  <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/library/?type=documents`">
-                      {{ $t("global.documents") }}</a
-                    >
-                  </li>
-                  <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/library/?type=links`">
-                      {{ $t("global.links") }}</a
-                    >
-                  </li>
-                </ul>
-              </li> -->
               <li ref="pagesRef" class="position-relative">
                 <button type="button" @click="togglePages">
                   {{ $t("global.pages") }}
@@ -570,27 +523,27 @@
                   class="navbar-links-custom"
                   :class="{active: isActivePages}">
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/about-us/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/about-us/`">
                       {{ $t("global.about-us") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/how-jin-works/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/How-JinnEdu-Works/`">
                       {{ $t("global.how-jin-works") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/terms-of-use/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/terms-of-use`">
                       {{ $t("global.terms-of-use") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/policy/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/Policy`">
                       {{ $t("global.privacy-policy") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/contact-us/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/contact-us`">
                       {{ $t("global.contact-us") }}</a
                     >
                   </li>
@@ -940,7 +893,7 @@ export default defineComponent({
     const userInfoObject = JSON.parse(userInfo)
     const userType = userInfoObject.user.type
     const languages = computed(() => store.state.languages)
-    const language = ref(null)
+    const language = ref(store.state.language)
     const languageId = ref(null)
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
     const BASE_URL = ref(import.meta.env.VITE_APP_BASE_URL)
@@ -989,7 +942,6 @@ export default defineComponent({
         language.value = getLanguage()
       })
     }
-
     const isDropdownOpen = ref(false)
     const dropdownRef = ref(null)
 

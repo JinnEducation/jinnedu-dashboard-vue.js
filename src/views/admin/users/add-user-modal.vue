@@ -23,7 +23,9 @@
           <div
             id="add-user-modal-avatar"
             class="image-input-wrapper w-125px h-125px"
-            style="background: var()"></div>
+            :style="{
+              'background-image': user.avatar ? `url(${SERVER_PATH + 'storage/' + user.avatar})` : 'none'
+            }"></div>
           <label
             data-bs-toggle="tooltip"
             data-kt-image-input-action="change"
@@ -140,6 +142,7 @@ export default defineComponent({
     const user = toRef(props, "userCurrent")
     const userType = toRef(props, "selectedType")
     const avatar = ref("")
+    const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
     const imageSelected = ref("")
     // const selectedRoleId = ref(null)
 
@@ -354,7 +357,8 @@ export default defineComponent({
       handleFileInputChange,
       modelReset,
       handleInputPassword,
-      validatePassword
+      validatePassword,
+      SERVER_PATH
     }
   }
 })

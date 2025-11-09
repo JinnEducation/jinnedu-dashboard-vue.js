@@ -1,7 +1,7 @@
 <!-- DONE REVIEWING: NEW -->
 <template>
   <div>
-    <h1>Student Sign In Check</h1>
+    <h1>Sign In Check</h1>
   </div>
 </template>
 

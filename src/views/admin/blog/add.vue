@@ -122,7 +122,7 @@
                         v-for="item in categories"
                         :key="item.id"
                         :value="item.id"
-                        :label="item.name" />
+                        :label="item.name[1]" />
                     </template>
                   </el-select>
                 </el-form-item>
@@ -257,6 +257,7 @@ export default defineComponent({
     const {userInfo} = store.state
     const userInfoObject = JSON.parse(userInfo)
     const userId = userInfoObject.user.id
+    const userType = userInfoObject.user.type
 
     // Define form necessary data
     const loading = ref(false)
@@ -578,7 +579,11 @@ export default defineComponent({
         }
       })
 
-      statusValues.value = ["draft", "published", "archived"]
+      if(userType === 2){
+        statusValues.value = ["draft"]
+      } else {
+        statusValues.value = ["draft", "published", "archived"]
+      }
     })
     return {
       id,
@@ -599,7 +604,8 @@ export default defineComponent({
       removeThumbnail,
       handleUploadStart,
       handleUploadProgress,
-      imageUploading
+      imageUploading,
+      userType
     }
   }
 })

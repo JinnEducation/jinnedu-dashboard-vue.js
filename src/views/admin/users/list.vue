@@ -140,7 +140,7 @@
                         <div class="symbol symbol-circle symbol-50px overflow-hidden me-3">
                           <div class="symbol-label">
                             <img
-                              :src="SERVER_PATH + '/' + user.avatar"
+                              :src="SERVER_PATH + 'storage/' + user.avatar"
                               :alt="`${user.name}`"
                               class="w-100" />
                           </div>

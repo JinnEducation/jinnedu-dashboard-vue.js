@@ -282,6 +282,9 @@ const store = createStore({
     SET_USER(state, user) {
       state.user.token = user.token
       state.user.data = user.user
+      localStorage.removeItem("TOKEN")
+      localStorage.removeItem("user")
+      sessionStorage.removeItem("activeSession")
       localStorage.setItem("TOKEN", user.token)
       localStorage.setItem("user", JSON.stringify(user))
       sessionStorage.setItem("activeSession", "true")

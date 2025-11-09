@@ -19,7 +19,7 @@
                     class="d-flex flex-center flex-shrink-0 bg-light rounded w-100px h-100px w-lg-150px h-lg-150px me-7 mb-4 overflow-hidden">
                     <img
                       v-if="profile.avatar"
-                      :src="SERVER_PATH + '/' + profile.avatar"
+                      :src="SERVER_PATH + 'storage/' + profile.avatar"
                       :alt="profile.abouts[0]?.first_name"
                       class="w-100" />
                     <span

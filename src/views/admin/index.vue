@@ -262,8 +262,6 @@ export default defineComponent({
         .then((response) => {
           profile.value = response.data.result
           about.value = profile.value.abouts
-          console.log(profile.value)
-          console.log(about.value)
         })
         .finally(() => {
           loading.value = false

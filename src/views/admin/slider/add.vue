@@ -85,7 +85,7 @@
                 <el-form-item prop="btn_url">
                   <el-input
                     v-model="data.btn_url"
-                    type="text"
+                    type="url"
                     name="btn-url"
                     placeholder="https://example.com" />
                 </el-form-item>
@@ -413,7 +413,6 @@ export default defineComponent({
             // Set main fields
             data.value.image = result.image
             data.value.btn_url = result.btn_url
-
             // Set language fields - the API returns title, sub_title, btn_name as objects with language IDs as keys
             if (result.title && typeof result.title === "object") {
               data.value.title = {...result.title}

@@ -377,6 +377,17 @@
                         :disabled="true" />
                     </el-form-item>
                   </div>
+                  <div class="col-12 col-md-4">
+                    <label for="group-class-classes-length" class="required form-label">
+                      {{ t("global.total-classes-length-(minutes)") }}
+                    </label>
+                    <el-form-item prop="totalClassesLength" class="el-width">
+                      <el-input-number
+                        id="group-class-total-classes-length"
+                        v-model="data.totalClassesLength"
+                        :disabled="true" />
+                    </el-form-item>
+                  </div>
                 </div>
                 <div class="fv-row row">
                   <div class="col-12">
@@ -576,6 +587,7 @@ export default defineComponent({
       minimumSize: 2,
       classesNumber: 3,
       classesLength: 60,
+      totalClassesLength: 3 * 60,
       price: 10,
       dates: []
     })
@@ -806,6 +818,7 @@ export default defineComponent({
               langs: languagesArray,
               [["min", "size"].join("_")]: data.value.minimumSize,
               [["class", "length"].join("_")]: data.value.classesLength,
+              [["total", "classes", "length"].join("_")]: data.value.totalClassesLength,
               price: data.value.price,
               [["level", "id"].join("_")]: data.value.level,
               classes: data.value.classesNumber,
@@ -896,6 +909,13 @@ export default defineComponent({
         loading.value = true
       }
     })
+
+    watch(
+      () => data.value.classesNumber,
+      (value) => {
+        data.value.totalClassesLength = value * data.value.classesLength
+      }
+    )
 
     onMounted(() => {
       let categoriesPromise = null
@@ -996,6 +1016,7 @@ export default defineComponent({
             data.value.tutorId = result[["tutor", "id"].join("_")]
             data.value.minimumSize = result[["min", "size"].join("_")]
             data.value.classesLength = result[["class", "length"].join("_")]
+            data.value.totalClassesLength = result[["total", "classes", "length"].join("_")]
             data.value.price = Number(result.price)
             data.value.startDate = result.start_month
             data.value.time = result.sessions_hour

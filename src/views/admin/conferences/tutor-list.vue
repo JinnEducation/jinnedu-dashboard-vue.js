@@ -367,25 +367,24 @@ export default defineComponent({
         .get(`/conferences/create-tutor-link/${id}`)
         .then((response) => {
           // eslint-disable-next-line no-console
-
-          // try {
+          try {
           const errorResponse = JSON.parse(response.data.result.response)
 
-          if (errorResponse.status === "error") {
+          if (errorResponse.data.status === "error") {
             // Handle the case where the class has ended
             Swal.fire(errorResponse.error, "", "error")
             loadingMeetUrl.value = false
           } else {
             // Open the meet_url only if the class hasn't ended
-            window.open(errorResponse.start_url, "_blank")
+            window.open(errorResponse.data.start_url, "_blank")
             // eslint-disable-next-line no-use-before-define
             getDataTableBodyRows()
           }
-          // } catch (error) {
-          //   // eslint-disable-next-line no-console
-          //   console.error("Error parsing JSON:", error)
-          //   Swal.fire("Error parsing JSON", "", "error")
-          // }
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error("Error parsing JSON:", error)
+            Swal.fire("Error parsing JSON", "", "error")
+          }
         })
         .catch((error) => {
           // Handle errors from the API request

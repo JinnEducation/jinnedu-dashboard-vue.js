@@ -795,7 +795,7 @@ export default defineComponent({
             const d = new Date(MonthDate)
             const year = d.getFullYear()
             const month = (d.getMonth() + 1).toString().padStart(2, "0") // Add leading zero
-            return `${month}`
+            return `${year}-${month}`
           }
 
           const formatTime = (time) => {

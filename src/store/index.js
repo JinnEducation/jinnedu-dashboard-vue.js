@@ -175,6 +175,7 @@ const store = createStore({
       return axiosClient
         .get(`${serverUrl}/wallet/balance`)
         .then((response) => {
+          // console.log(response)
           return response
         })
         .catch((error) => {

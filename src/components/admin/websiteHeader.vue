@@ -43,7 +43,7 @@
                   stroke-linejoin="round"
                   d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"></path>
               </svg>
-              <p>{{ $t("global.balance") }}: {{ wallet.balance }}</p>
+              <p>{{ $t("global.balance") }}: {{ wallet.result.balance }} $</p>
             </button>
             <div
               ref="navbarMenuRef"
@@ -51,21 +51,21 @@
               :class="{active: isActiveNavbarMenu}">
               <ul class="navbar-menu-custom-ul">
                 <li>
-                  <span>{{ wallet.group_class_count ?? "0" }}</span>
+                  <span>{{ wallet.result.group_class_count ?? "0" }}</span>
                   {{ t("global.group-classes") }}
                 </li>
                 <li>
-                  <span>{{ wallet.our_course_count ?? "0" }}</span>
+                  <span>{{ wallet.result.our_course_count ?? "0" }}</span>
                   {{ t("global.courses") }}
                 </li>
                 <li>
-                  <span>{{ wallet.private_lesson_count ?? "0" }}</span>
+                  <span>{{ wallet.result.private_lesson_count ?? "0" }}</span>
                   {{ t("global.private-lessons") }}
                 </li>
               </ul>
             </div>
           </div>
-          <a class="custom-btn-header-style" :href="`${baseUrl}/wallet/`">
+          <a class="custom-btn-header-style" :href="`${baseUrl}${language}/checkout/`">
             {{ $t("global.buy-points") }}</a
           >
         </div>
@@ -576,21 +576,21 @@
                         :class="{active: isActiveNavbarMenu}">
                         <ul class="navbar-menu-custom-ul">
                           <li>
-                            <span>0</span>
+                            <span>{{ wallet.result.group_class_count ?? "0" }}</span>
                             {{ t("global.group-classes") }}
                           </li>
                           <li>
-                            <span>0</span>
+                            <span>{{ wallet.result.our_course_count ?? "0" }}</span>
                             {{ t("global.courses") }}
                           </li>
                           <li>
-                            <span>0</span>
+                            <span>{{ wallet.result.private_lesson_count ?? "0" }}</span>
                             {{ t("global.private-lessons") }}
                           </li>
                         </ul>
                       </div>
                     </div>
-                    <a class="custom-btn-header-style" :href="`${baseUrl}/wallet/`">
+                    <a class="custom-btn-header-style" :href="`${baseUrl}${language}/checkout/`">
                       {{ $t("global.buy-points") }}</a
                     >
                   </div>
@@ -970,21 +970,18 @@ export default defineComponent({
     const signOut = function signOut() {
       store.dispatch("signOut").finally(() => router.push({name: "auth"}))
     }
-    const fetchWallet = function fetchWallet() {
-      store.dispatch("fetchWallet")
+
+    const wallet = ref(null)
+
+    const fetchWallet = async () => {
+      try {
+        const response = await axiosClient.get(`${serverUrl}/wallet/balance`)
+        wallet.value = response.data
+        // console.log(wallet.value.balance)
+      } catch (error) {
+        console.error("Error fetching wallet:", error)
+      }
     }
-
-    const wallet = ref([])
-    // const fetchWallet = async () => {
-    //   try {
-    //     const response = await axiosClient.get(`${serverUrl}/wallet/balance`)
-
-    //     wallet.value = response.data // Assuming the API response contains an array of categories
-    //   } catch (error) {
-    //     console.log(error)
-
-    //   }
-    // }
 
     const categories = ref([])
 

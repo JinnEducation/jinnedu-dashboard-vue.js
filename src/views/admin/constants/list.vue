@@ -2,7 +2,15 @@
 <template>
   <toolbar :title="t(`global.${constant}`)" />
   <add-constant-modal
+    v-if="constant != 'levels'"
     ref="addConstantModal"
+    :id-current="idCurrent"
+    :constant-name="constant"
+    :constant-current="constantCurrent"
+    @after-on-submit="getDataTableBodyRows" />
+  <add-constant-modal-level
+    v-else
+    ref="addConstantModalLevel"
     :id-current="idCurrent"
     :constant-name="constant"
     :constant-current="constantCurrent"
@@ -123,7 +131,7 @@
               </template>
               <template #title="{row: constantRow}">
                 {{
-                  constantRow.trans.find((lang) => Number(lang.langid) === Number(languageId))
+                  constantRow?.trans?.find((lang) => Number(lang.langid) === Number(languageId))
                     ?.title
                 }}
               </template>
@@ -184,6 +192,7 @@
 import Toolbar from "@/components/admin/dashboard/toolbar.vue"
 import DataTable from "@/components/admin/data-table/index.vue"
 import AddConstantModal from "@/components/admin/modals/forms/add-constant-modal.vue"
+import AddConstantModalLevel from "@/components/admin/modals/forms/add-constant-modal-level.vue"
 import axiosClient from "@/plugins/axios"
 import arraySort from "array-sort"
 import {defineComponent, onBeforeMount, onMounted, provide, ref, computed} from "vue"
@@ -194,7 +203,7 @@ import {useStore} from "vuex"
 
 export default defineComponent({
   name: "constants-list",
-  components: {Toolbar, AddConstantModal, DataTable},
+  components: {Toolbar, AddConstantModal,AddConstantModalLevel, DataTable},
   setup() {
     const route = useRoute()
     const {t} = useI18n()
@@ -235,6 +244,7 @@ export default defineComponent({
     const initConstants = ref([])
     const idsSelected = ref([])
     const addConstantModal = ref(null)
+    const addConstantModalLevel = ref(null)
     const idCurrent = ref(null)
     const constantCurrent = ref({name: null})
 
@@ -298,14 +308,22 @@ export default defineComponent({
     const showAddModal = function showAddModal() {
       idCurrent.value = null
       constantCurrent.value = {name: null}
-      showModal(addConstantModal.value.addConstantModal.modal)
+      if (constant.value === "levels") {
+        showModal(addConstantModalLevel.value.addConstantModal.modal)
+      } else {
+        showModal(addConstantModal.value.addConstantModal.modal)
+      }
     }
 
     const showUpdateModal = function showUpdateModal(id) {
       idCurrent.value = id
       axiosClient.get(`/${constant.value}/show/${id}`).then((response) => {
         constantCurrent.value = response.data.result
-        showModal(addConstantModal.value.addConstantModal.modal)
+        if (constant.value === "levels") {
+          showModal(addConstantModalLevel.value.addConstantModal.modal)
+        } else {
+          showModal(addConstantModal.value.addConstantModal.modal)
+        }
       })
     }
 
@@ -359,6 +377,7 @@ export default defineComponent({
       itemsPerPage,
       idsSelected,
       addConstantModal,
+      addConstantModalLevel,
       idCurrent,
       constantCurrent,
       currentSearchQuery,

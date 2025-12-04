@@ -116,13 +116,33 @@
               :query-string="currentSearchQuery"
               @on-sort="onSort"
               @on-items-select="onItemsSelect">
-              <template #title="{row: groupClass}">
-                <!-- {{ exam.langs.find((element) => element.language_id === 1)?.title }} -->
-                {{ groupClass.name }}
+              <template #title="{row: exam}">
+                {{ exam.langs_all?.find((element) => element.language_id === 1)?.title || exam.langs_all?.[0]?.title }}
               </template>
-              <template #actions="{row: groupClass}">
+              <template #group_class="{row: exam}">
+                {{ exam.group_class?.name || '-' }}
+              </template>
+              <template #level="{row: exam}">
+                {{ exam.level?.name || '-' }}
+              </template>
+              <template #category="{row: exam}">
+                {{ exam.category?.name || '-' }}
+              </template>
+              <template #questions_count="{row: exam}">
+                {{ exam.questions_count || 0 }}
+              </template>
+              <template #total_marks="{row: exam}">
+                {{ exam.total_marks || 0 }}
+              </template>
+              <template #duration_minutes="{row: exam}">
+                {{ exam.duration_minutes || '-' }}
+              </template>
+              <template #pass_percentage="{row: exam}">
+                {{ exam.pass_percentage || '-' }}%
+              </template>
+              <template #actions="{row: exam}">
                 <router-link
-                  :to="`/dashboard/exams/index/${groupClass.id}`"
+                  :to="`/dashboard/exams/update/${exam.id}`"
                   aria-label="Update"
                   class="btn btn-icon btn-light-success edittooltip me-2">
                   <span class="svg-icon svg-icon-success">
@@ -141,6 +161,28 @@
                   </span>
                   <span class="edittooltiptext">{{ t("global.edit") }}</span>
                 </router-link>
+                <button
+                  type="button"
+                  aria-label="Delete"
+                  class="btn btn-icon btn-light-danger deletetooltip"
+                  @click="deleteExam(exam.id)">
+                  <span class="svg-icon svg-icon-danger">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      style="width: 1.5rem; height: 1.5rem">
+                      <path
+                        d="M6,8 L18,8 L17.106535,19.6150447 C17.04642,20.3965405 16.3947578,21 15.6109533,21 L8.38904671,21 C7.60524225,21 6.95358004,20.3965405 6.89346498,19.6150447 L6,8 Z M8,10 L8.45438229,14.0894406 L15.5517885,14.0339036 L16,10 L8,10 Z"
+                        fill="currentColor"
+                        fill-rule="nonzero" />
+                      <path
+                        d="M14,4.5 L14,3.5 C14,3.22385763 13.7761424,3 13.5,3 L10.5,3 C10.2238576,3 10,3.22385763 10,3.5 L10,4.5 L5.5,4.5 C5.22385763,4.5 5,4.72385763 5,5 L5,5.5 C5,5.77614237 5.22385763,6 5.5,6 L18.5,6 C18.7761424,6 19,5.77614237 19,5.5 L19,5 C19,4.72385763 18.7761424,4.5 18.5,4.5 L14,4.5 Z"
+                        fill="currentColor"
+                        opacity="0.5" />
+                    </svg>
+                  </span>
+                  <span class="deletetooltiptext">{{ t("global.delete") }}</span>
+                </button>
               </template>
             </data-table>
           </div>
@@ -167,12 +209,59 @@ export default defineComponent({
     const {t} = useI18n()
     const loading = ref(false)
     const header = ref([
-      {columnName: t("global.title"), columnLabel: "title", sortEnabled: true, columnWidth: 175},
+      {
+        columnName: t("global.title"),
+        columnLabel: "title",
+        sortEnabled: true,
+        columnWidth: 200
+      },
+      {
+        columnName: t("global.group-class"),
+        columnLabel: "group_class",
+        sortEnabled: true,
+        columnWidth: 150
+      },
+      {
+        columnName: t("global.level"),
+        columnLabel: "level",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
+        columnName: t("global.category"),
+        columnLabel: "category",
+        sortEnabled: true,
+        columnWidth: 120
+      },
+      {
+        columnName: t("global.questions-count"),
+        columnLabel: "questions_count",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
+        columnName: t("global.total-marks"),
+        columnLabel: "total_marks",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
+        columnName: t("global.duration-minutes"),
+        columnLabel: "duration_minutes",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
+        columnName: t("global.pass-percentage"),
+        columnLabel: "pass_percentage",
+        sortEnabled: true,
+        columnWidth: 100
+      },
       {
         columnName: t("global.actions"),
         columnLabel: "actions",
         sortEnabled: false,
-        columnWidth: 175
+        columnWidth: 150
       }
     ])
     const data = ref([])
@@ -184,7 +273,7 @@ export default defineComponent({
     const getDataTableBodyRows = (queryString = "") => {
       loading.value = true
       axiosClient
-        .get(`/exams/group-class${queryString}`)
+        .get(`/exams${queryString}`)
         .then((response) => {
           const {result} = response.data
           data.value = result.data
@@ -209,7 +298,25 @@ export default defineComponent({
 
     // Delete an exam by ID
     const deleteExam = (id) => {
-      axiosClient.delete(`/exams/${id}`).then(() => getDataTableBodyRows())
+      Swal.fire({
+        icon: "error",
+        text: t("global.ensure-delete"),
+        showCancelButton: true,
+        confirmButtonText: t("global.yes-delete"),
+        cancelButtonText: t("global.go-back"),
+        buttonsStyling: false,
+        customClass: {confirmButton: "btn btn-danger", cancelButton: "btn btn-active-light"}
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axiosClient.delete(`/exams/delete/${id}`).then(() => {
+            getDataTableBodyRows()
+          })
+        }
+      })
+    }
+
+    const onItemsSelect = function onItemsSelect(itemsSelected) {
+      // Handle items selection if needed
     }
 
     onBeforeMount(() => {
@@ -231,7 +338,8 @@ export default defineComponent({
       currentSearchQuery,
       searchDataTableBodyRows,
       onSort,
-      deleteExam
+      deleteExam,
+      onItemsSelect
     }
   }
 })

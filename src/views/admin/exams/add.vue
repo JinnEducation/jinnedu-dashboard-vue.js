@@ -161,6 +161,51 @@
           <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
             <languages-tabs v-slot="slot">
               <div>
+                <div class="card mx-5 mb-4 bg-light">
+                  <div class="card-header">
+                    <h5>{{ t("global.exam-details") }}</h5>
+                  </div>
+                  <div class="card-body" style="background: #fafafa">
+                    <div class="fv-row mb-10">
+                      <label :for="'exam-title-' + slot.language.id" class="required form-label">
+                        {{ t("global.exam-title") }}
+                      </label>
+                      <el-form-item :prop="`examTitles.${slot.language.id}`">
+                        <el-input
+                          :id="'exam-title-' + slot.language.id"
+                          v-model="data.examTitles[slot.language.id]"
+                          type="text"
+                          :placeholder="t('global.exam-title')" />
+                      </el-form-item>
+                    </div>
+                    <div class="fv-row mb-10">
+                      <label :for="'exam-description-' + slot.language.id" class="form-label">
+                        {{ t("global.description") }}
+                      </label>
+                      <el-form-item>
+                        <el-input
+                          :id="'exam-description-' + slot.language.id"
+                          v-model="data.examDescriptions[slot.language.id]"
+                          type="textarea"
+                          :rows="3"
+                          :placeholder="t('global.description')" />
+                      </el-form-item>
+                    </div>
+                    <div class="fv-row mb-10">
+                      <label :for="'exam-instructions-' + slot.language.id" class="form-label">
+                        {{ t("global.instructions") }}
+                      </label>
+                      <el-form-item>
+                        <el-input
+                          :id="'exam-instructions-' + slot.language.id"
+                          v-model="data.examInstructions[slot.language.id]"
+                          type="textarea"
+                          :rows="3"
+                          :placeholder="t('global.instructions')" />
+                      </el-form-item>
+                    </div>
+                  </div>
+                </div>
                 <div
                   v-for="(question, questionIndex) in data.questions"
                   :key="question.id"
@@ -176,12 +221,13 @@
                   </div>
                   <div class="card-body" style="background: #fafafa">
                     <div class="fv-row mb-10">
-                      <label for="exam-question" class="required form-label">
+                      <label :for="'exam-question-' + questionIndex" class="required form-label">
                         {{ t("global.exam-question") }}
                       </label>
-                      <el-form-item :prop="`questions.${questionIndex}.title.${slot.language.id}`">
+                      <el-form-item :prop="`questions.${questionIndex}.titles.${slot.language.id}`">
                         <el-input
-                          v-model="question.title[slot.language.id]"
+                          :id="'exam-question-' + questionIndex"
+                          v-model="question.titles[slot.language.id]"
                           type="text"
                           :placeholder="t('global.exam-question')" />
                       </el-form-item>
@@ -199,9 +245,9 @@
                           >
                           <input
                             :id="'is-true-' + questionIndex + '-' + answerIndex + '-radio'"
-                            v-model="question.answersTrue[slot.language.id]"
+                            v-model="question.correctAnswerId"
                             type="radio"
-                            :name="'is-true-' + questionIndex + '-' + slot.language.id + '-radio'"
+                            :name="'is-true-' + questionIndex + '-radio'"
                             :value="answer.id"
                             required
                             class="form-check-input" />
@@ -213,11 +259,11 @@
                           {{ t("global.answer") }} #{{ answerIndex + 1 }}
                         </label>
                         <el-form-item
-                          :prop="`questions.${questionIndex}.answers.${answerIndex}.title.${slot.language.id}`"
+                          :prop="`questions.${questionIndex}.answers.${answerIndex}.titles.${slot.language.id}`"
                           class="mb-0">
                           <el-input
                             :id="'exam-answer-' + answer.id"
-                            v-model="answer.title[slot.language.id]"
+                            v-model="answer.titles[slot.language.id]"
                             type="text"
                             :placeholder="`Exam Answer #${answerIndex + 1}`" />
                         </el-form-item>
@@ -269,6 +315,34 @@
                       :placeholder="t('global.exam-unique-name')" />
                   </el-form-item>
                 </div>
+                <div class="fv-row mb-10">
+                  <label for="duration-minutes" class="required form-label">
+                    {{ t("global.duration-minutes") }}
+                  </label>
+                  <el-form-item prop="duration_minutes">
+                    <el-input-number
+                      id="duration-minutes"
+                      v-model="data.duration_minutes"
+                      :min="1"
+                      :max="999"
+                      :placeholder="t('global.duration-minutes')"
+                      style="width: 100%" />
+                  </el-form-item>
+                </div>
+                <div class="fv-row mb-10">
+                  <label for="pass-percentage" class="required form-label">
+                    {{ t("global.pass-percentage") }}
+                  </label>
+                  <el-form-item prop="pass_percentage">
+                    <el-input-number
+                      id="pass-percentage"
+                      v-model="data.pass_percentage"
+                      :min="0"
+                      :max="100"
+                      :placeholder="t('global.pass-percentage')"
+                      style="width: 100%" />
+                  </el-form-item>
+                </div>
               </div>
             </div>
             <div class="d-flex justify-content-end">
@@ -298,11 +372,10 @@
 <script>
 import Toolbar from "@/components/admin/dashboard/toolbar.vue"
 import LanguagesTabs from "@/components/admin/languages-tabs.vue"
-import {defineComponent, onBeforeMount, onMounted, ref, watch, computed} from "vue"
+import {defineComponent, onBeforeMount, onMounted, ref, computed} from "vue"
 import {useI18n} from "vue-i18n"
 import {useRoute, useRouter} from "vue-router"
 import {useStore} from "vuex"
-import {createLanguagesCustom} from "../../../core/helpers/creators"
 import axiosClient from "../../../plugins/axios"
 
 export default defineComponent({
@@ -346,6 +419,21 @@ export default defineComponent({
           message: t(`global.exam-level-required`)
         }
       ],
+      duration_minutes: [
+        {
+          required: true,
+          trigger: "change",
+          message: t(`global.duration-minutes-required`)
+        }
+      ],
+      pass_percentage: [
+        {
+          required: true,
+          trigger: "change",
+          message: t(`global.pass-percentage-required`)
+        }
+      ],
+      examTitles: {},
       title: {},
       answers: []
     })
@@ -353,7 +441,7 @@ export default defineComponent({
     languages.forEach((languageItem) => {
       // eslint-disable-next-line
       const {id, name} = languageItem
-      rules.value.title[id] = [
+      rules.value.examTitles[id] = [
         {
           required: true,
           trigger: "change",
@@ -386,24 +474,25 @@ export default defineComponent({
     // Define data schema to be submitted
     const data = ref({
       name: null,
+      duration_minutes: 60,
+      pass_percentage: 70,
+      examTitles: {},
+      examDescriptions: {},
+      examInstructions: {},
       questions: [
         {
           id: generateUniqueId(),
-          title: {},
+          type: "mcq",
+          score: 10,
+          titles: {},
+          explanations: {},
           answers: [
-            {id: generateUniqueId(), is_true: 0, title: {}},
-            {id: generateUniqueId(), is_true: 0, title: {}}
+            {id: generateUniqueId(), isCorrect: false, titles: {}},
+            {id: generateUniqueId(), isCorrect: false, titles: {}}
           ],
-          answersTrue: 0
+          correctAnswerId: null
         }
       ],
-      title: "", // Assuming title is a string
-      answers: Array.from({length: 2}, (_, index) => ({
-        id: generateUniqueId(), // Use a function to generate unique IDs
-        is_true: 0,
-        title: []
-      })),
-      answersTrue: 0,
       category: null,
       categoryChildren: null,
       level: null,
@@ -413,12 +502,15 @@ export default defineComponent({
     const addQuestion = () => {
       data.value.questions.push({
         id: Date.now(),
-        title: {},
+        type: "mcq",
+        score: 10,
+        titles: {},
+        explanations: {},
         answers: [
-          {id: Date.now() + 1, is_true: 0, title: {}},
-          {id: Date.now() + 2, is_true: 0, title: {}}
+          {id: Date.now() + 1, isCorrect: false, titles: {}},
+          {id: Date.now() + 2, isCorrect: false, titles: {}}
         ],
-        answersTrue: 0
+        correctAnswerId: null
       })
     }
 
@@ -441,8 +533,8 @@ export default defineComponent({
     const addAnswer = (questionIndex) => {
       data.value.questions[questionIndex].answers.push({
         id: generateUniqueId(), // Use unique ID function
-        is_true: 0, // Default value
-        title: {} // Initialize as an empty object
+        isCorrect: false, // Default value
+        titles: {} // Initialize as an empty object
       })
     }
 
@@ -465,31 +557,6 @@ export default defineComponent({
       }
     }
 
-    const updateAnswersRules = function updateAnswersRules() {
-      rules.value.answers = []
-      data.value.answers.forEach((answer, index) => {
-        rules.value.answers[index] = {title: {}}
-        languages.forEach((languageItem) => {
-          const {id: languageId} = languageItem
-          rules.value.answers[index].title[languageId] = [
-            {
-              required: true,
-              trigger: "change",
-              message: t("global.this-field-is-required")
-            }
-          ]
-        })
-      })
-    }
-
-    updateAnswersRules()
-
-    watch(
-      () => data.value.answers.length,
-      () => {
-        updateAnswersRules()
-      }
-    )
 
     const filteredGroupClasses = computed(() => {
       // Check if groupClasses.value is an array before attempting to filter it
@@ -511,8 +578,8 @@ export default defineComponent({
             // console.error("Invalid data format for group classes:", response.data)
           }
         })
-        .catch((error) => {
-          // console.error("Error fetching group classes:", error)
+        .catch(() => {
+          // Error fetching group classes
         })
     }
 
@@ -542,43 +609,93 @@ export default defineComponent({
 
       form.value.validate((valid, errors) => {
         if (valid) {
+          // Validate at least one question
+          if (data.value.questions.length === 0) {
+            Swal.fire({
+              icon: "error",
+              text: t("global.at-least-one-question-required"),
+              confirmButtonText: t("global.got-it"),
+              buttonsStyling: false,
+              customClass: {confirmButton: "btn btn-danger"}
+            })
+            button.value.removeAttribute("data-kt-indicator")
+            button.value.disabled = false
+            button.value.ariaDisabled = false
+            return
+          }
+
+          // Validate each question has at least 2 answers and at least one correct answer
+          for (let i = 0; i < data.value.questions.length; i += 1) {
+            const question = data.value.questions[i]
+            if (question.answers.length < 2) {
+              Swal.fire({
+                icon: "error",
+                text: t("global.at-least-two-question-required"),
+                confirmButtonText: t("global.got-it"),
+                buttonsStyling: false,
+                customClass: {confirmButton: "btn btn-danger"}
+              })
+              button.value.removeAttribute("data-kt-indicator")
+              button.value.disabled = false
+              button.value.ariaDisabled = false
+              return
+            }
+            if (!question.correctAnswerId) {
+              Swal.fire({
+                icon: "error",
+                text: t("global.at-least-one-correct-answer-required"),
+                confirmButtonText: t("global.got-it"),
+                buttonsStyling: false,
+                customClass: {confirmButton: "btn btn-danger"}
+              })
+              button.value.removeAttribute("data-kt-indicator")
+              button.value.disabled = false
+              button.value.ariaDisabled = false
+              return
+            }
+          }
+
           // Prepare data to send to the backend
           const {category, categoryChildren} = data.value
 
-          // Prepare `questions` with `answers` for each language
-          const questions = data.value.questions.map((question) => ({
-            id: question.id,
-            langs: createLanguagesCustom({key: "title", values: question.title}),
-            answers: question.answers.map((answer) => {
-              // Check if `langs` exists and has at least one item
-              const languageId =
-                answer.langs && answer.langs[0] ? answer.langs[0].language_id : null
-
-              // Check if the `answersTrue` mapping contains the answer for this language
-              const isAnswerTrue = languageId && question.answersTrue[languageId] === answer.id
-
-              // If not found in `answersTrue`, use the `answer.is_true` as a fallback
-              const finalIsTrue = isAnswerTrue
-              return {
-                id: answer.id,
-                is_true: finalIsTrue ? 1 : 0, // Set the `is_true` based on the conditions
-                langs: createLanguagesCustom({
-                  key: "title",
-                  values: answer.title
-                })
-              }
-            })
-          }))
+          // Build exam data according to new API
+          const examData = {
+            level_id: data.value.level,
+            category_id: categoryChildren || category || 0,
+            group_class_id: data.value.groupClass,
+            duration_minutes: data.value.duration_minutes,
+            pass_percentage: data.value.pass_percentage,
+            is_active: true,
+            langs: languages.map((language) => ({
+              language_id: language.id,
+              title: data.value.examTitles[language.id] || "",
+              description: data.value.examDescriptions[language.id] || "",
+              instructions: data.value.examInstructions[language.id] || ""
+            })),
+            questions: data.value.questions.map((q, qIndex) => ({
+              question_no: qIndex + 1,
+              type: q.type || "mcq",
+              score: q.score || 10,
+              is_active: true,
+              langs: languages.map((language) => ({
+                language_id: language.id,
+                title: q.titles[language.id] || "",
+                explanation: q.explanations?.[language.id] || null
+              })),
+              answers: q.answers.map((a, aIndex) => ({
+                is_correct: a.id === q.correctAnswerId,
+                sort_order: aIndex + 1,
+                langs: languages.map((language) => ({
+                  language_id: language.id,
+                  title: a.titles[language.id] || ""
+                }))
+              }))
+            }))
+          }
 
           // Send data to the backend
           axiosClient
-            .post(id ? `/exams/update/${id}` : `/exams/create`, {
-              name: data.value.name,
-              [["category", "id"].join("_")]: categoryChildren || category || 0,
-              [["level", "id"].join("_")]: data.value.level,
-              group_class_id: data.value.groupClass,
-              questions: questions
-            })
+            .post(id ? `/exams/update/${id}` : `/exams/create`, examData)
             .then(() => {
               Swal.fire({
                 icon: "success",
@@ -623,75 +740,6 @@ export default defineComponent({
       })
     }
 
-    // const submit = function submit() {
-    //   button.value.setAttribute("data-kt-indicator", "on")
-    //   button.value.disable = true
-    //   button.value.ariaDisabled = true
-    //   form.value.validate((valid, errors) => {
-    //     if (valid) {
-    //       // Refactor THIS
-    //       const {category, categoryChildren} = data.value
-    //       const languagesArray = createLanguagesCustom({key: "title", values: data.value.title})
-
-    //       data.value.answers.forEach((answer) => {
-    //         // eslint-disable-next-line
-    //         answer.langs = createLanguagesCustom({key: "title", values: answer.title})
-    //         // eslint-disable-next-line
-    //         if (Number(answer.id) === Number(data.value.answersTrue)) answer.is_true = 1
-    //       })
-
-    //       axiosClient
-    //       .post(id ? `/exams/update/${id}` : `/exams/create`, {
-    //         name: data.value.name,
-    //           [["category", "id"].join("_")]: categoryChildren || category || 0,
-    //           langs: languagesArray,
-    //           [["level", "id"].join("_")]: data.value.level,
-    //           group_class_id: data.value.groupClass,
-    //           answers: data.value.answers
-    //         })
-    //         .then(() => {
-    //           Swal.fire({
-    //             icon: "success",
-    //             text: t("global.exam-created-successfully"),
-    //             confirmButtonText: t("global.thank-you"),
-    //             buttonsStyling: false,
-    //             customClass: {confirmButton: "btn btn-primary"}
-    //           })
-    //           router.push({name: "exams-list"})
-    //         })
-    //         .catch(() => {
-    //           Swal.fire({
-    //             icon: "error",
-    //             text: t("global.errors-detected"),
-    //             confirmButtonText: t("global.got-it"),
-    //             buttonsStyling: false,
-    //             customClass: {confirmButton: "btn btn-danger"}
-    //           })
-    //         })
-    //         .finally(() => {
-    //           button.value.removeAttribute("data-kt-indicator")
-    //           button.value.disabled = false
-    //           button.value.ariaDisabled = false
-    //         })
-    //     } else {
-    //       const errorMessages = Object.values(errors)
-    //         .flat()
-    //         .map((error) => error.message)
-    //       Swal.fire({
-    //         icon: "error",
-    //         title: t("global.errors-detected"),
-    //         html: errorMessages.join("<br>"),
-    //         confirmButtonText: t("global.got-it"),
-    //         buttonsStyling: false,
-    //         customClass: {confirmButton: "btn btn-danger"}
-    //       })
-
-    //       button.value.removeAttribute("data-kt-indicator")
-    //       button.value.disabled = false
-    //       button.value.ariaDisabled = false
-    //     }
-    //   })
-    // }
 
     onBeforeMount(() => {
       if (id) {
@@ -703,14 +751,13 @@ export default defineComponent({
       let categoriesPromise = null
       let levelsPromise = null
       let groupClassesPromise = null
-      const examPromise = null
       loading.value = true
 
       categoriesPromise = axiosClient.get(`/${["categories"].join("")}`).then((response) => {
         categories.value = response.data.result.data
       })
 
-      levelsPromise = axiosClient.get("/levels").then((responseLevels) => {
+      levelsPromise = axiosClient.get("/levels?exams=1").then((responseLevels) => {
         levels.value = responseLevels.data.result.data
       })
 
@@ -731,75 +778,81 @@ export default defineComponent({
               const {data: result} = response
 
               // Set basic exam details
-              const englishLang = result.data.langs.find((element) => element.language_id === 1)
+              const englishLang = result.data.langs_all?.find(
+                (element) => element.language_id === 1
+              )
               data.value.name = englishLang ? englishLang.title : ""
               data.value.level = result.data.level_id
               data.value.groupClass = result.data.group_class_id
+              data.value.duration_minutes = result.data.duration_minutes || 60
+              data.value.pass_percentage = result.data.pass_percentage || 70
 
-              // Populate titles for each language
-              data.value.title = {}
-              languages.forEach((language) => {
-                const langEntry = result.data.langs.find(
-                  (lang) => Number(language.id) === Number(lang.language_id)
+              // Populate exam translations for each language
+              data.value.examTitles = {}
+              data.value.examDescriptions = {}
+              data.value.examInstructions = {}
+              languages.forEach((languageItem) => {
+                const langEntry = result.data.langs_all?.find(
+                  (langItem) => Number(languageItem.id) === Number(langItem.language_id)
                 )
                 if (langEntry) {
-                  data.value.title[language.id] = langEntry.title
+                  data.value.examTitles[languageItem.id] = langEntry.title || ""
+                  data.value.examDescriptions[languageItem.id] = langEntry.description || ""
+                  data.value.examInstructions[languageItem.id] = langEntry.instructions || ""
                 }
               })
 
-              // Group questions by unique exam_id to avoid duplication
-              const groupedQuestions = result.data.langs.reduce((acc, question) => {
-                if (!acc[question.exam_id]) {
-                  acc[question.exam_id] = {
-                    id: question.exam_id,
-                    title: {[question.language_id]: question.title},
-                    answersTrue: {}, // Initialize language-specific true answers
-                    answers: []
-                  }
-                } else {
-                  // Add additional languages to the question title
-                  acc[question.exam_id].title[question.language_id] = question.title
+              // Convert questions from new API structure
+              data.value.questions = (result.data.questions || []).map((question) => {
+                const questionData = {
+                  id: question.id,
+                  type: question.type || "mcq",
+                  score: question.score || 10,
+                  titles: {},
+                  explanations: {},
+                  answers: [],
+                  correctAnswerId: null
                 }
 
-                return acc
-              }, {})
+                // Populate question titles and explanations for each language
+                languages.forEach((languageItem) => {
+                  const langEntry = question.langs_all?.find(
+                    (langItem) => Number(languageItem.id) === Number(langItem.language_id)
+                  )
+                  if (langEntry) {
+                    questionData.titles[languageItem.id] = langEntry.title || ""
+                    questionData.explanations[languageItem.id] = langEntry.explanation || ""
+                  }
+                })
 
-              // Convert groupedQuestions to an array and map through each question
-              data.value.questions = Object.values(groupedQuestions).map((questionFinal) => {
-                const questionAnswers = result.data.answers.filter(
-                  (answer) => answer.exam_id === questionFinal.id
-                )
-
-                questionFinal.answers = questionAnswers.map((answer) => {
-                  const answerFinal = {
+                // Convert answers
+                questionData.answers = (question.answers || []).map((answer) => {
+                  const answerData = {
                     id: answer.id,
-                    is_true: answer.is_true,
-                    title: {[answer.langs[0].language_id]: answer.langs[0].title},
-                    langs: answer.langs
+                    isCorrect: answer.is_correct,
+                    titles: {}
                   }
 
-                  // Set the correct answer ID for the respective language
-                  if (answer.is_true) {
-                    // Initialize answersTrue for each language if not already set
-                    answer.langs.forEach((answerLang) => {
-                      questionFinal.answersTrue[answerLang.language_id] = answer.id
-                    })
+                  // Set correct answer ID
+                  if (answer.is_correct) {
+                    questionData.correctAnswerId = answer.id
                   }
 
-                  // Add additional language titles for each answer
-                  languages.forEach((language) => {
-                    const answerLangEntry = answer.langs.find(
-                      (answerLang) => answerLang.language_id === language.id
+                  // Populate answer titles for each language
+                  languages.forEach((languageItem) => {
+                    const answerLangEntry = answer.langs_all?.find(
+                      (answerLangItem) =>
+                        Number(answerLangItem.language_id) === Number(languageItem.id)
                     )
                     if (answerLangEntry) {
-                      answerFinal.title[language.id] = answerLangEntry.title
+                      answerData.titles[languageItem.id] = answerLangEntry.title || ""
                     }
                   })
 
-                  return answerFinal
+                  return answerData
                 })
 
-                return questionFinal
+                return questionData
               })
 
               // Handle category selection
@@ -822,13 +875,11 @@ export default defineComponent({
               form.value.clearValidate()
               loading.value = false
             })
-            .catch((error) => {
-              console.error("Failed to fetch exam data:", error)
+            .catch(() => {
               loading.value = false
             })
         })
-        .catch((error) => {
-          console.error("Failed to load initial data:", error)
+        .catch(() => {
           loading.value = false
         })
     })

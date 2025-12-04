@@ -113,7 +113,28 @@
               @on-sort="onSort"
               @on-items-select="onItemsSelect">
               <template #title="{row: exam}">
-                {{ exam.langs.find((element) => element.language_id === 1)?.title }}
+                {{ exam.langs_all?.find((element) => element.language_id === 1)?.title || exam.langs_all?.[0]?.title }}
+              </template>
+              <template #group_class="{row: exam}">
+                {{ exam.group_class?.name || '-' }}
+              </template>
+              <template #level="{row: exam}">
+                {{ exam.level?.name || '-' }}
+              </template>
+              <template #category="{row: exam}">
+                {{ exam.category?.name || '-' }}
+              </template>
+              <template #questions_count="{row: exam}">
+                {{ exam.questions_count || 0 }}
+              </template>
+              <template #total_marks="{row: exam}">
+                {{ exam.total_marks || 0 }}
+              </template>
+              <template #duration_minutes="{row: exam}">
+                {{ exam.duration_minutes || '-' }}
+              </template>
+              <template #pass_percentage="{row: exam}">
+                {{ exam.pass_percentage || '-' }}%
               </template>
               <template #actions="{row: exam}">
                 <router-link
@@ -200,13 +221,55 @@ export default defineComponent({
         columnName: t("global.title"),
         columnLabel: "title",
         sortEnabled: true,
-        columnWidth: 175
+        columnWidth: 200
+      },
+      {
+        columnName: t("global.group-class"),
+        columnLabel: "group_class",
+        sortEnabled: true,
+        columnWidth: 150
+      },
+      {
+        columnName: t("global.level"),
+        columnLabel: "level",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
+        columnName: t("global.category"),
+        columnLabel: "category",
+        sortEnabled: true,
+        columnWidth: 120
+      },
+      {
+        columnName: t("global.questions-count"),
+        columnLabel: "questions_count",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
+        columnName: t("global.total-marks"),
+        columnLabel: "total_marks",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
+        columnName: t("global.duration-minutes"),
+        columnLabel: "duration_minutes",
+        sortEnabled: true,
+        columnWidth: 100
+      },
+      {
+        columnName: t("global.pass-percentage"),
+        columnLabel: "pass_percentage",
+        sortEnabled: true,
+        columnWidth: 100
       },
       {
         columnName: t("global.actions"),
         columnLabel: "actions",
         sortEnabled: false,
-        columnWidth: 175
+        columnWidth: 150
       }
     ])
 

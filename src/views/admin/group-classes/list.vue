@@ -138,6 +138,14 @@
                   t("global.active")
                 }}</span>
               </template>
+              <template v-if="userType === 0" #have_exams="{row: groupClass}">
+                <span v-if="groupClass.have_exams === 1" class="text-success">{{
+                  t("global.yes_have_exams")
+                }}</span>
+                <span v-else class="text-danger">{{
+                  t("global.no_have_exams")
+                }}</span>
+              </template>
               <template #tutors="{row: groupClass}">
                 <div v-if="groupClass.tutor">
                   <template v-if="userType === 0">
@@ -668,11 +676,17 @@ export default defineComponent({
         columnName: t("global.classes"),
         columnLabel: "classes",
         sortEnabled: true,
-        columnWidth: 175
+        columnWidth: 100
       },
       userType !== 2 && {
         columnName: t("global.status"),
         columnLabel: "status",
+        sortEnabled: true,
+        columnWidth: 80
+      },
+      userType !== 2 && {
+        columnName: t("global.have-exams"),
+        columnLabel: "have_exams",
         sortEnabled: true,
         columnWidth: 175
       },

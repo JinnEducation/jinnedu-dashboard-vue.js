@@ -196,6 +196,33 @@
                 </router-link>
               </div>
             </div>
+
+            <div class="card card-flush py-4">
+              <div class="card-header">
+                <div class="card-title">
+                  <h2 class="required">{{ t("global.language") }}</h2>
+                </div>
+              </div>
+              <div class="card-body pt-0">
+                <el-form-item prop="language">
+                  <el-select
+                    id="language-select"
+                    v-model="data.language"
+                    name="language-select"
+                    :placeholder="t('global.language')"
+                    :filterable="true"
+                    :clearable="true">
+                    <template v-if="languages.length > 0">
+                      <el-option
+                        v-for="item in languages"
+                        :key="item.id"
+                        :value="item.id"
+                        :label="item.name" />
+                    </template>
+                  </el-select>
+                </el-form-item>
+              </div>
+            </div>
           </div>
 
           <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
@@ -583,6 +610,7 @@ export default defineComponent({
       category: null,
       categoryChildren: null,
       level: null,
+      language: null,
       tutorId: null,
       minimumSize: 2,
       classesNumber: 3,
@@ -821,6 +849,7 @@ export default defineComponent({
               [["total", "classes", "length"].join("_")]: data.value.totalClassesLength,
               price: data.value.price,
               [["level", "id"].join("_")]: data.value.level,
+              [["language", "id"].join("_")]: data.value.language,
               classes: data.value.classesNumber,
               dates: createDates(data.value.dates),
               ...(id
@@ -1013,6 +1042,7 @@ export default defineComponent({
             data.value.approvement = result.status
             status.value.date = Date.now()
             data.value.level = result[["level", "id"].join("_")]
+            data.value.language = result[["language", "id"].join("_")]
             data.value.tutorId = result[["tutor", "id"].join("_")]
             data.value.minimumSize = result[["min", "size"].join("_")]
             data.value.classesLength = result[["class", "length"].join("_")]
@@ -1093,6 +1123,7 @@ export default defineComponent({
       categories,
       categoriesChildren,
       levels,
+      languages,
       tutors,
       API_PATH,
       SERVER_PATH,

@@ -59,7 +59,7 @@ export default defineComponent({
     const store = useStore()
     const profile = ref({})
     const signOut = function signOut() {
-      store.dispatch("signOut").finally(() => router.push({name: "auth"}))
+      store.dispatch("signOut").finally(() => router.push({name: "sign-in"}))
     }
 
     onBeforeMount(() => {

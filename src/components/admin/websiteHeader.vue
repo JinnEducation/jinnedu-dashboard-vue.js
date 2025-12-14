@@ -431,12 +431,15 @@
             </button>
             <ul>
               <li>
-                <a class="navbar-link" :href="`${baseUrl}${language}/`"> {{ $t("global.home") }}</a>
+                <a class="navbar-link" target="_blank" :href="`${baseUrl}/${language}/`"> {{ $t("global.home") }}</a>
               </li>
               <li>
-                <a class="navbar-link" :href="`${baseUrl}${language}/blog/`">
-                  {{ $t("global.blog") }}</a
-                >
+                <a class="navbar-link" target="_blank" :href="`${baseUrl}/${language}/`"> {{ $t("global.k-12") }}</a>
+              </li>
+              <li>
+                <a class="navbar-link" :href="`${baseUrl}/${language}/blog/`">
+                  {{ $t("global.blog") }}
+                </a>
               </li>
               <li ref="activeClassesRef" class="position-relative">
                 <button type="button" @click="toggleClasses">
@@ -459,16 +462,19 @@
                   class="navbar-links-custom"
                   :class="{active: isActiveClasses}">
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/online-group-classes/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/online-group-classes/`">
                       {{ $t("global.group-classes") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/tutors/`">
-                      {{ $t("global.tutors") }}</a
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/online_private_classes/`">
+                      {{ $t("global.private-lessons") }}</a
                     >
                   </li>
                 </ul>
+              </li>
+              <li>
+                <a class="navbar-link" target="_blank" :href="`${baseUrl}/${language}/`"> {{ $t("global.events") }}</a>
               </li>
               <li ref="helpRef" class="position-relative">
                 <button type="button" @click="toggleHelp">
@@ -491,13 +497,18 @@
                   class="navbar-links-custom"
                   :class="{active: isActiveHelp}">
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/help-for-students/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/help-for-students/`">
                       {{ $t("global.help-center") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/contact-us/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/contact-us/`">
                       {{ $t("global.contact-us") }}</a
+                    >
+                  </li>
+                  <li aria-hidden="true">
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/faq/`">
+                      {{ $t("global.faq") }}</a
                     >
                   </li>
                 </ul>
@@ -523,27 +534,27 @@
                   class="navbar-links-custom"
                   :class="{active: isActivePages}">
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/about-us/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/about-us/`">
                       {{ $t("global.about-us") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/How-JinnEdu-Works/`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/How-JinnEdu-Works/`">
                       {{ $t("global.how-jin-works") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/terms-of-use`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/terms-of-use`">
                       {{ $t("global.terms-of-use") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/Policy`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/Policy`">
                       {{ $t("global.privacy-policy") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}${language}/pages/contact-us`">
+                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/contact-us`">
                       {{ $t("global.contact-us") }}</a
                     >
                   </li>
@@ -968,7 +979,7 @@ export default defineComponent({
 
     const pagesRef = ref(null)
     const signOut = function signOut() {
-      store.dispatch("signOut").finally(() => router.push({name: "auth"}))
+      store.dispatch("signOut").finally(() => router.push({name: "sign-in"}))
     }
 
     const wallet = ref(null)

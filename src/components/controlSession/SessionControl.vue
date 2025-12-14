@@ -32,7 +32,7 @@ export default defineComponent({
       // Set new timers
       inactivityTimer = setTimeout(() => {
         store.dispatch("signOut", {reason: "inactivity"})
-        router.push({name: "auth"})
+        router.push({name: "sign-in"})
       }, SESSION_TIMEOUT)
 
       warningTimer = setTimeout(() => {

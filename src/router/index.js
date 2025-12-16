@@ -88,6 +88,9 @@ import CateqBlogADD from "@/views/admin/cateqblog/add.vue"
 // sliders
 import SlidersList from "@/views/admin/slider/list.vue"
 import SliderAdd from "@/views/admin/slider/add.vue"
+// discount_codes
+import DiscountCodesList from "@/views/admin/discount_codes/list.vue"
+import DiscountCodesAdd from "@/views/admin/discount_codes/add.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_APP_BASE_DIRECTORY),
@@ -363,6 +366,22 @@ const router = createRouter({
           path: "/dashboard/slider/update/:id",
           name: "slider-update",
           component: SliderAdd
+        },
+        // DiscountCodes
+        {
+          path: "/dashboard/discount_codes/index",
+          name: "discount_codes-list",
+          component: DiscountCodesList
+        },
+        {
+          path: "/dashboard/discount_codes/create",
+          name: "discount_codes-create",
+          component: DiscountCodesAdd
+        },
+        {
+          path: "/dashboard/discount_codes/update/:id",
+          name: "discount_codes-update",
+          component: DiscountCodesAdd
         },
         // EXAM ROUTES
         {

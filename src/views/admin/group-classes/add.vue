@@ -332,6 +332,7 @@
                     <el-input
                       id="group-class-name"
                       v-model="data.name"
+                      readonly
                       type="text"
                       name="group-class-name" />
                   </el-form-item>
@@ -620,12 +621,37 @@ export default defineComponent({
       dates: []
     })
 
+    // Create slug (English only) from the first title (language id = 1)
+    const slugify = (text) => {
+      if (!text) {
+        return null
+      }
+
+      return text
+        .toString()
+        .normalize("NFD") // remove accents
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-") // keep only english letters, numbers and dashes
+        .replace(/^-+|-+$/g, "") // trim starting/ending dashes
+    }
+
     // Watch status (status/data) changes and update them in data schema
     watch(
       () => [status.value.status, status.value.date],
       ([statusValue, dateValue]) => {
         data.value.status = statusValue
         data.value.date = dateValue
+      }
+    )
+
+    // Auto-generate `name` from the English title (language id = 1)
+    // and restrict it to English characters only (slug)
+    watch(
+      () => data.value.title[1],
+      (titleValue1) => {
+        data.value.name = slugify(titleValue1)
       }
     )
 

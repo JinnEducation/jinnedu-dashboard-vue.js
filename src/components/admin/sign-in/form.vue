@@ -81,7 +81,7 @@ export default defineComponent({
     const store = useStore()
     const user = { email: null, password: null, type: props.type }
     const elements = { form: ref(null), button: ref(null), formError: ref(null) }
-    const serverUrl = import.meta.env.VITE_APP_API_BASE_URL ?? "http://127.0.0.1:8000"
+    const serverUrl = import.meta.env.VITE_APP_SERVER_BASE_URL ?? "http://127.0.0.1:8000"
     let validator
 
     const handleFormSubmission = function handleFormSubmission() {
@@ -94,14 +94,13 @@ export default defineComponent({
           store
             .dispatch("signIn", user)
             .then((response) => {
-              console.log(response)
               if (response.token) {
                 window.open(
                   `${serverUrl}/bridge-login/${response.token}`,
                   "_blank"
                 )
                 setTimeout(() => {
-                  window.location.assign(window.location.origin)
+                  window.location.assign(window.location.origin + "/me/dashboard/index")
                 }, 1500)
               } else {
                 Swal.fire({

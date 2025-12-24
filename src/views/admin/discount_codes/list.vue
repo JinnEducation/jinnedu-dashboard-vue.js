@@ -332,7 +332,7 @@ export default defineComponent({
         .finally(() => {
           loading.value = false
         })
-      if (userType === 2) {
+      if (userType === 2 || userType === 0) {
         abilities.value.index = true
         abilities.value.create = true
         abilities.value.edit = true

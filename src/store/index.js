@@ -1,11 +1,13 @@
-import { createStore } from "vuex"
+import {createStore} from "vuex"
+import chat from "./modules/chat"
+import {initEcho} from "@/plugins/echo"
 import axiosClient from "../plugins/axios"
 const serverUrl = import.meta.env.VITE_APP_API_BASE_URL
 
 const store = createStore({
   state: {
     userInfo: localStorage.getItem("user"),
-    user: { token: localStorage.getItem("TOKEN") || null, data: {} },
+    user: {token: localStorage.getItem("TOKEN") || null, data: {}},
     language: localStorage.getItem("LANGUAGE") || null,
     language_id: localStorage.getItem("LANGUAGE_ID") || null,
     languages: JSON.parse(localStorage.getItem("LANGUAGES")) || null,
@@ -17,7 +19,8 @@ const store = createStore({
     inactivityTimer: null,
     warningTimer: null,
     sessionCheckInterval: null,
-    sessionWarningCountdown: 60
+    sessionWarningCountdown: 60,
+    echo: null
   },
   getters: {
     user(state) {
@@ -50,7 +53,7 @@ const store = createStore({
   },
   actions: {
     // Existing actions
-    setLanguage({ commit, state }, data) {
+    setLanguage({commit, state}, data) {
       if (typeof data === "string") commit("SET_LANGUAGE", data)
       else {
         const languages = Object.keys(state.languages).map((key) => state.languages[key].shortname)
@@ -63,7 +66,7 @@ const store = createStore({
       }
     },
 
-    setLanguageId({ commit, state }, data) {
+    setLanguageId({commit, state}, data) {
       if (typeof data === "string") {
         commit("SET_LANGUAGE_ID", data)
       } else if (Array.isArray(data)) {
@@ -76,14 +79,14 @@ const store = createStore({
       }
     },
 
-    async getAPILanguages({ commit }) {
+    async getAPILanguages({commit}) {
       return axiosClient.get("/locales/langs").then((response) => {
         commit("SET_LANGUAGES", response.data.data)
         return response.data.data
       })
     },
 
-    async getAPINavigation({ commit }) {
+    async getAPINavigation({commit}) {
       return axiosClient.get("/navigation").then((response) => {
         commit("SET_NAVIGATION", response.data)
         return response.data
@@ -96,7 +99,7 @@ const store = createStore({
       })
     },
 
-    async signUp({ commit }, data) {
+    async signUp({commit}, data) {
       try {
         const response = await axiosClient.post("/register", data)
         if (response.data.success) {
@@ -110,7 +113,7 @@ const store = createStore({
     },
 
     // Enhanced signIn with session control
-    async signIn({ commit, dispatch }, data) {
+    async signIn({commit, dispatch}, data) {
       try {
         const response = await axiosClient.post("/login", data)
         if (response.data.success) {
@@ -132,7 +135,7 @@ const store = createStore({
       }
     },
 
-    async signInWithGoogle({ commit }, data) {
+    async signInWithGoogle({commit}, data) {
       return axiosClient.post("/social_login", data).then((response) => {
         if (response.data.success) {
           commit("SET_USER", response.data.result)
@@ -143,7 +146,7 @@ const store = createStore({
     },
 
     // Enhanced signOut with session cleanup
-    async signOut({ commit, state }, { reason } = {}) {
+    async signOut({commit, state}, {reason} = {}) {
       try {
         await axiosClient.post("/logout")
 
@@ -156,13 +159,13 @@ const store = createStore({
 
         // Return different messages based on logout reason
         if (reason === "inactivity") {
-          return { message: "You have been automatically logged out due to inactivity." }
+          return {message: "You have been automatically logged out due to inactivity."}
         }
         if (reason === "concurrent") {
-          return { message: "You have been logged out because your account is active elsewhere." }
+          return {message: "You have been logged out because your account is active elsewhere."}
         }
         window.location.reload()
-        return { message: "You have been successfully logged out." }
+        return {message: "You have been successfully logged out."}
       } catch (error) {
         if (error.response?.data?.message === "Unauthenticated.") {
           commit("UN_SET_USER")
@@ -171,7 +174,7 @@ const store = createStore({
       }
     },
 
-    async fetchWallet({ commit }) {
+    async fetchWallet({commit}) {
       return axiosClient
         .get(`${serverUrl}/wallet/balance`)
         .then((response) => {
@@ -198,18 +201,18 @@ const store = createStore({
       })
     },
 
-    unsetUser({ commit }) {
+    unsetUser({commit}) {
       commit("UN_SET_USER")
     },
 
     // Session control actions
-    async checkConcurrentSessions({ commit, getters, dispatch }) {
+    async checkConcurrentSessions({commit, getters, dispatch}) {
       if (!getters.isSuperAdmin) return
 
       try {
         const response = await axiosClient.get("/api/session/check")
         if (response.data.hasActiveSessionElsewhere) {
-          await dispatch("signOut", { reason: "concurrent" })
+          await dispatch("signOut", {reason: "concurrent"})
           throw new Error("You have been logged out because your account is active elsewhere.")
         }
       } catch (error) {
@@ -218,7 +221,7 @@ const store = createStore({
       }
     },
 
-    initSessionTracking({ commit, dispatch, state, getters }) {
+    initSessionTracking({commit, dispatch, state, getters}) {
       // Clear any existing timers
       if (state.inactivityTimer) clearTimeout(state.inactivityTimer)
       if (state.warningTimer) clearTimeout(state.warningTimer)
@@ -238,7 +241,7 @@ const store = createStore({
       dispatch("resetInactivityTimer")
     },
 
-    resetInactivityTimer({ commit, state }) {
+    resetInactivityTimer({commit, state}) {
       // Clear existing timers
       if (state.inactivityTimer) clearTimeout(state.inactivityTimer)
       if (state.warningTimer) clearTimeout(state.warningTimer)
@@ -261,22 +264,28 @@ const store = createStore({
 
       // Set logout at 15 minutes
       state.inactivityTimer = setTimeout(() => {
-        this.dispatch("signOut", { reason: "inactivity" })
+        this.dispatch("signOut", {reason: "inactivity"})
       }, 15 * 60 * 1000)
 
       // Update last activity
       commit("UPDATE_LAST_ACTIVITY")
     },
 
-    recordUserActivity({ commit, dispatch }) {
+    recordUserActivity({commit, dispatch}) {
       commit("UPDATE_LAST_ACTIVITY")
       dispatch("resetInactivityTimer")
     },
 
-    extendSession({ commit, dispatch }) {
+    extendSession({commit, dispatch}) {
       commit("SET_SESSION_WARNING", false)
       commit("SET_SESSION_WARNING_COUNTDOWN", 60)
       dispatch("resetInactivityTimer")
+    },
+    initEcho({commit, rootState}) {
+      const token = rootState.user.token
+      const echo = initEcho(token)
+
+      commit("SET_ECHO", echo)
     }
   },
   mutations: {
@@ -338,7 +347,14 @@ const store = createStore({
 
     DECREMENT_SESSION_WARNING_COUNTDOWN(state) {
       state.sessionWarningCountdown--
+    },
+    SET_ECHO(state, echo) {
+      state.echo = echo
+      window.Echo = echo // 🔴 هذا السطر هو المفتاح
     }
+  },
+  modules: {
+    chat
   }
 })
 

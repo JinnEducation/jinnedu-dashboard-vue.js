@@ -11,6 +11,8 @@ import Store from "./store"
 import "./assets/css/plugins.css"
 import "./assets/css/style1.css" // Default style
 
+import "@/plugins/echo"
+
 const application = createApp(App)
 application.config.warnHandler = () => null
 

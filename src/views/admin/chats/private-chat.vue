@@ -321,6 +321,7 @@ export default defineComponent({
     const newChatUsers = ref([])
     const newChatSearch = ref("")
 
+    const blockedWords = ref([])
     // Echo
     const echo = window.Echo
     const currentRoom = ref(null)
@@ -396,17 +397,11 @@ export default defineComponent({
         .private(`chat.${roomId(myId, contactId)}`)
         .listen(".message.sent", (e) => {
           const msg = e?.message ?? e
-          console.log("MESSAGE RECEIVED SUBSCRIBED", msg)
-          console.log("MESSAGE RECEIVED e", e)
           if (!msg) return
-          console.log("MSG IS NOT NULL")
           const myId = authUserId()
           const fromId = Number(e.from_user ?? 0)
           const toId = Number(e.to_user ?? 0)
-          console.log("FROM ID", fromId)
-          console.log("TO ID", toId)
           const otherId = fromId === myId ? toId : fromId
-          console.log("OTHER ID", otherId)
           if (!otherId) return
 
           const msgRoom = roomId(myId, otherId)
@@ -414,7 +409,6 @@ export default defineComponent({
           const isCurrent =
             Number(userPrivateChatReminderContact.value) === Number(otherId) &&
             String(currentRoom.value) === String(msgRoom)
-          console.log("IS CURRENT", isCurrent)
           // تحديث القائمة الجانبية دائمًا
           updateSidebarLocal(otherId, e.message, e.created_at, !isCurrent)
 
@@ -426,7 +420,6 @@ export default defineComponent({
                 ...e,
                 direction: fromId === myId ? "end" : "start"
               })
-              console.log("USER PRIVATE CHAT MESSAGES", userPrivateChatMessages.value)
             }
 
             scrollToBottom()
@@ -437,64 +430,15 @@ export default defineComponent({
           }
         })
         .listen(".typing.updated", (e) => {
-          console.log("TYPING RECEIVED SUBSCRIBED", e)
           const fromId = Number(e.from_user ?? 0)
           const idx = usersPrivateChats.value.findIndex((u) => Number(u.contact_id) === fromId)
           if (idx !== -1) usersPrivateChats.value[idx].status = Number(e.status) === 1 ? 1 : 0
         })
         .listen(".messages.seen", (e) => {
-          console.log("SEEN RECEIVED SUBSCRIBED", e)
           const byId = Number(e.by_user ?? 0)
           const idx = usersPrivateChats.value.findIndex((u) => Number(u.contact_id) === byId)
           if (idx !== -1) usersPrivateChats.value[idx].unseen = 0
         })
-      // currentChannel = window.Echo
-      //   .private(`chat.${roomId(myId, contactId)}`)
-      //   .listen(".message.sent", (e) => {
-      //     const msg = e?.message ?? e
-      //     if (!msg) return
-      //     console.log("MESSAGE RECEIVED SUBSCRIBED", msg)
-
-      //     const fromId = Number(msg.from_user ?? msg.from_user_id ?? 0)
-      //     const toId = Number(msg.to_user ?? msg.to_user_id ?? 0)
-
-      //     // ignore my own broadcasts (because we already added optimistic)
-      //     if (fromId === myId) return
-
-      //     const otherId = fromId // sender is the other user
-
-      //     // update sidebar + unseen if not currently open
-      //     const isCurrent = Number(userPrivateChatReminderContact.value) === Number(otherId)
-      //     updateSidebarLocal(otherId, msg.message, msg.created_at, !isCurrent)
-
-      //     // if current chat open => append
-      //     if (isCurrent) {
-      //       userPrivateChatMessages.value.push({
-      //         ...msg,
-      //         direction: Number(msg.from_user) === myId ? "end" : "start"
-      //       })
-      //       scrollToBottom()
-      //       markSeen(otherId)
-
-      //       if (userPrivateChatMessageAudio.value) {
-      //         try {
-      //           userPrivateChatMessageAudio.value.play()
-      //         } catch (_) { }
-      //       }
-      //     }
-      //   })
-      //   .listen(".typing.updated", (e) => {
-      //     console.log("TYPING RECEIVED SUBSCRIBED", e)
-      //     const fromId = Number(e.from_user ?? 0)
-      //     const idx = usersPrivateChats.value.findIndex((u) => Number(u.contact_id) === fromId)
-      //     if (idx !== -1) usersPrivateChats.value[idx].status = Number(e.status) === 1 ? 1 : 0
-      //   })
-      //   .listen(".messages.seen", (e) => {
-      //     console.log("SEEN RECEIVED SUBSCRIBED", e)
-      //     const byId = Number(e.by_user ?? 0)
-      //     const idx = usersPrivateChats.value.findIndex((u) => Number(u.contact_id) === byId)
-      //     if (idx !== -1) usersPrivateChats.value[idx].unseen = 0
-      //   })
     }
     // ========= API =========
     const getUsersPrivateChats = async (queryString = "") => {
@@ -598,11 +542,52 @@ export default defineComponent({
       scrollToBottom()
     }
 
+    const loadBlockedWords = async () => {
+      try {
+        const res = await axiosClient.get('/chat/blocked-words')
+        blockedWords.value = (res.data || []).map(w => w.toLowerCase())
+      } catch (e) {
+        blockedWords.value = []
+      }
+    }
+
+    const validateChatMessage = (text) => {
+      const msg = text.toLowerCase()
+
+      // 1️⃣ منع الروابط
+      if (/https?:\/\/|www\./i.test(msg)) {
+        return "Links are not allowed"
+      }
+
+      // 2️⃣ منع أرقام التواصل (7 أرقام أو أكثر)
+      if (/\b\d{7,}\b/.test(msg)) {
+        return "Phone numbers are not allowed"
+      }
+
+      // 3️⃣ منع الكلمات من DB
+      for (const word of blockedWords.value) {
+        if (word && msg.includes(word)) {
+          return "This message contains forbidden words"
+        }
+      }
+
+      return null // مسموح
+    }
+
+
     // ========= Send message =========
     const sendUserPrivateChatMessage = async () => {
       if (!userPrivateChat.value) return
       const text = (userPrivateChatMessage.value || "").trim()
       if (!text) return
+
+      const validationError = validateChatMessage(text)
+      if (validationError) {
+        errorMessage.value = validationError
+        setTimeout(() => (errorMessage.value = null), 2000)
+        return
+      }
+      
       loadingSendMessage.value = true
       const toId = Number(userPrivateChat.value.id)
       const myId = authUserId()
@@ -702,6 +687,8 @@ export default defineComponent({
     onMounted(async () => {
       initEcho(store.state.user.token)
 
+      loadBlockedWords()
+
       // audio (keep, but your file path currently 404 — this doesn't break chat)
       try {
         userPrivateChatMessageAudio.value = new Audio("/src/assets/media/mp3/text-message-notification.mp3")
@@ -717,20 +704,6 @@ export default defineComponent({
         console.warn("Echo not found")
         return
       }
-
-      // window.Echo
-      //   .private(`chat.${roomId(1, 4)}`)
-      //   .listen(".message.sent", (e) => {
-      //     console.log("MESSAGE RECEIVED 🔥", e)
-      //   })
-      //   .listen(".typing.updated", (e) => {
-      //     console.log("TYPING RECEIVED ✍️", e)
-      //   })
-      //   .listen(".messages.seen", (e) => {
-      //     console.log("SEEN RECEIVED 👁️", e)
-      //   });
-
-      console.log("Echo listener attached")
     })
 
     onBeforeUnmount(() => {

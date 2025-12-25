@@ -91,6 +91,9 @@ import SliderAdd from "@/views/admin/slider/add.vue"
 // discount_codes
 import DiscountCodesList from "@/views/admin/discount_codes/list.vue"
 import DiscountCodesAdd from "@/views/admin/discount_codes/add.vue"
+// discount_codes
+import ChatBlockedWordsList from "@/views/admin/chat_blocked_words/list.vue"
+import ChatBlockedWordsAdd from "@/views/admin/chat_blocked_words/add.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_APP_BASE_DIRECTORY),
@@ -382,6 +385,22 @@ const router = createRouter({
           path: "/dashboard/discount_codes/update/:id",
           name: "discount_codes-update",
           component: DiscountCodesAdd
+        },
+        // chat_blocked_words
+        {
+          path: "/dashboard/chat_blocked_words/index",
+          name: "chat_blocked_words-list",
+          component: ChatBlockedWordsList
+        },
+        {
+          path: "/dashboard/chat_blocked_words/create",
+          name: "chat_blocked_words-create",
+          component: ChatBlockedWordsAdd
+        },
+        {
+          path: "/dashboard/chat_blocked_words/update/:id",
+          name: "chat_blocked_words-update",
+          component: ChatBlockedWordsAdd
         },
         // EXAM ROUTES
         {

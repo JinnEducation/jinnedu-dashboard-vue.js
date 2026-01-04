@@ -35,8 +35,8 @@ import PaymentTransactionsList from "@/views/admin/paymentTransactions/list.vue"
 import GroupClassList from "@/views/admin/group-classes/list.vue"
 import LabelsList from "@/views/admin/labels/list.vue"
 import LanguagesList from "@/views/admin/languages/list.vue"
-import OurCourseList from "@/views/admin/courses/list.vue"
-import TutorOurCourse from "@/views/admin/courses/tutor-index.vue"
+import CourseList from "@/views/admin/courses/list.vue"
+// import TutorOurCourse from "@/views/admin/courses/tutor-index.vue"
 import RolesList from "@/views/admin/roles/list.vue"
 import SectionList from "@/views/admin/sections/list.vue"
 import TranslationsList from "@/views/admin/translations/list.vue"
@@ -61,7 +61,7 @@ import MyOrders from "@/views/admin/orders/my-list.vue"
 import ContentAdd from "@/views/admin/contents/add.vue"
 import ExamAdd from "@/views/admin/exams/add.vue"
 import GroupClassAdd from "@/views/admin/group-classes/add.vue"
-import OurCourseADD from "@/views/admin/courses/add.vue"
+import CourseADD from "@/views/admin/courses/add.vue"
 import RoleAdd from "@/views/admin/roles/add.vue"
 import SectionAdd from "@/views/admin/sections/add.vue"
 import payoutAdd from "@/views/admin/payout/add.vue"
@@ -303,24 +303,24 @@ const router = createRouter({
           component: GroupClassAdd
         },
         {
-          path: "/dashboard/our-courses/index",
+          path: "/dashboard/courses/index",
           name: "private-course-list",
-          component: OurCourseList
+          component: CourseList
         },
+        // {
+        //   path: "/dashboard/courses/tutor-index",
+        //   name: "tutor-private-course",
+        //   component: TutorOurCourse
+        // },
         {
-          path: "/dashboard/our-courses/tutor-index",
-          name: "tutor-private-course",
-          component: TutorOurCourse
-        },
-        {
-          path: "/dashboard/our-courses/create",
+          path: "/dashboard/courses/create",
           name: "private-course-create",
-          component: OurCourseADD
+          component: CourseADD
         },
         {
-          path: "/dashboard/our-courses/update/:id",
+          path: "/dashboard/courses/update/:id",
           name: "private-course-update",
-          component: OurCourseADD
+          component: CourseADD
         },
         // blog
         {

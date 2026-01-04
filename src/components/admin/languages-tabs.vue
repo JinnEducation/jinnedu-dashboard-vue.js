@@ -1,10 +1,10 @@
 <!-- Done Reviewing -->
 <template>
   <ul
-    class="nav nav-custom nav-tabs nav-line-tabs nav-line-tabs-2x border-0 fs-4 fw-semibold mb-n2">
+    class="nav nav-custom nav-tabs nav-line-tabs nav-line-tabs-2x border-0 fs-4 fw-semibold mb-3">
     <li v-for="language in languages" :key="language.name" class="nav-item">
       <a
-        :href="`#language-${language.id}-${language.name}-tab`"
+        :href="`#${instanceId}-language-${language.id}-${language.name}-tab`"
         :data-bs-toggle="`tab`"
         :class="{active: language.name === languages[0].name}"
         class="nav-link text-active-primary pb-4">
@@ -15,7 +15,7 @@
   <div class="tab-content">
     <div
       v-for="(language, index) in languages"
-      :id="`language-${language.id}-${language.name}-tab`"
+      :id="`${instanceId}-language-${language.id}-${language.name}-tab`"
       :key="language.id"
       :role="['tab', 'panel'].join('')"
       :class="{'show active': language.name === languages[0].name}"
@@ -40,7 +40,12 @@ import {useStore} from "vuex"
 
 export default defineComponent({
   name: "add-languages-tabs",
-  props: {},
+  props: {
+    instanceId: {
+      type: String,
+      default: () => `lang-tabs-${Math.random().toString(36).substr(2, 9)}`
+    }
+  },
   setup() {
     const store = useStore()
     const languages = computed(() => store.state.languages)

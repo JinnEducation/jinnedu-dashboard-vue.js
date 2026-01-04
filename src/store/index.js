@@ -262,10 +262,10 @@ const store = createStore({
         }, 1000)
       }, 14 * 60 * 1000)
 
-      // Set logout at 15 minutes
+      // Set logout at 30 minutes
       state.inactivityTimer = setTimeout(() => {
         this.dispatch("signOut", {reason: "inactivity"})
-      }, 15 * 60 * 1000)
+      }, 30 * 60 * 1000)
 
       // Update last activity
       commit("UPDATE_LAST_ACTIVITY")
@@ -350,7 +350,7 @@ const store = createStore({
     },
     SET_ECHO(state, echo) {
       state.echo = echo
-      window.Echo = echo // 🔴 هذا السطر هو المفتاح
+      window.Echo = echo
     }
   },
   modules: {

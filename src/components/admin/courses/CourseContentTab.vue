@@ -324,13 +324,15 @@ export default defineComponent({
             type: item.type,
             is_free_preview: item.is_free_preview ? 1 : 0,
             duration_seconds: item.duration_seconds,
-
-            title: item.title || {},
-            description: item.description || {},
-
             content_source: item.content_source,
+            langs: languages.value.map((lang) => ({
+              lang: lang.shortname,
+              title: item.title?.[lang.id] || item.title?.[lang.shortname] || "",
+              description: item.description?.[lang.id] || item.description?.[lang.shortname] || null
+            })),
             zoom_start_at: item.zoom_start_at,
-            external_video_url: item.external_video_url
+            external_video_url: item.external_video_url,
+            instructor_id: props?.data?.instructor_id || null
           })
 
           const it = res.data.data || res.data.result?.data
@@ -340,22 +342,43 @@ export default defineComponent({
           item._isNew = false
         } else {
           // UPDATE
-          await axiosClient.put(`/admin/items/${item.id}`, {
+          await axiosClient.post(`/admin/items/${item.id}`, {
             section_id: item.section_id,
             type: item.type,
             is_free_preview: item.is_free_preview ? 1 : 0,
             duration_seconds: item.duration_seconds,
-
-            title: item.title || {},
-            description: item.description || {},
-
             content_source: item.content_source,
+
+            langs: languages.value.map((lang) => ({
+              lang: lang.shortname,
+              title: item.title?.[lang.id] || item.title?.[lang.shortname] || "",
+              description: item.description?.[lang.id] || item.description?.[lang.shortname] || null
+            })),
+
             zoom_start_at: item.zoom_start_at,
-            external_video_url: item.external_video_url
+            external_video_url: item.external_video_url,
+            instructor_id: props?.data?.instructor_id || null,
+            _method: "PUT"
           })
         }
 
+        Swal.fire({
+          icon: "success",
+          text: t("global.saved-successfully"),
+          confirmButtonText: t("global.got-it"),
+          buttonsStyling: false,
+          customClass: {confirmButton: "btn btn-primary"}
+        })
         await sortItems()
+      } catch (e) {
+        console.log(e)
+        Swal.fire({
+          icon: "error",
+          text: e.response?.data?.message || t("global.error-saving"),
+          confirmButtonText: t("global.got-it"),
+          buttonsStyling: false,
+          customClass: {confirmButton: "btn btn-danger"}
+        })
       } finally {
         item._saving = false
       }

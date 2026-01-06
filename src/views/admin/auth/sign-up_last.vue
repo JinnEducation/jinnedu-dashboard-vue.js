@@ -16,7 +16,7 @@
         </div>
         <div class="d-flex flex-center flex-wrap px-5 py-10">
           <div class="d-flex fw-normal">
-            <a v-if="!isProfile" href="https://jinntest.jinnedu.com" class="text-white px-5">{{
+            <a v-if="!isProfile" href="https://learning.jinnedu.com" class="text-white px-5">{{
               t("global.home")
             }}</a>
             <router-link v-if="!isProfile" to="/auth/sign-in" class="text-white px-5">
@@ -25,7 +25,7 @@
             <router-link v-if="isProfile" to="/dashboard/index" class="text-white px-5">
               {{ t("global.dashboard") }}
             </router-link>
-            <a href="https://jinntest.jinnedu.com/coming-soon" class="text-white px-5">
+            <a href="https://learning.jinnedu.com/coming-soon" class="text-white px-5">
               {{ t("global.contact-us") }}
             </a>
           </div>
@@ -1017,7 +1017,7 @@ export default defineComponent({
       if (isProfile) {
         // router.push({name: "index"})
       } else {
-        // window.location.assign("https://jinntest.jinnedu.com")
+        // window.location.assign("https://learning.jinnedu.com")
       }
     }
 
@@ -1033,7 +1033,7 @@ export default defineComponent({
         if (isProfile) {
           // router.push({name: "index"})
         } else {
-          // window.location.assign("https://jinntest.jinnedu.com")
+          // window.location.assign("https://learning.jinnedu.com")
         }
       })
     }
@@ -1694,8 +1694,8 @@ export default defineComponent({
 
             data.value.accountType = Number(user.type) === 2 ? "tutor" : "student"
             data.value.avatar = user.avatar
-              ? `https://jinntest.jinnedu.com/server/${user.avatar}`
-              : "https://jinntest.jinnedu.com/server/static/default_avatar.webp" // Replace "path/to/dummy/image.jpg" with the actual path to your dummy image
+              ? `https://learning.jinnedu.com/${user.avatar}`
+              : "https://learning.jinnedu.com/static/default_avatar.webp" // Replace "path/to/dummy/image.jpg" with the actual path to your dummy image
 
             data.value.email = user.email
 

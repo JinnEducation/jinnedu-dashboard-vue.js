@@ -640,7 +640,7 @@
                             <li>
                               <button type="button">
                                 <img
-                                  src="https://jinntest.jinnedu.com/server/images/webp-169445588564ff584d307ad.webp"
+                                  src="https://learning.jinnedu.com/images/webp-169445588564ff584d307ad.webp"
                                   alt="Image" />
                                 <div>
                                   <h3>Ahmed Test</h3>
@@ -651,7 +651,7 @@
                             <li>
                               <button type="button">
                                 <img
-                                  src="https://jinntest.jinnedu.com/server/images/webp-169445588564ff584d307ad.webp"
+                                  src="https://learning.jinnedu.com/images/webp-169445588564ff584d307ad.webp"
                                   alt="Image" />
                                 <div>
                                   <h3>Ahmed Test</h3>
@@ -662,7 +662,7 @@
                             <li>
                               <button type="button">
                                 <img
-                                  src="https://jinntest.jinnedu.com/server/images/webp-169445588564ff584d307ad.webp"
+                                  src="https://learning.jinnedu.com/images/webp-169445588564ff584d307ad.webp"
                                   alt="Image" />
                                 <div>
                                   <h3>Ahmed Test</h3>
@@ -673,7 +673,7 @@
                             <li>
                               <button type="button">
                                 <img
-                                  src="https://jinntest.jinnedu.com/server/images/webp-169445588564ff584d307ad.webp"
+                                  src="https://learning.jinnedu.com/images/webp-169445588564ff584d307ad.webp"
                                   alt="Image" />
                                 <div>
                                   <h3>Ahmed Test</h3>

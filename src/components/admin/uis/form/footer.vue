@@ -28,7 +28,7 @@
         @set-language="setLanguage(item.shortname)" />
     </div>
     <a
-      href="https://jinntest.jinnedu.com/"
+      href="https://learning.jinnedu.com/"
       target="blank"
       class="btn btn-outline d-flex align-items-center btn-outline-dashed btn-outline-primary btn-active-light-primary ms-5">
       <span class="svg-icon svg-icon-2 me-3">

@@ -411,7 +411,7 @@
                     <label class="form-check-label" for="agree-terms">
                       {{ t("global.agree-terms") }}
                       <a
-                        href="https://jinntest.jinnedu.com/terms-of-use/"
+                        href="https://learning.jinnedu.com/terms-of-use/"
                         target="_blank"
                         class="text-primary fs-6 fw-bold">
                         {{ t("global.terms-and-conditions") }}
@@ -885,7 +885,7 @@
                     <label class="form-check-label" for="agree-terms">
                       {{ t("global.agree-terms") }}
                       <a
-                        href="https://jinntest.jinnedu.com/terms-of-use/"
+                        href="https://learning.jinnedu.com/terms-of-use/"
                         target="_blank"
                         class="text-primary fs-6 fw-bold">
                         {{ t("global.terms-and-conditions") }}
@@ -1016,7 +1016,7 @@
               <p class="fs-6 text-black" style="margin-top: 65px">
                 &copy; {{ new Date().getFullYear() - 1 }} - {{ new Date().getFullYear() }}
                 {{ t("global.jin-edu") }}. {{ t("global.all-rights-reserved") }}. |
-                <a href="https://jinntest.jinnedu.com/policy/" target="_blank">
+                <a href="https://learning.jinnedu.com/policy/" target="_blank">
                   {{ t("global.policy") }}
                 </a>
               </p>
@@ -1051,6 +1051,7 @@ export default defineComponent({
     const store = useStore()
     const isProfile = route.path === "/profile"
     const {token} = store.state.user
+    const serverUrl = import.meta.env.VITE_APP_BASE_URL
 
     const loading = ref(false)
     const avatarSelected = ref(false)
@@ -1458,7 +1459,7 @@ export default defineComponent({
                                         Promise.allSettled([videoPromise])
                                           .then(() => {
                                             //   if (isProfile) router.push({name: "index"})
-                                            //   else window.location.assign("https://jinntest.jinnedu.com")
+                                            //   else window.location.assign("https://learning.jinnedu.com")
                                             handleSuccessfulSubmission()
                                           })
                                           .catch(() => {
@@ -1472,7 +1473,7 @@ export default defineComponent({
                                               if (isProfile) router.push({name: "index"})
                                               else
                                                 window.location.assign(
-                                                  "https://jinntest.jinnedu.com"
+                                                  "https://learning.jinnedu.com"
                                                 )
                                             })
                                           })
@@ -1500,7 +1501,7 @@ export default defineComponent({
                                         }).then(() => {
                                           if (isProfile) router.push({name: "index"})
                                           else
-                                            window.location.assign("https://jinntest.jinnedu.com")
+                                            window.location.assign("https://learning.jinnedu.com")
                                         })
                                       })
                                   })
@@ -1513,7 +1514,7 @@ export default defineComponent({
                                       customClass: {confirmButton: "btn btn-danger"}
                                     }).then(() => {
                                       if (isProfile) router.push({name: "index"})
-                                      else window.location.assign("https://jinntest.jinnedu.com")
+                                      else window.location.assign("https://learning.jinnedu.com")
                                     })
                                   })
                               })
@@ -1526,7 +1527,7 @@ export default defineComponent({
                                   customClass: {confirmButton: "btn btn-danger"}
                                 }).then(() => {
                                   if (isProfile) router.push({name: "index"})
-                                  else window.location.assign("https://jinntest.jinnedu.com")
+                                  else window.location.assign("https://learning.jinnedu.com")
                                 })
                               })
                           })
@@ -1539,7 +1540,7 @@ export default defineComponent({
                               customClass: {confirmButton: "btn btn-danger"}
                             }).then(() => {
                               //         if (isProfile) router.push({name: "index"})
-                              //         else window.location.assign("https://jinntest.jinnedu.com")
+                              //         else window.location.assign("https://learning.jinnedu.com")
                             })
                           })
                       })
@@ -1552,11 +1553,11 @@ export default defineComponent({
                           customClass: {confirmButton: "btn btn-danger"}
                         }).then(() => {
                           if (isProfile) router.push({name: "index"})
-                          else window.location.assign("https://jinntest.jinnedu.com")
+                          else window.location.assign("https://learning.jinnedu.com")
                         })
                       })
                   } else if (isProfile) router.push({name: "index"})
-                  else window.location.assign("https://jinntest.jinnedu.com")
+                  else window.location.assign("https://learning.jinnedu.com")
                 })
               }
               window.location.reload()
@@ -1940,16 +1941,20 @@ export default defineComponent({
 
     const getCountryData = async () => {
       try {
-        const response = await axios.get(
-          "https://jinntest.jinnedu.com/server/api/front/constants/countries"
-        )
+        const response = await axios.get(`${serverUrl}/api/front/constants/countries`, {
+          params: {
+            limit: 500
+          }
+        })
+
+        console.log(response)
         countries.value = response.data.result.data.map((country) => ({
           id: country.id,
           name: country.name,
           code: country.iso,
           dialCode: country.phonecode,
-          phoneLength: country.phone_length, // Fetch the phone length from API
-          flag: `https://flagcdn.com/w40/${country.iso.toLowerCase()}.png`
+          phoneLength: country.phone_length ? Number(country.phone_length) : null,
+          flag: `https://flagcdn.com/w40/${country.iso?.toLowerCase() ?? ""}.png`
         }))
 
         if (countries.value.length > 0) {
@@ -1966,14 +1971,26 @@ export default defineComponent({
       const selectedCountry = countries.value.find(
         (country) => country.dialCode === data.value.countryCode
       )
-      if (selectedCountry) {
-        const expectedLength = selectedCountry.phoneLength
 
-        if (data.value.phoneNumber.length != expectedLength) {
-          phoneError.value = `Phone number must be exactly ${expectedLength} digits long.`
-        } else {
-          phoneError.value = ""
-        }
+      // لا دولة / لا رقم → لا فحص
+      if (!selectedCountry || !data.value.phoneNumber) {
+        phoneError.value = ""
+        return
+      }
+
+      // لو API ما رجّع phone_length → لا نعمل validation
+      if (!selectedCountry.phoneLength) {
+        phoneError.value = ""
+        return
+      }
+
+      const phone = String(data.value.phoneNumber).trim()
+      const expectedLength = Number(selectedCountry.phoneLength)
+
+      if (phone.length !== expectedLength) {
+        phoneError.value = `Phone number must be exactly ${expectedLength} digits long.`
+      } else {
+        phoneError.value = ""
       }
     }
 
@@ -2037,8 +2054,8 @@ export default defineComponent({
             const user = profileResponse.data.result
             data.value.accountType = Number(user.type) === 2 ? "tutor" : "student"
             data.value.avatar = user.avatar
-              ? `https://jinntest.jinnedu.com/server/${user.avatar}`
-              : "https://jinntest.jinnedu.com/server/static/default_avatar.webp"
+              ? `${serverUrl}/storage/${user.avatar}`
+              : `${serverUrl}/static/default_avatar.webp`
             data.value.firstName = user.abouts[0].first_name
             data.value.lastName = user.abouts[0].last_name
             data.value.email = user.email
@@ -2434,6 +2451,7 @@ export default defineComponent({
       loginWithGoogle,
       validatePhone,
       phoneError,
+      serverUrl,
       updateCountry
     }
   }

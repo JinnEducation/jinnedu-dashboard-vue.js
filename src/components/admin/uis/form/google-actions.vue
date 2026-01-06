@@ -64,7 +64,7 @@ export default defineComponent({
 
         // // Send POST request to the endpoint
         // const response = await axios.post(
-        //   "https://jinntest.jinnedu.com/server/api/social_login",
+        //   "https://learning.jinnedu.com/api/social_login",
         //   postData
         // )
 

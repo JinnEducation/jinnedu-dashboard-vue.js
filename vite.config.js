@@ -17,9 +17,9 @@ export default defineConfig({
   //   VITE_APP_FULL_NAME: JSON.stringify("JINN Education"),
   //   VITE_APP_VERSION: JSON.stringify("1.0.0"),
   //   VITE_APP_BASE_DIRECTORY: JSON.stringify("/me"),
-  //   VITE_APP_BASE_URL: JSON.stringify("https://jinntest.jinnedu.com/"), // Assuming you use the default Vite development port
-  //   VITE_APP_SERVER_BASE_URL: JSON.stringify("https://jinntest.jinnedu.com/"), // Change the port as per your local server configuration
-  //   VITE_APP_API_BASE_URL: JSON.stringify("https://jinntest.jinnedu.com/api") // Change the port and path as per your local server configuration
+  //   VITE_APP_BASE_URL: JSON.stringify("https://learning.jinnedu.com/"), // Assuming you use the default Vite development port
+  //   VITE_APP_SERVER_BASE_URL: JSON.stringify("https://learning.jinnedu.com/"), // Change the port as per your local server configuration
+  //   VITE_APP_API_BASE_URL: JSON.stringify("https://learning.jinnedu.com/api") // Change the port and path as per your local server configuration
   // },
   css: {
     postcss: {

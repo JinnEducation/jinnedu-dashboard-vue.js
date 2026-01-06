@@ -6,7 +6,7 @@
       data-kt-menu-attach="parent"
       data-kt-menu-placement="bottom-end"
       class="cursor-pointer symbol symbol-30px symbol-md-40px">
-      <img :src="`https://jinntest.jinnedu.com/server/${profile.avatar}`" alt="User Menu Toggle" />
+      <img :src="`https://learning.jinnedu.com/${profile.avatar}`" alt="User Menu Toggle" />
     </div>
     <div
       data-kt-menu="true"
@@ -14,7 +14,7 @@
       <div class="menu-item px-3">
         <div class="menu-content d-flex align-items-center px-3">
           <div class="symbol symbol-50px me-5">
-            <img :src="`hhttps://jinntest.jinnedu.com/server/${profile.avatar}`" alt="User" />
+            <img :src="`hhttps://learning.jinnedu.com/${profile.avatar}`" alt="User" />
           </div>
           <div class="d-flex flex-column">
             <div class="fw-bold d-flex align-items-center fs-5">

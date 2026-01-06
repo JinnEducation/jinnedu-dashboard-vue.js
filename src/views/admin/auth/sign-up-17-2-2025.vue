@@ -1312,7 +1312,7 @@ export default defineComponent({
                                       Promise.allSettled([videoPromise])
                                         .then(() => {
                                           //   if (isProfile) router.push({name: "index"})
-                                          //   else window.location.assign("https://jinntest.jinnedu.com")
+                                          //   else window.location.assign("https://learning.jinnedu.com")
                                           handleSuccessfulSubmission()
                                         })
                                         .catch(() => {
@@ -1325,7 +1325,7 @@ export default defineComponent({
                                           }).then(() => {
                                             if (isProfile) router.push({name: "index"})
                                             else
-                                              window.location.assign("https://jinntest.jinnedu.com")
+                                              window.location.assign("https://learning.jinnedu.com")
                                           })
                                         })
                                         .finally(() => {
@@ -1346,7 +1346,7 @@ export default defineComponent({
                                         customClass: {confirmButton: "btn btn-danger"}
                                       }).then(() => {
                                         if (isProfile) router.push({name: "index"})
-                                        else window.location.assign("https://jinntest.jinnedu.com")
+                                        else window.location.assign("https://learning.jinnedu.com")
                                       })
                                     })
                                 })
@@ -1359,7 +1359,7 @@ export default defineComponent({
                                     customClass: {confirmButton: "btn btn-danger"}
                                   }).then(() => {
                                     if (isProfile) router.push({name: "index"})
-                                    else window.location.assign("https://jinntest.jinnedu.com")
+                                    else window.location.assign("https://learning.jinnedu.com")
                                   })
                                 })
                             })
@@ -1372,7 +1372,7 @@ export default defineComponent({
                                 customClass: {confirmButton: "btn btn-danger"}
                               }).then(() => {
                                 if (isProfile) router.push({name: "index"})
-                                else window.location.assign("https://jinntest.jinnedu.com")
+                                else window.location.assign("https://learning.jinnedu.com")
                               })
                             })
                         })
@@ -1385,7 +1385,7 @@ export default defineComponent({
                             customClass: {confirmButton: "btn btn-danger"}
                           }).then(() => {
                             //         if (isProfile) router.push({name: "index"})
-                            //         else window.location.assign("https://jinntest.jinnedu.com")
+                            //         else window.location.assign("https://learning.jinnedu.com")
                           })
                         })
                     })
@@ -1398,11 +1398,11 @@ export default defineComponent({
                         customClass: {confirmButton: "btn btn-danger"}
                       }).then(() => {
                         if (isProfile) router.push({name: "index"})
-                        else window.location.assign("https://jinntest.jinnedu.com")
+                        else window.location.assign("https://learning.jinnedu.com")
                       })
                     })
                 } else if (isProfile) router.push({name: "index"})
-                else window.location.assign("https://jinntest.jinnedu.com")
+                else window.location.assign("https://learning.jinnedu.com")
               })
             })
             .catch((error) => {
@@ -1825,8 +1825,8 @@ export default defineComponent({
             const user = profileResponse.data.result
             data.value.accountType = Number(user.type) === 2 ? "tutor" : "student"
             data.value.avatar = user.avatar
-              ? `https://jinntest.jinnedu.com/server/${user.avatar}`
-              : "https://jinntest.jinnedu.com/server/static/default_avatar.webp"
+              ? `https://learning.jinnedu.com/${user.avatar}`
+              : "https://learning.jinnedu.com/static/default_avatar.webp"
             data.value.firstName = user.abouts[0].first_name
             data.value.lastName = user.abouts[0].last_name
             data.value.email = user.email

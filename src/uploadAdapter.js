@@ -35,7 +35,7 @@ class MyUploadAdapter {
     const {token} = store.state.user
 
     // Configure the request before opening it
-    xhr.open("POST", "https://jinntest.jinnedu.com/server/api/medias/create", true)
+    xhr.open("POST", "https://learning.jinnedu.com/api/medias/create", true)
     xhr.setRequestHeader("Authorization", `Bearer ${token}`)
 
     // Set the responseType after setting headers and before sending the request
@@ -66,7 +66,7 @@ class MyUploadAdapter {
       if (xhr.readyState === 4) {
         if (xhr.status === 200 || xhr.status === 201) {
           const response = xhr.response
-          const imageUrl = `https://jinntest.jinnedu.com/server/${response.result.path}` // Adjust this line based on your actual response structure
+          const imageUrl = `https://learning.jinnedu.com/${response.result.path}` // Adjust this line based on your actual response structure
           resolve({default: imageUrl}) // Return the image URL
         } else {
           reject(`Upload failed with status ${xhr.status}`)

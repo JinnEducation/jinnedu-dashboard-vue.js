@@ -16,7 +16,7 @@
               <div class="d-flex align-items-center mb-1">
                 <span style="font-size: 16px">{{ t("global.tutor-name") }} : </span>
                 <a
-                  :href="`https://jinntest.jinnedu.com/tutors/${tutorSlug}`"
+                  :href="`https://learning.jinnedu.com/tutors/${tutorSlug}`"
                   class="text-gray-800 text-hover-primary fs-2 fw-bold me-3">
                   {{ tutor }}
                 </a>

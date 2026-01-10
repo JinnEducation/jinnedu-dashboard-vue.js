@@ -7,7 +7,9 @@
           <div class="d-flex flex-wrap flex-sm-nowrap mb-3">
             <div class="me-7 mb-4">
               <div class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative">
-                <img :src="SERVER_PATH + 'storage/' + profile?.avatar" :alt="about[0]?.first_name" />
+                <img
+                  :src="SERVER_PATH + 'storage/' + profile?.avatar"
+                  :alt="about[0]?.first_name" />
                 <div
                   class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-white h-20px w-20px"></div>
               </div>
@@ -167,9 +169,15 @@
               </span>
             </div>
             <div class="d-flex flex-column">
-              <router-link to="/profile" class="text-dark text-hover-success fs-6 fw-bold">
+              <!-- <router-link to="/profile" class="text-dark text-hover-success fs-6 fw-bold">
                 {{ t("global.account-edit-profile-title") }}
-              </router-link>
+              </router-link> -->
+              <button
+                type="button"
+                class="text-dark text-hover-success fs-6 fw-bold"
+                @click="handleProfileEdit">
+                {{ t("global.account-edit-profile-title") }}
+              </button>
               <span class="text-muted fw-bold">{{
                 t("global.account-edit-profile-description")
               }}</span>
@@ -272,6 +280,10 @@ export default defineComponent({
       return !loading.value && Object.keys(profile.value).length > 0
     })
 
+    const handleProfileEdit = () => {
+      window.open(`${SERVER_PATH.value}/bridge-login/${userInfoObject.token}?redirect=profile`, "_blank")
+    }
+
     return {
       t,
       profile,
@@ -280,7 +292,8 @@ export default defineComponent({
       financial,
       about,
       SERVER_PATH,
-      isProfileReady
+      isProfileReady,
+      handleProfileEdit
     }
   }
 })

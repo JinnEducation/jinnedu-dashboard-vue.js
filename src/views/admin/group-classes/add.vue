@@ -1239,4 +1239,18 @@ export default defineComponent({
   position: relative;
   top: -40px;
 }
+
+/* Fix SweetAlert2 success icon in RTL */
+.swal2-rtl .swal2-icon.swal2-success {
+  transform: rotateY(180deg);
+}
+
+.swal2-rtl .swal2-success-line-tip {
+  left: 0.8125em !important;
+  transform: rotate(45deg) !important;
+}
+.swal2-rtl .swal2-success-line-long {
+  right: 0.5em !important;
+  transform: rotate(-45deg) !important;
+}
 </style>

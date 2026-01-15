@@ -216,7 +216,7 @@
                             <img
                               :src="
                                 favorite.tutor?.avatar
-                                  ? `${SERVER_PATH}/${favorite.tutor?.avatar}`
+                                  ? `${Public_PATH}/${favorite.tutor?.avatar}`
                                   : DefaultTutorImage
                               "
                               :alt="'Tutor'"
@@ -252,7 +252,7 @@
                             <img
                               :src="
                                 favorite.group_class?.image_info?.path
-                                  ? `${SERVER_PATH}/${favorite.group_class?.image_info?.path}`
+                                  ? `${Public_PATH}/${favorite.group_class?.image_info?.path}`
                                   : DefaultGroupClassImage
                               "
                               :alt="'Add Group Class Illustration'"
@@ -347,7 +347,7 @@
       <div class="second-header-content">
         <div class="left-content-second-header">
           <router-link to="/" class="logo-header">
-            <img alt="Logo" :src="`${baseUrl}/logo/logo-light.png`" loading="lazy" />
+            <img alt="Logo" :src="`${baseUrl}/front/assets/imgs/logo.png`" loading="lazy" />
           </router-link>
           <!-- <div ref="navbarCategoriesRef" style="position: relative">
             <button type="button" class="categories-btn" @click="toggleCategories">
@@ -907,6 +907,7 @@ export default defineComponent({
     const language = ref(store.state.language)
     const languageId = ref(null)
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
+    const Public_PATH = ref(import.meta.env.VITE_APP_Public_URL)
     const BASE_URL = ref(import.meta.env.VITE_APP_BASE_URL)
 
     // const favorites = ref([])
@@ -1086,6 +1087,7 @@ export default defineComponent({
       isActiveNotifications,
       toggleLikes,
       isActiveLikes,
+      Public_PATH,
       navbarMenuRef,
       notificationsRef,
       likesRef,
@@ -1538,10 +1540,11 @@ export default defineComponent({
         align-items: center;
         gap: 40px;
         .logo-header {
-          width: 88px;
+          // width: 88px;
           display: block;
           img {
             width: 100%;
+            height: 2.5rem;
           }
         }
         .categories-btn {

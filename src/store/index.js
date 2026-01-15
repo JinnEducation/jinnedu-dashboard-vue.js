@@ -3,6 +3,7 @@ import chat from "./modules/chat"
 import {initEcho} from "@/plugins/echo"
 import axiosClient from "../plugins/axios"
 const serverUrl = import.meta.env.VITE_APP_API_BASE_URL
+const serverBaseUrl = import.meta.env.VITE_APP_SERVER_BASE_URL
 
 const store = createStore({
   state: {
@@ -116,9 +117,10 @@ const store = createStore({
     async signIn({commit, dispatch}, data) {
       try {
         const response = await axiosClient.post("/login", data)
+        // response.data.result.token
         if (response.data.success) {
           commit("SET_USER", response.data.result)
-
+          window.open(`${serverBaseUrl}/bridge-login/${response.data.result.token}`, "_blank")
           // For SuperAdmin, invalidate any existing sessions
           if (response.data.result.user.role === "SuperAdmin") {
             await axiosClient.post("/api/session/invalidate-others")
@@ -148,6 +150,9 @@ const store = createStore({
     // Enhanced signOut with session cleanup
     async signOut({commit, state}, {reason} = {}) {
       try {
+        const {userInfo} = store.state
+        const userInfoObject = JSON.parse(userInfo)
+        window.open(`${serverBaseUrl}/bridge-logout/${userInfoObject.token}`, "_blank")
         await axiosClient.post("/logout")
 
         // Clear all timers and intervals

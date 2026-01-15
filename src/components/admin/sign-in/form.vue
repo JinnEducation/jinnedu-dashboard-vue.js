@@ -95,10 +95,6 @@ export default defineComponent({
             .dispatch("signIn", user)
             .then((response) => {
               if (response.token) {
-                window.open(
-                  `${serverUrl}/bridge-login/${response.token}`,
-                  "_blank"
-                )
                 setTimeout(() => {
                   window.location.assign(window.location.origin + "/me/dashboard/index")
                 }, 1500)

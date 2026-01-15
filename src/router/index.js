@@ -76,6 +76,8 @@ import ContactUs from "@/views/admin/contact-us/index.vue"
 import Accounting from "@/views/admin/accounting/list.vue"
 import TutorFinance from "@/views/admin/finance/tutorFinance.vue"
 
+import UnAvailable from "@/views/admin/unAvailable.vue"
+
 import MenusList from "@/views/admin/menus/list.vue"
 import MenusAdd from "@/views/admin/menus/add.vue"
 
@@ -116,6 +118,42 @@ const router = createRouter({
           name: "index",
           component: Index
         },
+        // UnAvailable
+        {
+          path: "/dashboard/interests/index",
+          name: "interests-list",
+          component: UnAvailable
+        },
+        {
+          path: "/dashboard/certifications/index",
+          name: "certifications-list",
+          component: UnAvailable
+        },
+        {
+          path: "/dashboard/favorites/index",
+          name: "favorites-list",
+          component: UnAvailable
+        },
+        {
+          path: "/dashboard/supports/index",
+          name: "supports-list",
+          component: UnAvailable
+        },
+        {
+          path: "/dashboard/invitations/admin-invitations",
+          name: "admin-invitations-list",
+          component: UnAvailable
+        },
+        {
+          path: "/dashboard/invitations/parent-invitations",
+          name: "parent-invitations-list",
+          component: UnAvailable
+        },
+        {
+          path: "/dashboard/invitations/child-invitations",
+          name: "child-invitations-list",
+          component: UnAvailable
+        },
         // Menu
         {
           path: "/dashboard/menu/index",
@@ -144,7 +182,7 @@ const router = createRouter({
         //   component: Settings
         // },
         {
-          path: "/dashboard/settings",
+          path: "/dashboard/settings/index",
           name: "settings",
           component: Settings
         },

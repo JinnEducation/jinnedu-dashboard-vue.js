@@ -10,8 +10,8 @@ export default defineComponent({
     const router = useRouter()
 
     // Session timeout settings (15 minutes in milliseconds)
-    const SESSION_TIMEOUT = 15 * 60 * 1000
-    const WARNING_TIMEOUT = 14 * 60 * 1000 // Show warning at 14 minutes
+    const SESSION_TIMEOUT = 30 * 60 * 1000
+    const WARNING_TIMEOUT = 30 * 60 * 1000 // Show warning at 14 minutes
     let inactivityTimer = null
     let warningTimer = null
     let sessionCheckInterval = null

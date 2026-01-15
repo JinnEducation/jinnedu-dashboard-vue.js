@@ -8,7 +8,7 @@
             <div class="me-7 mb-4">
               <div class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative">
                 <img
-                  :src="SERVER_PATH + 'storage/' + profile?.avatar"
+                  :src="SERVER_PATH + '/storage/' + profile?.avatar"
                   :alt="about[0]?.first_name" />
                 <div
                   class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-white h-20px w-20px"></div>
@@ -19,7 +19,11 @@
                 <div class="d-flex flex-column">
                   <div class="d-flex align-items-center mb-2">
                     <a href="#" class="text-gray-800 text-hover-primary fs-2 fw-bold me-1">
-                      {{ profile ? profile?.name : "" }}
+                      {{
+                        profile
+                          ? profile?.name ?? about[0]?.first_name + " " + about[0]?.last_name ?? ""
+                          : about[0]?.first_name ?? ""
+                      }}
                     </a>
                     <!-- <p class="btn btn-sm btn-light-success fw-bold ms-2 fs-8 py-1 px-3 mb-0">
                       
@@ -281,7 +285,10 @@ export default defineComponent({
     })
 
     const handleProfileEdit = () => {
-      window.open(`${SERVER_PATH.value}/bridge-login/${userInfoObject.token}?redirect=profile`, "_blank")
+      window.open(
+        `${SERVER_PATH.value}/bridge-login/${userInfoObject.token}?redirect=profile`,
+        "_blank"
+      )
     }
 
     return {

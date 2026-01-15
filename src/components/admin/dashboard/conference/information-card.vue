@@ -236,6 +236,7 @@ export default defineComponent({
   setup(props) {
     // Environment Variables
     const SERVER_BASE_URL = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
+    
 
     // Composable Variables
     const route = useRoute()

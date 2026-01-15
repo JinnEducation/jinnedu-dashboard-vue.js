@@ -980,7 +980,7 @@ export default defineComponent({
 
     const pagesRef = ref(null)
     const signOut = function signOut() {
-      store.dispatch("signOut").finally(() => router.push({name: "sign-in"}))
+      store.dispatch("signOut").finally(() => window.location.assign(window.location.origin))
     }
 
     const wallet = ref(null)

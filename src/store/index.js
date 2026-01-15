@@ -150,9 +150,6 @@ const store = createStore({
     // Enhanced signOut with session cleanup
     async signOut({commit, state}, {reason} = {}) {
       try {
-        const {userInfo} = store.state
-        const userInfoObject = JSON.parse(userInfo)
-        window.open(`${serverBaseUrl}/bridge-logout/${userInfoObject.token}`, "_blank")
         await axiosClient.post("/logout")
 
         // Clear all timers and intervals
@@ -160,6 +157,9 @@ const store = createStore({
         if (state.warningTimer) clearTimeout(state.warningTimer)
         if (state.sessionCheckInterval) clearInterval(state.sessionCheckInterval)
 
+        const {userInfo} = store.state
+        const userInfoObject = JSON.parse(userInfo)
+        window.open(`${serverBaseUrl}/bridge-logout/${userInfoObject.token}`, "_blank")
         commit("UN_SET_USER")
 
         // Return different messages based on logout reason
@@ -169,7 +169,6 @@ const store = createStore({
         if (reason === "concurrent") {
           return {message: "You have been logged out because your account is active elsewhere."}
         }
-        window.location.reload()
         return {message: "You have been successfully logged out."}
       } catch (error) {
         if (error.response?.data?.message === "Unauthenticated.") {

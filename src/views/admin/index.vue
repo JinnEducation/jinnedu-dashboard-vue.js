@@ -8,7 +8,7 @@
             <div class="me-7 mb-4">
               <div class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative">
                 <img
-                  :src="SERVER_PATH + '/storage/' + profile?.avatar"
+                  :src="PUBLIC_PATH + '/storage/' + profile?.avatar"
                   :alt="about[0]?.first_name" />
                 <div
                   class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-white h-20px w-20px"></div>
@@ -242,6 +242,7 @@ export default defineComponent({
     const financial = ref({})
 
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
+    const PUBLIC_PATH = ref(import.meta.env.VITE_APP_Public_URL)
 
     const handleVerificationEmailResend = function handleVerificationEmailResend() {
       axiosClient
@@ -299,6 +300,7 @@ export default defineComponent({
       financial,
       about,
       SERVER_PATH,
+      PUBLIC_PATH,
       isProfileReady,
       handleProfileEdit
     }

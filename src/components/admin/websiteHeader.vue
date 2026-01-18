@@ -216,7 +216,7 @@
                             <img
                               :src="
                                 favorite.tutor?.avatar
-                                  ? `${Public_PATH}/${favorite.tutor?.avatar}`
+                                  ? `${PUBLIC_PATH}/${favorite.tutor?.avatar}`
                                   : DefaultTutorImage
                               "
                               :alt="'Tutor'"
@@ -252,7 +252,7 @@
                             <img
                               :src="
                                 favorite.group_class?.image_info?.path
-                                  ? `${Public_PATH}/${favorite.group_class?.image_info?.path}`
+                                  ? `${PUBLIC_PATH}/${favorite.group_class?.image_info?.path}`
                                   : DefaultGroupClassImage
                               "
                               :alt="'Add Group Class Illustration'"
@@ -347,7 +347,7 @@
       <div class="second-header-content">
         <div class="left-content-second-header">
           <router-link to="/" class="logo-header">
-            <img alt="Logo" :src="`${baseUrl}/front/assets/imgs/logo.png`" loading="lazy" />
+            <img alt="Logo" :src="`${PUBLIC_PATH}/front/assets/imgs/logo.png`" loading="lazy" />
           </router-link>
           <!-- <div ref="navbarCategoriesRef" style="position: relative">
             <button type="button" class="categories-btn" @click="toggleCategories">
@@ -907,7 +907,7 @@ export default defineComponent({
     const language = ref(store.state.language)
     const languageId = ref(null)
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
-    const Public_PATH = ref(import.meta.env.VITE_APP_Public_URL)
+    const PUBLIC_PATH = ref(import.meta.env.VITE_APP_Public_URL)
     const BASE_URL = ref(import.meta.env.VITE_APP_BASE_URL)
 
     // const favorites = ref([])
@@ -1087,7 +1087,7 @@ export default defineComponent({
       isActiveNotifications,
       toggleLikes,
       isActiveLikes,
-      Public_PATH,
+      PUBLIC_PATH,
       navbarMenuRef,
       notificationsRef,
       likesRef,

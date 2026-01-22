@@ -117,7 +117,7 @@ const store = createStore({
     async signIn({commit, dispatch}, data) {
       try {
         const response = await axiosClient.post("/login", data)
-        // response.data.result.token
+        
         if (response.data.success) {
           commit("SET_USER", response.data.result)
           window.open(`${serverBaseUrl}/bridge-login/${response.data.result.token}`, "_blank")

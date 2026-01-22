@@ -1,5 +1,5 @@
 <template>
-  <toolbar :title="t('global.tutor-information')" />
+  <toolbar :title="t('global.profile-information')" />
 
   <div id="kt_app_content" class="app-content flex-column-fluid">
     <div id="kt_app_content_container" class="app-container container-xxl">
@@ -28,7 +28,7 @@
                 <div class="symbol symbol-60px symbol-circle overflow-hidden">
                   <img
                     v-if="profile?.avatar"
-                    :src="SERVER_PATH + profile?.avatar"
+                    :src="PUBLIC_PATH + profile?.avatar"
                     alt="avatar"
                     class="object-fit-cover" />
                   <div v-else class="symbol-label bg-light text-gray-600 fw-bold">
@@ -61,11 +61,6 @@
                 <div class="d-flex justify-content-between">
                   <span class="text-gray-600">{{ t("global.phone") }}</span>
                   <span class="fw-semibold text-gray-900">{{ about?.phone || "-" }}</span>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                  <span class="text-gray-600">{{ t("global.age") }}</span>
-                  <span class="fw-semibold text-gray-900">{{ about?.age ?? "-" }}</span>
                 </div>
 
                 <div class="d-flex justify-content-between">
@@ -161,7 +156,7 @@
             </div>
           </div>
           <!-- Certifications -->
-          <div class="col-12">
+          <div class="col-12 col-lg-6">
             <div class="card card-xl-stretch mb-5">
               <div class="card-header border-0 pt-5">
                 <h3 class="card-title fw-bold text-dark">
@@ -265,6 +260,7 @@ export default defineComponent({
     const loading = ref(true)
     const userType = computed(() => profile.value?.type ?? null)
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
+    const PUBLIC_PATH = ref(import.meta.env.VITE_APP_Public_URL)
 
     const isTutor = computed(() => userType.value === 2)
 
@@ -309,6 +305,7 @@ export default defineComponent({
       profile,
       financial,
       loading,
+      PUBLIC_PATH,
       SERVER_PATH,
       about,
       fullName,

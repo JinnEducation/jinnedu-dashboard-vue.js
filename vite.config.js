@@ -1,10 +1,10 @@
 // DONE REVIEWING: NEW
 import vueI18nPlugin from "@intlify/unplugin-vue-i18n/vite"
 import vue from "@vitejs/plugin-vue"
-import {dirname, resolve} from "node:path"
-import {fileURLToPath} from "node:url"
-import {createRequire} from "node:module"
-import {defineConfig} from "vite"
+import { dirname, resolve } from "node:path"
+import { fileURLToPath } from "node:url"
+import { createRequire } from "node:module"
+import { defineConfig } from "vite"
 import postcssRTLCSS from "postcss-rtlcss"
 import ckeditor5 from "@ckeditor/vite-plugin-ckeditor5"
 
@@ -28,12 +28,16 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    ckeditor5({theme: require.resolve("@ckeditor/ckeditor5-theme-lark")}),
+    ckeditor5({ theme: require.resolve("@ckeditor/ckeditor5-theme-lark") }),
     vueI18nPlugin({
       include: resolve(dirname(fileURLToPath(import.meta.url)), "./src/locales/**"),
       runtimeOnly: false
     })
   ],
+  // server: {
+  //   port: 5173,
+  //   strictPort: true // يمنع تغيير البورت تلقائيًا
+  // },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url))

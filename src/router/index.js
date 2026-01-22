@@ -559,7 +559,12 @@ const router = createRouter({
       name: "profile",
       component: SignUp
     },
-
+    {
+      path: "/sign-in-check",
+      meta: {protected: false},
+      name: "sign-in-check",
+      component: StudentSignInCheck
+    },
     {
       path: "/auth",
       name: "auth",
@@ -567,11 +572,6 @@ const router = createRouter({
       redirect: {name: "sign-in"},
       component: AuthLayout,
       children: [
-        {
-          path: "/auth/sign-in-check",
-          name: "sign-in-check",
-          component: StudentSignInCheck
-        },
         {
           path: "/auth/sign-in",
           name: "sign-in",

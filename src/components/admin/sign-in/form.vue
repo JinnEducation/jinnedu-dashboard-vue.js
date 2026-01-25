@@ -63,9 +63,10 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from "vue"
+import { defineComponent, onMounted, ref} from "vue"
 import { useI18n } from "vue-i18n"
 import { useStore } from "vuex"
+import { useRoute } from "vue-router"
 import GoogleActions from "../uis/form/google-actions.vue"
 import FormActions from "../uis/form/actions.vue"
 
@@ -83,6 +84,9 @@ export default defineComponent({
     const elements = { form: ref(null), button: ref(null), formError: ref(null) }
     const serverUrl = import.meta.env.VITE_APP_SERVER_BASE_URL ?? "http://127.0.0.1:8000"
     let validator
+    const route = useRoute()
+    const to = route.query.to || "dashboard"
+
 
     const handleFormSubmission = function handleFormSubmission() {
       validator.validate().then((status) => {
@@ -96,7 +100,11 @@ export default defineComponent({
             .then((response) => {
               if (response.token) {
                 setTimeout(() => {
-                  window.location.assign(window.location.origin + "/me/dashboard/index")
+                  if(to){
+                    window.location.assign(window.location.origin + "/me/"+to)
+                  }else{
+                    window.location.assign(window.location.origin + "/me/dashboard/index")
+                  }
                 }, 1500)
               } else {
                 Swal.fire({

@@ -21,7 +21,7 @@ export default defineComponent({
       const params = new URLSearchParams(window.location.search)
       const token = params.get("token")
       const email = params.get("email")
-      const to = params.get("to") || "me/dashboard"
+      const to = params.get("to") || "dashboard"
 
       // لو ناقص بيانات التحقق
       if (!token || !email) {
@@ -37,37 +37,47 @@ export default defineComponent({
       if (savedUser?.user?.email && (savedUser.user.email != email)) {
         store.commit("UN_SET_USER")
       }
-      console.log(savedToken,savedUser?.user?.email)
+      const resChaeck = await axiosClient.post("/auth/check-token", { token, email })
       // تحقق من وجود المستخدم المخزن مسبقاً
-      if (savedToken && (savedUser?.user?.email == email)) {
+      if (savedToken && (savedUser?.user?.email == email) && resChaeck.data.success) {
+        store.commit("SET_USER", {
+          token,
+          user: resChaeck.data.user
+        })
         // ✅ المستخدم مسجل فعلاً، روح مباشرة
         router.replace(`/${to}`)
         return
       }
-
       try {
-        // تحقق من التوكن عبر الـ API
-        const res = await axiosClient.post("/auth/check-token", { token, email })
+        if (resChaeck.data.success && resChaeck.data.user) {
 
-        if (res.data.success && res.data.user) {
-          // ✅ خزّن المستخدم في Vuex بنفس النظام الحالي
-          const result = {
-            token: token,
-            user: res.data.user
-          }
+          // 1️⃣ خزّن التوكن فورًا (مثل sign-in)
+          localStorage.setItem("TOKEN", token)
 
-          // 🧹 امسح أي بيانات قديمة أولاً قبل الحفظ الجديد
-          store.commit("UN_SET_USER")
-          store.commit("SET_USER", result)
+          // 2️⃣ ثبّت الهيدر يدويًا
+          axiosClient.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
-          // 🔁 توجه مباشرة إلى المسار المطلوب
-          window.location.replace(`/${to}`)
-        } else {
-          router.replace("/auth/sign-in?to=" + to)
+          // 3️⃣ خزّن في Vuex
+          store.commit("SET_USER", {
+            token,
+            user: resChaeck.data.user
+          })
+
+          // 4️⃣ توجيه
+          router.replace(`/${to}`)
         }
+
+        else {
+          store.commit("UN_SET_USER")
+          // router.replace("/auth/sign-in?to=" + to)
+        }
+        // if(resChaeck.success == 'false'){
+        //             router.replace("/auth/sign-in?to=" + to)
+
+        // }
       } catch (error) {
         console.error("check-token error:", error)
-        router.replace("/auth/sign-in?to=" + to)
+        // router.replace("/auth/sign-in?to=" + to)
       }
     })
   }

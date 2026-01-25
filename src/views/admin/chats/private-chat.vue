@@ -283,6 +283,7 @@ export default defineComponent({
     const { t } = useI18n()
     const route = useRoute()
     const path = computed(() => route.path)
+    const userPrivateChatId = Number(route.query.user_id)
 
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
 
@@ -490,6 +491,7 @@ export default defineComponent({
       // load contact details
       const res = await axiosClient.get(`/chat/contacts/${contactId}`)
       const data = res.data?.data ?? res.data?.result ?? res.data
+
       userPrivateChat.value = {
         id: contactId,
         name: data?.name || data?.contact_name || data?.user?.name || data?.email || null,
@@ -688,6 +690,10 @@ export default defineComponent({
       initEcho(store.state.user.token)
 
       loadBlockedWords()
+
+      if(userPrivateChatId){
+        openUserPrivateChat(userPrivateChatId)
+      }
 
       // audio (keep, but your file path currently 404 — this doesn't break chat)
       try {

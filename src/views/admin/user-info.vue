@@ -28,7 +28,7 @@
                 <div class="symbol symbol-60px symbol-circle overflow-hidden">
                   <img
                     v-if="profile?.avatar"
-                    :src="PUBLIC_PATH + profile?.avatar"
+                    :src="profile?.avatar"
                     alt="avatar"
                     class="object-fit-cover" />
                   <div v-else class="symbol-label bg-light text-gray-600 fw-bold">

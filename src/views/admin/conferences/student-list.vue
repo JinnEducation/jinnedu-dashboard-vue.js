@@ -119,7 +119,7 @@
                   </a>
                 </div>
                 <div v-else class="d-flex align-items-center justify-content-start">
-                  <a class="text-danger" :href="`${baseUrl}/tutors/${conference.tutor.slug}`">
+                  <a class="text-danger" :href="`${baseUrl}/tutors/${conference.tutor?.slug}`">
                     {{ conference.title }}
                   </a>
                 </div>
@@ -151,21 +151,21 @@
                 {{ conference[["end", "time"].join("_")] }}
               </template>
               <template #tutor="{ row: conference }">
-                <template v-if="conference.tutor && conference.tutor.avatar">
+                <template v-if="conference.tutor && conference.tutor?.avatar">
                   <div class="symbol symbol-circle symbol-45px overflow-hidden me-3">
                     <div class="symbol-label">
-                      <img :src="`${SERVER_PATH}/storage/${conference.tutor.avatar}`" :alt="`${conference.tutor.name}`"
+                      <img :src="`${SERVER_PATH}/storage/${conference.tutor?.avatar}`" :alt="`${conference.tutor?.name}`"
                         class="w-100" />
                     </div>
                   </div>
                 </template>
                 <template v-else>
-                  <template v-if="conference.tutor && conference.tutor.name">
+                  <template v-if="conference.tutor && conference.tutor?.name">
                     <div class="symbol symbol-circle symbol-50px overflow-hidden me-3"
                       style="background: url('/src/assets/media/svg/files/blank-image.svg')"
-                      :title="`${conference.tutor.name}`">
+                      :title="`${conference.tutor?.name}`">
                       <div class="symbol-label fs-3 bg-light-warning text-warning">
-                        {{ conference.tutor.name.charAt(0).toUpperCase() }}
+                        {{ conference.tutor?.name?.charAt(0)?.toUpperCase() || '' }}
                       </div>
                     </div>
                   </template>

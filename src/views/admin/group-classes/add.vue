@@ -658,13 +658,13 @@ export default defineComponent({
     const handleBeforeUpload = (file) => {
       // Check if the file type is either JPEG or PNG
       if (file.type !== "image/jpeg" && file.type !== "image/png") {
-        Message.error(t("global.avatar-picture-must-be-either-jpg-or-png-format."))
+        Message.error(t("global.avatar-picture-must-be-either-jpg-or-png-format"))
         return false
       }
 
       // Validate file size
       if (file.size / 1024 / 1024 > 5) {
-        Message.error(t("global.avatar-picture-must-not-exceed-5-mb."))
+        Message.error(t("global.avatar-picture-must-not-exceed-5-mb"))
         return false
       }
 
@@ -674,7 +674,7 @@ export default defineComponent({
     // When upload thumbnail successfully add it to thumbnail url property
     const handleOnSuccess = (response) => {
       data.value.thumbnail.id = response.result.id
-      data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/${
+      data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/storage/${
         response.result.path
       }`
       Swal.fire({
@@ -1084,7 +1084,7 @@ export default defineComponent({
                 .get(`medias/show/${result.image}`)
                 .then((responseMedia) => {
                   if (responseMedia.data.result?.path) {
-                    data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/${
+                    data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/storage/${
                       responseMedia.data.result.path
                     }`
                   }

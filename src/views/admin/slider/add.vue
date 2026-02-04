@@ -1,7 +1,5 @@
 <template>
-  <toolbar
-    :title="
-      id ? `${t('global.edit')} ${t('global.slider')}` : `${t('global.add')} ${t('global.slider')}`
+  <toolbar :title="id ? `${t('global.edit')} ${t('global.slider')}` : `${t('global.add')} ${t('global.slider')}`
     " />
   <div class="app-content flex-column-fluid mb-10">
     <div class="app-container container-xxl">
@@ -15,11 +13,7 @@
         </div>
       </template>
       <div v-show="!loading">
-        <el-form
-          ref="form"
-          :model="data"
-          :rules="rules"
-          class="form d-flex flex-column flex-lg-row">
+        <el-form ref="form" :model="data" :rules="rules" class="form d-flex flex-column flex-lg-row">
           <!-- Sidebar -->
           <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-300px mb-7 me-lg-10">
             <!-- Thumbnail -->
@@ -30,7 +24,7 @@
                 </div>
               </div>
               <div class="card-body text-center pt-0">
-                <div v-if="imageUploading" class="upload-loading-overlay">
+                <div v-if="images['en'].uploading" class="upload-loading-overlay">
                   <el-icon class="is-loading">
                     <div class="card-body p-0">
                       <div class="card-px text-center py-20 my-10">
@@ -42,25 +36,60 @@
                   </el-icon>
                 </div>
                 <div v-else>
-                  <el-upload
-                    class="avatar-uploader"
-                    :action="`${API_PATH}/medias/create`"
-                    :show-file-list="false"
-                    :headers="{Authorization: `Bearer ${token}`}"
-                    name="attachment"
-                    :on-start="handleUploadStart"
-                    :on-progress="handleUploadProgress"
-                    :on-success="handleOnSuccess"
-                    :before-upload="handleBeforeUpload">
+                  <el-upload class="avatar-uploader" :action="`${API_PATH}/medias/create`" :show-file-list="false"
+                    :headers="{ Authorization: `Bearer ${token}` }" name="attachment"
+                    :on-start="() => handleUploadStart('en')" :on-progress="() => handleUploadProgress('en')"
+                    :on-success="(res) => handleOnSuccess(res, 'en')" :before-upload="handleBeforeUpload">
                     <div v-if="data.image" class="relative d-inline-block">
                       <img :src="data.image" alt="Slider Image" class="avatar-image" />
-                      <el-button
-                        type="danger"
-                        size="small"
-                        circle
-                        class="remove-btn"
-                        @click.stop.prevent="removeThumbnail">
-                        <el-icon><Delete /></el-icon>
+                      <el-button type="danger" size="small" circle class="remove-btn"
+                        @click.stop.prevent="removeThumbnail('en')">
+                        <el-icon>
+                          <Delete />
+                        </el-icon>
+                      </el-button>
+                    </div>
+                    <el-icon v-else class="avatar-uploader-icon">
+                      <plus />
+                    </el-icon>
+                  </el-upload>
+                </div>
+                <div class="fs-7 text-danger">
+                  {{ t("global.image-validation") }}
+                </div>
+              </div>
+            </div>
+            <!-- Thumbnail -->
+            <div class="card card-flush py-4">
+              <div class="card-header">
+                <div class="card-title">
+                  <h2>{{ t("global.image_ar") }}</h2>
+                </div>
+              </div>
+              <div class="card-body text-center pt-0">
+                <div v-if="images['ar'].uploading" class="upload-loading-overlay">
+                  <el-icon class="is-loading">
+                    <div class="card-body p-0">
+                      <div class="card-px text-center py-20 my-10">
+                        <div role="status" class="spinner-border text-primary">
+                          <span class="visually-hidden">{{ t("global.loading") }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </el-icon>
+                </div>
+                <div v-else>
+                  <el-upload class="avatar-uploader" :action="`${API_PATH}/medias/create`" :show-file-list="false"
+                    :headers="{ Authorization: `Bearer ${token}` }" name="attachment"
+                    :on-start="() => handleUploadStart('ar')" :on-progress="() => handleUploadProgress('ar')"
+                    :on-success="(res) => handleOnSuccess(res, 'ar')" :before-upload="handleBeforeUpload">
+                    <div v-if="data.image_ar" class="relative d-inline-block">
+                      <img :src="data.image_ar" alt="Slider Image" class="avatar-image" />
+                      <el-button type="danger" size="small" circle class="remove-btn"
+                        @click.stop.prevent="removeThumbnail('ar')">
+                        <el-icon>
+                          <Delete />
+                        </el-icon>
                       </el-button>
                     </div>
                     <el-icon v-else class="avatar-uploader-icon">
@@ -83,11 +112,7 @@
               </div>
               <div class="card-body pt-0">
                 <el-form-item prop="btn_url">
-                  <el-input
-                    v-model="data.btn_url"
-                    type="url"
-                    name="btn-url"
-                    placeholder="https://example.com" />
+                  <el-input v-model="data.btn_url" type="url" name="btn-url" placeholder="https://example.com" />
                 </el-form-item>
               </div>
             </div>
@@ -104,11 +129,7 @@
                     {{ t("global.title") }}
                   </label>
                   <el-form-item :prop="`title.${slot.language.id}`">
-                    <el-input
-                      id="slider-title"
-                      v-model="data.title[slot.language.id]"
-                      type="text"
-                      name="slider-title"
+                    <el-input id="slider-title" v-model="data.title[slot.language.id]" type="text" name="slider-title"
                       :placeholder="t('global.title')" />
                   </el-form-item>
                 </div>
@@ -118,11 +139,7 @@
                     {{ t("global.sub-title") }}
                   </label>
                   <el-form-item :prop="`sub_title.${slot.language.id}`">
-                    <el-input
-                      id="sub-title"
-                      v-model="data.sub_title[slot.language.id]"
-                      type="text"
-                      name="sub-title"
+                    <el-input id="sub-title" v-model="data.sub_title[slot.language.id]" type="text" name="sub-title"
                       :placeholder="t('global.sub-title')" />
                   </el-form-item>
                 </div>
@@ -132,11 +149,7 @@
                     {{ t("global.button-name") }}
                   </label>
                   <el-form-item :prop="`btn_name.${slot.language.id}`">
-                    <el-input
-                      id="btn-name"
-                      v-model="data.btn_name[slot.language.id]"
-                      type="text"
-                      name="btn-name"
+                    <el-input id="btn-name" v-model="data.btn_name[slot.language.id]" type="text" name="btn-name"
                       :placeholder="t('global.button-name')" />
                   </el-form-item>
                 </div>
@@ -150,12 +163,7 @@
               <router-link id="cancel" to="/dashboard/slider/index" class="btn btn-light me-5">
                 {{ t("global.cancel") }}
               </router-link>
-              <button
-                id="submit"
-                ref="button"
-                type="submit"
-                class="btn btn-primary"
-                @click.prevent="submit">
+              <button id="submit" ref="button" type="submit" class="btn btn-primary" @click.prevent="submit">
                 <span class="indicator-label">{{ t("global.save-changes") }}</span>
                 <span class="indicator-progress">
                   {{ t("global.please-wait") }}...
@@ -173,13 +181,13 @@
 <script>
 import Toolbar from "@/components/admin/dashboard/toolbar.vue"
 import LanguagesTabs from "@/components/admin/languages-tabs.vue"
-import {ElMessage as Message} from "element-plus"
-import {defineComponent, onBeforeMount, onMounted, ref, computed} from "vue"
-import {useI18n} from "vue-i18n"
-import {useRoute, useRouter} from "vue-router"
-import {useStore} from "vuex"
+import { ElMessage as Message } from "element-plus"
+import { defineComponent, onBeforeMount, onMounted, ref, computed, reactive  } from "vue"
+import { useI18n } from "vue-i18n"
+import { useRoute, useRouter } from "vue-router"
+import { useStore } from "vuex"
 import axiosClient from "../../../plugins/axios"
-import {Plus, Delete} from "@element-plus/icons-vue"
+import { Plus, Delete } from "@element-plus/icons-vue"
 
 export default defineComponent({
   name: "slider-add-edit",
@@ -195,21 +203,33 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
     const store = useStore()
-    const {t} = useI18n()
-    const {languages} = store.state
-    const {id} = route.params
+    const { t } = useI18n()
+    const { languages } = store.state
+    const { id } = route.params
     const token = computed(() => store.state.user.token)
-    const imageUploading = ref(false)
+    const images = reactive({
+      en: {
+        uploading: false,
+        path: null,
+        mediaId: null
+      },
+      ar: {
+        uploading: false,
+        path: null,
+        mediaId: null
+      }
+    })
+
 
     // Define form necessary data
     const loading = ref(false)
     const form = ref(null)
     const button = ref(null)
-    const mediaId = ref(null)
 
     // Define data schema to be submitted
     const data = ref({
       image: null,
+      image_ar: null,
       btn_url: "",
       title: {},
       sub_title: {},
@@ -238,7 +258,7 @@ export default defineComponent({
 
     // Create validation rules for each language
     languages.forEach((languageItem) => {
-      const {id: langId, name} = languageItem
+      const { id: langId, name } = languageItem
       rules.value.title[langId] = [
         {
           required: true,
@@ -264,12 +284,12 @@ export default defineComponent({
       ]
     })
 
-    const handleUploadStart = () => {
-      imageUploading.value = true
+    const handleUploadStart = (locale) => {
+      images[locale].uploading = true
     }
 
-    const handleUploadProgress = () => {
-      imageUploading.value = true
+    const handleUploadProgress = (locale) => {
+      images[locale].uploading = true
     }
 
     const handleBeforeUpload = (file) => {
@@ -291,40 +311,47 @@ export default defineComponent({
     }
 
     // When upload thumbnail successfully
-    const handleOnSuccess = (response) => {
-      mediaId.value = response.result.id
-      data.value.image = `${response.result.path}`
+    const handleOnSuccess = (response, locale = 'en') => {
+      images[locale].path = response.result.path
+      images[locale].mediaId = response.result.id
+      images[locale].uploading = false
+
+      // الربط مع payload
+      if (locale === 'en') data.value.image = response.result.path
+      if (locale === 'ar') data.value.image_ar = response.result.path
+
       Swal.fire({
         icon: "success",
         text: t("global.thumbnail-added-successfully"),
         buttonsStyling: false,
-        customClass: {confirmButton: "btn btn-primary"}
+        customClass: { confirmButton: "btn btn-primary" }
       })
-      imageUploading.value = false
     }
 
-    const removeThumbnail = function removeThumbnail() {
-      if (mediaId.value) {
-        imageUploading.value = true
-        axiosClient
-          .delete(`/medias/delete/${mediaId.value}`)
-          .then(() => {
-            data.value.image = null
-            mediaId.value = null
-            Swal.fire({
-              icon: "success",
-              text: t("global.thumbnail-removed-successfully"),
-              buttonsStyling: false,
-              customClass: {confirmButton: "btn btn-primary"}
-            })
-            imageUploading.value = false
-          })
-          .catch(() => {
-            imageUploading.value = false
-          })
-      } else {
-        data.value.image = null
+    const removeThumbnail = async (locale) => {
+      const img = images[locale]
+      if (!img.mediaId) {
+        img.path = null
+        return
       }
+      img.uploading = true
+      await axiosClient
+        .delete(`/medias/delete/${img.mediaId}`)
+        .then(() => {
+          img.path = null
+          img.mediaId = null
+          img.uploading = false
+          if (locale === 'en') data.value.image = null
+          if (locale === 'ar') data.value.image_ar = null
+
+          Swal.fire({
+            icon: "success",
+            text: t("global.thumbnail-removed-successfully"),
+            buttonsStyling: false,
+            customClass: { confirmButton: "btn btn-primary" }
+          })
+        })
+
     }
 
     // CKEditor removed - not needed for slider
@@ -339,6 +366,7 @@ export default defineComponent({
           // Prepare payload
           const payload = {
             image: data.value.image,
+            image_ar: data.value.image_ar,
             btn_url: data.value.btn_url,
             title: data.value.title || "",
             sub_title: data.value.sub_title || "",
@@ -358,9 +386,9 @@ export default defineComponent({
                   : t("global.slider-created-successfully"),
                 confirmButtonText: t("global.thank-you"),
                 buttonsStyling: false,
-                customClass: {confirmButton: "btn btn-primary"}
+                customClass: { confirmButton: "btn btn-primary" }
               })
-              router.push({name: "slider-list"})
+              router.push({ name: "slider-list" })
             })
             .catch((error) => {
               const errorMsg = error.response?.data?.message || t("global.errors-detected")
@@ -369,7 +397,7 @@ export default defineComponent({
                 text: errorMsg,
                 confirmButtonText: t("global.got-it"),
                 buttonsStyling: false,
-                customClass: {confirmButton: "btn btn-danger"}
+                customClass: { confirmButton: "btn btn-danger" }
               })
             })
             .finally(() => {
@@ -387,7 +415,7 @@ export default defineComponent({
             html: errorMessages.join("<br>"),
             confirmButtonText: t("global.got-it"),
             buttonsStyling: false,
-            customClass: {confirmButton: "btn btn-danger"}
+            customClass: { confirmButton: "btn btn-danger" }
           })
 
           button.value.removeAttribute("data-kt-indicator")
@@ -412,18 +440,19 @@ export default defineComponent({
             const result = response.data.data || response.data.result || response.data
             // Set main fields
             data.value.image = result.image
+            data.value.image_ar = result.image_ar
             data.value.btn_url = result.btn_url
             // Set language fields - the API returns title, sub_title, btn_name as objects with language IDs as keys
             if (result.title && typeof result.title === "object") {
-              data.value.title = {...result.title}
+              data.value.title = { ...result.title }
             }
 
             if (result.sub_title && typeof result.sub_title === "object") {
-              data.value.sub_title = {...result.sub_title}
+              data.value.sub_title = { ...result.sub_title }
             }
 
             if (result.btn_name && typeof result.btn_name === "object") {
-              data.value.btn_name = {...result.btn_name}
+              data.value.btn_name = { ...result.btn_name }
             }
 
             loading.value = false
@@ -435,7 +464,7 @@ export default defineComponent({
               text: t("global.error-loading-slider"),
               confirmButtonText: t("global.got-it"),
               buttonsStyling: false,
-              customClass: {confirmButton: "btn btn-danger"}
+              customClass: { confirmButton: "btn btn-danger" }
             })
             loading.value = false
           })
@@ -459,7 +488,7 @@ export default defineComponent({
       removeThumbnail,
       handleUploadStart,
       handleUploadProgress,
-      imageUploading
+      images
     }
   }
 })
@@ -475,6 +504,7 @@ export default defineComponent({
 .avatar-uploader .avatar-image {
   height: 280px;
 }
+
 .dp__outer_menu_wrap {
   width: 775px;
 }
@@ -482,8 +512,10 @@ export default defineComponent({
 
 <style>
 .selected-date {
-  background-color: yellow; /* Change this to your desired color */
+  background-color: yellow;
+  /* Change this to your desired color */
 }
+
 .avatar-uploader .el-upload {
   position: relative;
   width: 100%;
@@ -517,6 +549,7 @@ export default defineComponent({
   border: 1px dashed #dcdfe6;
   border-radius: 6px;
 }
+
 .remove-btn {
   position: relative;
   top: -40px;

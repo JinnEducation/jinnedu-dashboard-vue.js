@@ -509,7 +509,7 @@
                                 </td>
                                 <td class="p-2">
                                   <template
-                                    v-if="groupClass.tutor && groupClass.tutor.id == tutor.id">
+                                    v-if="(groupClass.tutor && groupClass.tutor.id == tutor.id) || groupClass.tutor_id == null">
                                     <p class="text-success m-0">
                                       {{ t("global.accepted") }}
                                     </p>
@@ -676,7 +676,7 @@ export default defineComponent({
         columnName: t("global.classes"),
         columnLabel: "classes",
         sortEnabled: true,
-        columnWidth: 100
+        columnWidth: 80
       },
       userType !== 2 && {
         columnName: t("global.status"),
@@ -688,19 +688,19 @@ export default defineComponent({
         columnName: t("global.have-exams"),
         columnLabel: "have_exams",
         sortEnabled: true,
-        columnWidth: 175
+        columnWidth: 150
       },
       {
         columnName: t("global.tutor-assigned"),
         columnLabel: "tutors",
         sortEnabled: false,
-        columnWidth: 175
+        columnWidth: 150
       },
       {
         columnName: t("global.actions"),
         columnLabel: "actions",
         sortEnabled: false,
-        columnWidth: 175
+        columnWidth: 270
       }
     ])
 
@@ -937,7 +937,7 @@ export default defineComponent({
           getDataTableBodyRows()
           Swal.fire({
             icon: "success",
-            text: t("global.group-class-un-registered-successfully"),
+            text: t("global.un-assign-tutor"),
             confirmButtonText: t("global.thank-you"),
             buttonsStyling: false,
             customClass: {confirmButton: "btn btn-primary"}

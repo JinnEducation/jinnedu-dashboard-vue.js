@@ -131,12 +131,13 @@ export default defineComponent({
         })),
         zoom_start_at: session.zoom_start_at,
         external_video_url: session.external_video_url,
-        instructor_id: props?.data?.instructor_id || null
+        instructor_id: props?.data?.instructor_id || null,
+        _method : "post",
       }
 
       try {
         if (session.id) {
-          payload.append("_method", "PUT")
+          payload._method = "PUT";
           await axiosClient.post(`/admin/items/${session.id}`, payload)
         } else {
           const res = await axiosClient.post(`/admin/courses/${courseId.value}/items`, payload)
@@ -150,6 +151,7 @@ export default defineComponent({
           customClass: {confirmButton: "btn btn-primary"}
         })
       } catch (e) {
+        console.log(e)
         Swal.fire({
           icon: "error",
           text: e.response?.data?.message || t("global.error-saving"),

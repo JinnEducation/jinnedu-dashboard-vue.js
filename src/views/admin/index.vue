@@ -8,7 +8,7 @@
             <div class="me-7 mb-4">
               <div class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative">
                 <img
-                  :src="PUBLIC_PATH + '/storage/' + profile?.avatar"
+                  :src="profile?.avatar"
                   :alt="about[0]?.first_name" />
                 <div
                   class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-white h-20px w-20px"></div>

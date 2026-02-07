@@ -48,14 +48,16 @@
 
                             <!-- Course Image -->
                             <div class="course-image" v-if="c.course_image">
-                                <img :src="c.course_image" :alt="c.title" />
+                                <img :src="c.course_image" :alt="c.title[languageId]" />
                             </div>
 
                             <!-- Card Top -->
                             <div class="card-top">
-                                <div class="course-title">{{ c.title }}</div>
+                                <div class="course-title">
+                                    {{ typeof c.title == "object" ? c.title[languageId] : c.title }}
+                                </div>
                                 <div class="course-desc" v-if="c.description">
-                                    {{ c.description }}
+                                    {{ typeof c.description == "object" ? c.description[languageId] : c.description }}
                                 </div>
                             </div>
 
@@ -94,6 +96,13 @@ import { useRouter, useRoute } from 'vue-router'
 import axiosClient from '@/plugins/axios' // عدّل المسار حسب مشروعك
 import { useI18n } from "vue-i18n"
 import Toolbar from "@/components/admin/dashboard/toolbar.vue"
+import { useStore } from "vuex"
+
+const store = useStore()
+const languages = computed(() => store.state.languages)
+const languageId = ref(null)
+const lang = languages.value.find((element) => element.shortname === store.state.language)
+languageId.value = lang ? lang.id : null
 
 const router = useRouter()
 const { t } = useI18n()

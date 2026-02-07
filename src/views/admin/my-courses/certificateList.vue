@@ -27,7 +27,7 @@
 
                             <!-- Card Top -->
                             <div class="card-top">
-                                <div class="course-title">{{ c.title }}</div>
+                                <div class="course-title">{{ typeof c.title == "object" ? c.title[languageId] : c.title }}</div>
                             </div>
 
                             <!-- Actions -->
@@ -51,6 +51,13 @@ import { ref, onMounted, computed, watch } from 'vue'
 import axiosClient from '@/plugins/axios' // عدّل المسار حسب مشروعك
 import { useI18n } from "vue-i18n"
 import Toolbar from "@/components/admin/dashboard/toolbar.vue"
+import { useStore } from "vuex"
+
+const store = useStore()
+const languages = computed(() => store.state.languages)
+const languageId = ref(null)
+const lang = languages.value.find((element) => element.shortname === store.state.language)
+languageId.value = lang ? lang.id : null
 
 const { t } = useI18n()
 const loading = ref(true)

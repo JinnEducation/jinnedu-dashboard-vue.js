@@ -13,16 +13,16 @@
         </template>
         <template v-else>
             <!-- Sidebar -->
-            <CourseSidebar :sections="sections" :activeItemId="activeItem?.id" :courseId="courseId"
+            <CourseSidebar :sections="sections" :activeItemId="activeItem?.id" :courseId="courseId" :languageId="languageId"
                 :courseTitle="courseTitle" :progressPercent="progressPercent" :initialStars="initialStars" :hasCertificate="hasCertificate"
-                :initialComment="initialComment" @selectItem="setActiveItem" @selectCertificate="selectCourseCertificate" />
+                :initialComment="initialComment" @selectItem="setActiveItem" @updateStart="updateStart" @selectCertificate="selectCourseCertificate" />
 
 
             <!-- Main Content -->
             <div class="course-main">
                 <CourseContent v-if="activeItem" :key="activeItem.id" :item="activeItem" @prev="goPrev" @next="goNext"
-                    @complete="completeItem" />
-                <CourseCertificate v-if="activeItemCertificate"  :courseId="courseId" />
+                    @complete="completeItem"  :languageId="languageId" />
+                <CourseCertificate v-if="activeItemCertificate"  :courseId="courseId" :initialStars="initialStars" />
             </div>
         </template>
     </div>
@@ -37,6 +37,14 @@ import CourseContent from "./CourseContent.vue"
 import CourseCertificate from "./CourseCertificate.vue"
 import { useI18n } from "vue-i18n"
 const { t } = useI18n()
+
+import { useStore } from "vuex"
+
+const store = useStore()
+const languages = computed(() => store.state.languages)
+const languageId = ref(null)
+const lang = languages.value.find((element) => element.shortname === store.state.language)
+languageId.value = lang ? lang.id : null
 
 
 /* =========================
@@ -90,7 +98,6 @@ const loadPlayer = async () => {
 
             // 3) حدّد العنصر النشط (أول غير مكتمل)
             activeIndex.value = findFirstUncompleted(flatItems.value)
-
             courseTitle.value = response.data.course?.title || ''
             hasCertificate.value = response.data.course?.has_certificate || 0
             initialStars.value = response.data.course?.review?.stars || 0
@@ -152,6 +159,9 @@ const setActiveItem = (itemId) => {
 const selectCourseCertificate = () => {
     activeIndex.value = null;
     activeItemCertificate.value = true;
+}
+const updateStart = (start) => {
+    initialStars.value = start;
 }
 
 /* =========================

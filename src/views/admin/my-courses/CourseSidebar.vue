@@ -8,7 +8,9 @@
         <template v-if="sidebarOpen">
 
             <div class="sidebar-header">
-                <h3 class="course-title">{{ courseTitle }}</h3>
+                <h3 class="course-title">
+                    {{ typeof courseTitle == "object" ? courseTitle[languageId] : courseTitle }}
+                </h3>
             </div>
             <div class="progress-wrapper">
                 <div class="progress-bar">
@@ -179,6 +181,10 @@ const props = defineProps({
         type: Number,
         default: null
     },
+    languageId: {
+        type: Number,
+        default: null
+    },
     progressPercent: {
         type: Number,
         default: null
@@ -200,7 +206,7 @@ const props = defineProps({
 /* =========================
   EMITS
 ========================= */
-const emit = defineEmits(['selectItem','selectCertificate'])
+const emit = defineEmits(['selectItem','selectCertificate','updateStart'])
 
 /* =========================
   STATE
@@ -247,8 +253,8 @@ const isSectionCompleted = (section) => {
 
 const getTitle = (obj) => {
     // يدعم langs أو title مباشر
-    if (obj.langs && obj.langs.length) {
-        return obj.langs[0].title
+    if (obj.title) {
+        return obj.title[props.languageId]
     }
     return obj.title || '—'
 }
@@ -300,6 +306,7 @@ const saveReview = async () => {
         )
 
         commentOpen.value = false
+        emit('updateStart',stars.value)
     } catch (e) {
         console.error(e)
     } finally {

@@ -32,8 +32,8 @@
     </div>
 
     <!-- Description -->
-    <p v-if="item.description" class="description">
-      {{ item.description }}
+    <p v-if="description" class="description">
+      {{ description }}
     </p>
 
     <!-- Actions -->
@@ -78,6 +78,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  languageId: {
+    type: Number,
+    default: null
+  },
   hasNext: {
     type: Boolean,
     default: true
@@ -88,10 +92,16 @@ const props = defineProps({
   COMPUTED
 ========================= */
 const title = computed(() => {
-  if (props.item.langs?.length) {
-    return props.item.langs[0].title
+  if (props.item.title) {
+    return props.item.title[props.languageId]
   }
   return props.item.title || '—'
+})
+const description = computed(() => {
+  if (props.item.description) {
+    return props.item.description[props.languageId]
+  }
+  return null
 })
 
 function onVideoEnded() {

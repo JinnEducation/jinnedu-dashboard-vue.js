@@ -219,7 +219,7 @@ export default defineComponent({
     const idCurrent = ref(null)
     const labelCurrent = ref({
       name: null,
-      file: null,
+      file: 'global',
       title: null
     })
 
@@ -284,7 +284,7 @@ export default defineComponent({
       idCurrent.value = null
       labelCurrent.value = {
         name: null,
-        file: null,
+        file: 'global',
         title: null
       }
 

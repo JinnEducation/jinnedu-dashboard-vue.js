@@ -42,6 +42,8 @@ import RolesList from "@/views/admin/roles/list.vue"
 import SectionList from "@/views/admin/sections/list.vue"
 import TranslationsList from "@/views/admin/translations/list.vue"
 import UsersList from "@/views/admin/users/list.vue"
+import FavoritesList from "@/views/admin/favorites/list.vue"
+import MailingList from "@/views/admin/mailing-list/list.vue"
 
 // CONFERENCE COMPONENTS
 import AddComplaintConferences from "@/views/admin/conferences/add-complaint.vue"
@@ -160,11 +162,6 @@ const router = createRouter({
           component: UnAvailable
         },
         {
-          path: "/dashboard/favorites/index",
-          name: "favorites-list",
-          component: UnAvailable
-        },
-        {
           path: "/dashboard/supports/index",
           name: "supports-list",
           component: UnAvailable
@@ -248,6 +245,16 @@ const router = createRouter({
           path: "/dashboard/users/index",
           name: "users",
           component: UsersList
+        },
+        {
+          path: "/dashboard/mailing-list/index",
+          name: "mailing-list",
+          component: MailingList
+        },
+        {
+          path: "/dashboard/favorites/index",
+          name: "favorites",
+          component: FavoritesList
         },
         {
           path: "/dashboard/accounting",

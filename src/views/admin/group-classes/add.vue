@@ -583,6 +583,7 @@ export default defineComponent({
 
     // Define necessary data for this specific component
     const API_PATH = ref(import.meta.env.VITE_APP_API_BASE_URL)
+    const Public_PATH = ref(import.meta.env.VITE_APP_Public_URL)
     const button = ref(null)
     const status = ref({status: null, date: null})
     // const approvement = ref({approvement: null})
@@ -674,7 +675,7 @@ export default defineComponent({
     // When upload thumbnail successfully add it to thumbnail url property
     const handleOnSuccess = (response) => {
       data.value.thumbnail.id = response.result.id
-      data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/storage/${
+      data.value.thumbnail.url = `${import.meta.env.VITE_APP_Public_URL}/storage/${
         response.result.path
       }`
       Swal.fire({
@@ -1084,7 +1085,7 @@ export default defineComponent({
                 .get(`medias/show/${result.image}`)
                 .then((responseMedia) => {
                   if (responseMedia.data.result?.path) {
-                    data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/storage/${
+                    data.value.thumbnail.url = `${import.meta.env.VITE_APP_Public_URL}/storage/${
                       responseMedia.data.result.path
                     }`
                   }
@@ -1152,6 +1153,7 @@ export default defineComponent({
       languages,
       tutors,
       API_PATH,
+      Public_PATH,
       SERVER_PATH,
       setEditorsRefs,
       handleOnSuccess,

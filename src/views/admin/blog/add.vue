@@ -92,9 +92,9 @@
                     <template v-if="statusValues.length > 0">
                       <el-option
                         v-for="item in statusValues"
-                        :key="item"
-                        :value="item"
-                        :label="item" />
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label" />
                     </template>
                   </el-select>
                 </el-form-item>
@@ -579,10 +579,28 @@ export default defineComponent({
         }
       })
 
-      if(userType === 2){
-        statusValues.value = ["draft"]
+      if (userType === 2) {
+        statusValues.value = [
+          {
+            value: "draft",
+            label: t("global.draft")
+          }
+        ]
       } else {
-        statusValues.value = ["draft", "published", "archived"]
+        statusValues.value = [
+          {
+            value: "draft",
+            label: t("global.draft")
+          },
+          {
+            value: "published",
+            label: t("global.published")
+          },
+          {
+            value: "archived",
+            label: t("global.archived")
+          }
+        ]
       }
     })
     return {

@@ -890,7 +890,7 @@ export default defineComponent({
               if (response.data.success) {
                 Swal.fire({
                   icon: "success",
-                  text: t("global.group-class-created-successfully"),
+                  text: id ? t("global.group-class-updated-successfully") : t("global.group-class-created-successfully"),
                   confirmButtonText: t("global.thank-you"),
                   buttonsStyling: false,
                   customClass: {confirmButton: "btn btn-primary"}

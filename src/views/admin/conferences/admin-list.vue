@@ -256,8 +256,18 @@
                     <br />
                   </template>
                   <template
-                    v-if="abilities.createTutorLink || abilities.destroy"
+                    v-if="abilities.createTutorLink || abilities.destroy || hasAnyRecordings"
                     #actions="{row: conference}">
+                    <a
+                      v-if="getRecordingMediaUrl(conference.recordings)"
+                      :href="getOpenVideoUrl(getRecordingMediaUrl(conference.recordings))"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-icon btn-light-primary me-2"
+                      :title="t('global.open_video')"
+                      :aria-label="t('global.open_video')">
+                      <i class="bi bi-play-circle"></i>
+                    </a>
                     <!-- <button
                   v-show="abilities.createTutorLink"
                   type="button"
@@ -314,6 +324,7 @@
 import Toolbar from "@/components/admin/dashboard/toolbar.vue"
 import DataTable from "@/components/admin/data-table/index.vue"
 import axiosClient from "@/plugins/axios"
+import {getOpenVideoUrl} from "@/composables/useRecordingVideoUrl"
 import getMenuAbilities from "@/plugins/get-menu-abilities"
 import arraySort from "array-sort"
 import {computed, defineComponent, onBeforeMount, onMounted, provide, ref} from "vue"
@@ -388,6 +399,12 @@ export default defineComponent({
         columnLabel: "status",
         sortEnabled: false,
         columnWidth: 100
+      },
+      {
+        columnName: t("global.actions"),
+        columnLabel: "actions",
+        sortEnabled: false,
+        columnWidth: 120
       }
     ])
 
@@ -406,6 +423,16 @@ export default defineComponent({
       {label: "Private Lesson", value: 4},
       {label: "Package", value: 7}
     ])
+
+    const getRecordingMediaUrl = (recordings) => {
+      if (!recordings) return null
+      const first = Array.isArray(recordings) ? recordings[0] : recordings
+      return first?.media_url ?? null
+    }
+
+    const hasAnyRecordings = computed(() =>
+      data.value.some((c) => getRecordingMediaUrl(c.recordings))
+    )
 
     // get tutors
     const tutorRemoteMethod = function tutorRemoteMethod(query) {
@@ -569,7 +596,10 @@ export default defineComponent({
       selectOptions,
       selectedRefType,
       selectedTutor,
-      handleTabChange
+      handleTabChange,
+      getOpenVideoUrl,
+      getRecordingMediaUrl,
+      hasAnyRecordings
     }
   }
 })

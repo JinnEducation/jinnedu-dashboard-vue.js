@@ -73,10 +73,10 @@
 
           <!-- Dropdown Menu -->
           <div v-if="isDropdownOpen" ref="dropdownRef" :class="userType === 0
-              ? 'dropdown-buttons'
-              : userType === 1
-                ? 'student-dropdown-buttons'
-                : 'tutor-dropdown-buttons'
+            ? 'dropdown-buttons'
+            : userType === 1
+              ? 'student-dropdown-buttons'
+              : 'tutor-dropdown-buttons'
             " class="absolute right-0 mt-2 bg-white border rounded-md shadow-md z-10">
             <ul class="list-links-with-icons" style="flex-direction: column; align-items: start; padding: 10px">
               <!-- chats -->
@@ -147,8 +147,8 @@
                         <button v-if="favorite.type === 1" type="button">
                           <div class="d-flex gap-2 align-items-center">
                             <img :src="favorite.tutor?.avatar
-                                ? `${favorite.tutor?.avatar}`
-                                : DefaultTutorImage
+                              ? `${favorite.tutor?.avatar}`
+                              : DefaultTutorImage
                               " :alt="'Tutor'" class="mw-50 mh-50px" />
                             <div class="col">
                               <h3>{{ favorite.tutor.full_name }}</h3>
@@ -158,15 +158,15 @@
                         </button>
 
                         <button v-if="favorite.type === 2" type="button">
-                          <div  class="d-flex gap-2 align-items-center">
+                          <div class="d-flex gap-2 align-items-center">
                             <img :src="favorite.course?.course_image
-                                ? `${PUBLIC_PATH}/storage/${favorite.course?.course_image}`
-                                : DefaultGroupClassImage "
-                                :alt="favorite.course.langs.find(l => Number(l.id) === Number(languageId))?.title"
+                              ? `${PUBLIC_PATH}/storage/${favorite.course?.course_image}`
+                              : DefaultGroupClassImage"
+                              :alt="favorite.course.langs.find(l => Number(l.id) === Number(languageId))?.title"
                               class="mw-50 mh-50px" />
                             <div class="col">
                               <h3>
-                                {{  favorite.course.langs.find(l => Number(l.id) === Number(languageId))?.title }}
+                                {{favorite.course.langs.find(l => Number(l.id) === Number(languageId))?.title}}
                               </h3>
                               <span> {{ t("global.course") }} </span>
                             </div>
@@ -176,8 +176,8 @@
                         <button v-if="favorite.type === 3" type="button">
                           <div class="favorite-container">
                             <img :src="favorite.group_class?.image_info?.path
-                                ? `${PUBLIC_PATH}/storage/${favorite.group_class?.image_info?.path}`
-                                : DefaultGroupClassImage
+                              ? `${PUBLIC_PATH}/storage/${favorite.group_class?.image_info?.path}`
+                              : DefaultGroupClassImage
                               " :alt="'Add Group Class Illustration'" class="mw-50 mh-50px h-70px w-70px" />
 
                             <div class="col">

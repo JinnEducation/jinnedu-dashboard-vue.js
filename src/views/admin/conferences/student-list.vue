@@ -65,8 +65,8 @@
     <div class="app-container container-xxl">
       <div class="card">
         <div class="card-header border-0 pt-6">
-          <div class="card-title">
-            <div class="d-flex align-items-center position-relative my-1">
+          <div class="card-title" style="flex: 1;">
+            <div class="d-flex align-items-center justify-content-between position-relative my-1">
               <span class="svg-icon svg-icon-1 position-absolute ms-6">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
                   <rect x="17" y="15" rx="1" width="8" height="2" transform="rotate(45 17 15)" fill="currentColor"
@@ -82,6 +82,12 @@
               <input id="search-student-conferences" type="text" name="search-conferences"
                 :placeholder="t('global.search-student-conferences')" data-kt-item-table-filter="search"
                 class="form-control form-control-solid w-250px ps-14" @keyup.enter="searchDataTableBodyRows" />
+              <router-link
+                to="/dashboard/conferences/student-recordings"
+                class="btn btn-sm btn-light-info me-3">
+                <i class="bi bi-camera-video me-1"></i>
+                {{ t("global.student-recordings") }}
+              </router-link>
             </div>
           </div>
         </div>
@@ -184,12 +190,15 @@
                   }}
                 </span>
               </template>
-              <template v-if="abilities.createStudentLink ||
-                abilities.addNote ||
-                abilities.addReview ||
-                abilities.addComplaint ||
-                abilities.uploadFile
-                " #actions="{ row: conference }">
+              <template
+                v-if="abilities.createStudentLink ||
+                  abilities.addNote ||
+                  abilities.addReview ||
+                  abilities.addComplaint ||
+                  abilities.uploadFile ||
+                  hasAnyRecordings
+                "
+                #actions="{ row: conference }">
                 <button v-if="conference.ref_type !== 1" type="button" aria-label="Reschedule"
                   class="btn btn-icon btn-light-info me-2 rescheduletooltip"
                   @click="showRescheduleModal(conference.id)">
@@ -311,6 +320,26 @@
                     <span class="filestooltiptext">{{ t("global.files") }}</span>
                   </span>
                 </router-link>
+                <a
+                  v-if="getRecordingMediaUrl(conference.recordings)"
+                  :href="getOpenVideoUrl(getRecordingMediaUrl(conference.recordings))"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-icon btn-light-info me-2"
+                  :title="t('global.open_video')"
+                  :aria-label="t('global.open_video')">
+                  <span class="svg-icon svg-icon-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem">
+                      <path
+                        d="M3,16 L5,16 C5.55228475,16 6,15.5522847 6,15 C6,14.4477153 5.55228475,14 5,14 L3,14 L3,12 L5,12 C5.55228475,12 6,11.5522847 6,11 C6,10.4477153 5.55228475,10 5,10 L3,10 L3,8 L5,8 C5.55228475,8 6,7.55228475 6,7 C6,6.44771525 5.55228475,6 5,6 L3,6 L3,4 C3,3.44771525 3.44771525,3 4,3 L10,3 C10.5522847,3 11,3.44771525 11,4 L11,19 C11,19.5522847 10.5522847,20 10,20 L4,20 C3.44771525,20 3,19.5522847 3,19 L3,16 Z"
+                        fill="currentColor"
+                        opacity="0.5" />
+                      <path
+                        d="M16,3 L19,3 C20.1045695,3 21,3.8954305 21,5 L21,15.2485298 C21,15.7329761 20.8241635,16.200956 20.5051534,16.565539 L17.8762883,19.5699562 C17.6944473,19.7777745 17.378566,19.7988332 17.1707477,19.6169922 C17.1540423,19.602375 17.1383289,19.5866616 17.1237117,19.5699562 L14.4948466,16.565539 C14.1758365,16.200956 14,15.7329761 14,15.2485298 L14,5 C14,3.8954305 14.8954305,3 16,3 Z"
+                        fill="currentColor" />
+                    </svg>
+                  </span>
+                </a>
                 <button v-show="abilities.destroy" type="button" aria-label="Delete"
                   class="btn btn-icon btn-light-danger deletetooltip" @click="deleteItem(conference.id)">
                   <span class="svg-icon svg-icon-danger">
@@ -338,6 +367,7 @@
 import Toolbar from "@/components/admin/dashboard/toolbar.vue"
 import DataTable from "@/components/admin/data-table/index.vue"
 import axiosClient from "@/plugins/axios"
+import {getOpenVideoUrl} from "@/composables/useRecordingVideoUrl"
 import getMenuAbilities from "@/plugins/get-menu-abilities"
 import arraySort from "array-sort"
 import { computed, defineComponent, onBeforeMount, onMounted, provide, ref } from "vue"
@@ -412,6 +442,16 @@ export default defineComponent({
     const itemsPerPage = ref(0)
     const initItems = ref([])
     const idsSelected = ref([])
+
+    const getRecordingMediaUrl = (recordings) => {
+      if (!recordings) return null
+      const first = Array.isArray(recordings) ? recordings[0] : recordings
+      return first?.media_url ?? null
+    }
+
+    const hasAnyRecordings = computed(
+      () => data.value.some((c) => getRecordingMediaUrl(c.recordings))
+    )
 
     const getDataTableBodyRows = function getDataTableBodyRows(queryString = "") {
       loading.value = true
@@ -575,7 +615,10 @@ export default defineComponent({
       showRescheduleModal,
       handleRescheduleSubmit,
       loadingMeetUrl,
-      baseUrl
+      baseUrl,
+      getOpenVideoUrl,
+      getRecordingMediaUrl,
+      hasAnyRecordings
     }
   }
 })

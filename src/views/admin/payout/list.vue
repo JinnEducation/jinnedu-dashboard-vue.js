@@ -15,7 +15,7 @@
                         <div
                           class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
                           <div class="d-flex align-items-center">
-                            <div class="fs-2 fw-bold">{{ tutorInfo.balance }}</div>
+                            <div class="fs-2 fw-bold">{{ tutorInfo?.balance }}</div>
                           </div>
                           <div class="fw-semibold fs-6 text-gray-500">
                             {{ t("global.balance") }}
@@ -26,9 +26,9 @@
                           <div class="d-flex align-items-center">
                             <div
                               class="fs-2 fw-bold"
-                              data-kt-countup="true"
-                              data-kt-countup-value="75">
-                              {{ tutorInfo.withdraw_amount }}
+                              data-kt-countup="false"
+                              :data-kt-countup-value="tutorInfo?.withdraw_amount">
+                              {{ tutorInfo?.withdraw_amount }}
                             </div>
                           </div>
                           <div class="fw-semibold fs-6 text-gray-500">
@@ -118,7 +118,7 @@
                   <span>{{ statusLabel(payout.status) }}</span>
                 </template>
 
-                <template #transfer="{row: payout}">
+                <!-- <template #transfer="{row: payout}">
                   <button
                     v-if="payout.method === 'paypal'"
                     type="button"
@@ -127,7 +127,7 @@
                     @click="transferModal(payout.id)">
                     {{ t("global.transfer") }}
                   </button>
-                </template>
+                </template> -->
 
                 <template #paypal_status="{row: payout}">
                   <span v-if="payout.method === 'paypal'">{{ payout.paypal_status }}</span>
@@ -409,6 +409,7 @@ export default defineComponent({
             })
             .then((tutorResponses) => {
               tutorInfo.value = tutorResponses.data
+              console.log(tutorInfo.value)
             })
         })
         .catch((error) => {
@@ -550,6 +551,7 @@ export default defineComponent({
     }
 
     const statusLabel = (status) => {
+      return status
       switch (status) {
         case "R":
           return t("global.review")

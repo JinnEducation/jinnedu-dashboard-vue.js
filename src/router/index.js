@@ -51,9 +51,11 @@ import AddNoteConferences from "@/views/admin/conferences/add-note.vue"
 import AddReviewConferences from "@/views/admin/conferences/add-review.vue"
 import AdminConferences from "@/views/admin/conferences/admin-list.vue"
 import StudentConferences from "@/views/admin/conferences/student-list.vue"
+import StudentRecordingsList from "@/views/admin/conferences/student-recordings-list.vue"
 import TutorConferences from "@/views/admin/conferences/tutor-list.vue"
 import TutorConferenceDetials from "@/views/admin/conferences/tutorConferenceDetials/tutorConferenceDetials.vue"
 import UploadFileConferences from "@/views/admin/conferences/upload-file.vue"
+import UploadVideoConferences from "@/views/admin/conferences/upload-video.vue"
 import ViewComplaintConferences from "@/views/admin/conferences/view-complaint.vue"
 
 // ORDER COMPONENTS
@@ -69,6 +71,7 @@ import RoleAdd from "@/views/admin/roles/add.vue"
 import SectionAdd from "@/views/admin/sections/add.vue"
 import payoutAdd from "@/views/admin/payout/add.vue"
 import payoutList from "@/views/admin/payout/list.vue"
+import tutorFinancesList from "@/views/admin/tutor-finances/list.vue"
 import UserInfo from "@/views/admin/user-info.vue"
 import TutorInformation from "@/views/admin/users/tutor-information.vue"
 import StudentInformation from "@/views/admin/users/student-information.vue"
@@ -77,6 +80,7 @@ import Settings from "@/views/admin/settings/list.vue"
 import SettingUpdate from "@/views/admin/settings/edit.vue"
 import ContactUs from "@/views/admin/contact-us/index.vue"
 import Accounting from "@/views/admin/accounting/list.vue"
+import tutorFinancesAccounting from "@/views/admin/tutor-finances/accounting.vue"
 import TutorFinance from "@/views/admin/finance/tutorFinance.vue"
 
 import UnAvailable from "@/views/admin/unAvailable.vue"
@@ -532,6 +536,11 @@ const router = createRouter({
           component: StudentConferences
         },
         {
+          path: "/dashboard/conferences/student-recordings",
+          name: "student-recordings",
+          component: StudentRecordingsList
+        },
+        {
           path: "/dashboard/conferences/:conference/notes/",
           name: "add-note-conferences",
           component: AddNoteConferences
@@ -556,6 +565,11 @@ const router = createRouter({
           name: "upload-file-conferences",
           component: UploadFileConferences
         },
+        {
+          path: "/dashboard/conferences/:conference/recordings",
+          name: "upload-video-conferences",
+          component: UploadVideoConferences
+        },
         // COMPLAINTS ROUTES
         {
           path: "/dashboard/complaints/index/:conference_id?",
@@ -574,7 +588,17 @@ const router = createRouter({
           component: AdminChat
         },
         {
-          path: "/dashboard/payout/index",
+          path: "/dashboard/tutor-finances/index",
+          name: "tutor-finances-list",
+          component: tutorFinancesList
+        },
+        {
+          path: "/dashboard/tutor-finances/accounting",
+          name: "tutor-finances-accounting",
+          component: tutorFinancesAccounting
+        },
+        {
+          path: "/dashboard/payout/list",
           name: "payout-list",
           component: payoutList
         },

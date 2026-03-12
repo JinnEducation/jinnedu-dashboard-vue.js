@@ -5,7 +5,7 @@
     ref="addLabelModal"
     header-id="kt_modal_add_label_header"
     close-id="kt_modal_add_label_close"
-    title="Add Label"
+    :title="idCurrent ? t('global.edit-button') + ' ' + t('global.label') : t('global.add-button') + ' ' + t('global.label')"
     form-id="kt_modal_add_label_form"
     :form-model="label"
     :form-model-reset="modelReset"
@@ -103,10 +103,9 @@ export default defineComponent({
             {
               required: true,
               trigger: "change",
-              message: `global.${language.name} is required`
+              message: t(`global.${language.name}-is-required`)
             }
           ]
-
           if (id.value) {
             if (label.value.trans) {
               label.value.trans.forEach((translation) => {

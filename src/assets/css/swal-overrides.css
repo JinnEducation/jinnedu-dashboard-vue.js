@@ -1,0 +1,4 @@
+/* Hide SweetAlert2 validation message - we handle validation in our own UI */
+.swal2-validation-message {
+  display: none !important;
+}

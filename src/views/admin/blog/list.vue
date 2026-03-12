@@ -114,8 +114,9 @@
 
               <!-- الحالة -->
               <template #status="{ row: post }">
-                <span v-if="post.status === 'published'" class="text-success">Published</span>
-                <span v-else class="text-muted">Draft</span>
+                <span v-if="post.status === 'published'" class="text-success">{{ t("global.published") }}</span>
+                <span v-else-if="post.status === 'draft'" class="text-muted">{{ t("global.draft") }}</span>
+                <span v-else-if="post.status === 'archived'" class="text-muted">{{ t("global.archived") }}</span>
               </template>
 
               <!-- الأزرار -->

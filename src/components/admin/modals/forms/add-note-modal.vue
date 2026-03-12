@@ -47,7 +47,7 @@ export default defineComponent({
     const addNoteModal = ref(null)
     const id = toRef(props, "idCurrent")
     const conference = toRef(props, "conferenceCurrent")
-    const rules = ref({note: [{required: true, trigger: "change", message: "Note is required"}]})
+    const rules = ref({note: [{required: true, trigger: "change", message: t("global.note-is-required")}]})
 
     const submit = function submit() {
       if (!addNoteModal.value.form) return

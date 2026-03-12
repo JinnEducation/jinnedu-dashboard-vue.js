@@ -4,7 +4,7 @@
     ref="addConstantModal"
     header-id="kt_modal_add_constant_header"
     close-id="kt_modal_add_constant_close"
-    title="Add Constant"
+    :title="title"
     form-id="kt_modal_add_constant_form"
     :form-model="constant"
     :form-model-reset="modelReset"
@@ -19,7 +19,7 @@
         <el-form-item prop="currency" class="mb-0">
           <el-select
             v-model="constant.name"
-            placeholder="Select currency"
+            :placeholder="t('global.select-currency')"
             style="width: 100%"
             filterable>
             <el-option
@@ -70,8 +70,9 @@
 
 <script>
 import {hideModal, removeModalBackdrop} from "@/core/helpers/dom"
-import {defineComponent, onBeforeUpdate, onUpdated, ref, toRef} from "vue"
+import {defineComponent, onBeforeUpdate, onUpdated, ref, toRef, computed} from "vue"
 import {useI18n} from "vue-i18n"
+import axios from "axios"
 import axiosClient from "../../../../plugins/axios"
 import ModalLayout from "../../../layouts/admin/modal.vue"
 
@@ -91,6 +92,18 @@ export default defineComponent({
     const constantName = toRef(props, "constantName")
     const constant = toRef(props, "constantCurrent")
 
+    const title = computed(() => {
+      let titleConstant = ""
+      if (constantName.value === "currencies") {
+        titleConstant = t("global.currency")
+      } else {
+        titleConstant = t("global.constant")
+      }
+      return id.value
+        ? `${t("global.edit-button")} ${titleConstant}`
+        : `${t("global.add-button")} ${titleConstant}`
+    })
+
     const currencies = ref([])
 
     const rules = ref({
@@ -99,8 +112,9 @@ export default defineComponent({
 
     const fetchCurrencies = async () => {
       try {
-        const response = await axiosClient.get(
-          "https://api.fastforex.io/currencies?api_key=4146caa721-7b424cd3a8-sh6gtc"
+        // Use plain axios (not axiosClient) to avoid sending Bearer token - FastForex may reject requests with unexpected Authorization header
+        const response = await axios.get(
+          "https://api.fastforex.io/currencies?api_key=2c3d14ce0b-303d068075-tbop50"
         )
         const currencyData = response.data.currencies
         currencies.value = Object.entries(currencyData).map(([value, label]) => ({
@@ -115,7 +129,9 @@ export default defineComponent({
     const languages = ref([])
 
     onUpdated(() => {
-      fetchCurrencies()
+      if (constantName.value === "currencies") {
+        fetchCurrencies()
+      }
 
       axiosClient.get("/locales/langs").then((response) => {
         languages.value = response.data.data
@@ -124,7 +140,7 @@ export default defineComponent({
             {
               required: true,
               trigger: "change",
-              message: t(`global.${language.name} is required`)
+              message: t(`global.${language.name}-is-required`)
             }
           ]
           if (id.value) {
@@ -237,7 +253,8 @@ export default defineComponent({
       languages,
       modelReset,
       submit,
-      t
+      t,
+      title
     }
   }
 })

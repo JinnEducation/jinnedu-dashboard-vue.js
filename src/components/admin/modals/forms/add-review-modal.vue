@@ -68,7 +68,7 @@ export default defineComponent({
         {
           required: true,
           trigger: "change",
-          message: "Stars is required"
+          message: t("global.stars-is-required")
         }
       ],
       comment: [

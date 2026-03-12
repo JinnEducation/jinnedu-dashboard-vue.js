@@ -41,7 +41,7 @@
           :validate-on-rule-change="false"
           class="form"
           @submit.prevent="formSubmit">
-          <div class="modal-body scroll-y mx-5 mx-xl-15 my-7">
+          <div class="modal-body mx-5 mx-xl-15 my-7">
             <div
               :id="scroll"
               data-kt-scroll="true"
@@ -50,6 +50,7 @@
               data-kt-scroll-activate="{default: false, lg: true}"
               data-kt-scroll-max-height="auto"
               data-kt-scroll-offset="300px"
+              style="scrollbar-width: none"
               class="d-flex flex-column scroll-y me-n7 pe-7">
               <slot />
             </div>

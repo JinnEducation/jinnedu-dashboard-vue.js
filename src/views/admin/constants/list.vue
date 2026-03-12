@@ -235,8 +235,6 @@ export default defineComponent({
       }
     ])
 
-    console.log(constant.value)
-
     const data = ref([])
     const itemsTotal = ref(0)
     const currentPage = ref(0)

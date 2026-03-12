@@ -247,6 +247,17 @@
                     </template> -->
                   </template>
 
+                  <template #finance_status="{row: conference}">
+                    <span
+                      v-if="conference.has_approved_finance"
+                      class="badge badge-light-success fs-7 m-1">
+                      {{ t("global.accepted") }}
+                    </span>
+                    <span v-else class="badge badge-light fs-7 m-1">
+                      {{ t("global.pending") }}
+                    </span>
+                  </template>
+
                   <template #status="{row: conference}">
                     {{
                       (conference.student_change_date || conference.tutor_change_date) == 1
@@ -256,8 +267,28 @@
                     <br />
                   </template>
                   <template
-                    v-if="abilities.createTutorLink || abilities.destroy || hasAnyRecordings"
+                    v-if="
+                      abilities.createTutorLink ||
+                      abilities.destroy ||
+                      hasAnyRecordings ||
+                      hasAnyPendingFinance
+                    "
                     #actions="{row: conference}">
+                    <button
+                      v-if="selectedType !== 'Trial Lesson' && !conference.has_approved_finance"
+                      type="button"
+                      class="btn btn-icon btn-light-success me-2"
+                      :title="t('global.calculate-session')"
+                      :aria-label="t('global.calculate-session')"
+                      :disabled="addTutorFinanceLoadingId === conference.id"
+                      @click="addTutorFinance(conference)">
+                      <span
+                        v-if="addTutorFinanceLoadingId === conference.id"
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                        aria-hidden="true" />
+                      <i v-else class="bi bi-check-circle" />
+                    </button>
                     <a
                       v-if="getRecordingMediaUrl(conference.recordings)"
                       :href="getOpenVideoUrl(getRecordingMediaUrl(conference.recordings))"
@@ -369,7 +400,7 @@ export default defineComponent({
 
     const {t} = useI18n()
     const loading = ref(false)
-    const header = ref([
+    const baseHeader = [
       {columnName: "#", columnLabel: "id", sortEnabled: false, columnWidth: 75},
       {columnName: t("global.title"), columnLabel: "title", sortEnabled: false, columnWidth: 100},
       {columnName: t("global.type"), columnLabel: "ref_type", sortEnabled: false, columnWidth: 100},
@@ -393,7 +424,12 @@ export default defineComponent({
         sortEnabled: false,
         columnWidth: 100
       },
-
+      {
+        columnName: t("global.session-status"),
+        columnLabel: "finance_status",
+        sortEnabled: false,
+        columnWidth: 100
+      },
       {
         columnName: t("global.status"),
         columnLabel: "status",
@@ -406,7 +442,12 @@ export default defineComponent({
         sortEnabled: false,
         columnWidth: 120
       }
-    ])
+    ]
+    const header = computed(() =>
+      selectedType.value === "Trial Lesson"
+        ? baseHeader.filter((col) => col.columnLabel !== "finance_status")
+        : baseHeader
+    )
 
     const data = ref([])
     const itemsTotal = ref(0)
@@ -433,6 +474,69 @@ export default defineComponent({
     const hasAnyRecordings = computed(() =>
       data.value.some((c) => getRecordingMediaUrl(c.recordings))
     )
+
+    const hasAnyPendingFinance = computed(() => data.value.some((c) => !c.has_approved_finance))
+
+    const addTutorFinanceLoadingId = ref(null)
+
+    const getAddTutorFinanceErrorMessage = (message, msgCode) => {
+      const problemIntro = t("global.there-is-a-problem")
+      if (message === "order-dose-not-exist" || msgCode === "222") {
+        const problemKey = "global.order-dose-not-exist"
+        const problemText =
+          t(problemKey) !== problemKey ? t(problemKey) : t("global.order-not-found")
+        return `${problemIntro}: ${problemText}`
+      }
+      if (message) {
+        const problemKey = `global.${message}`
+        const problemText = t(problemKey) !== problemKey ? t(problemKey) : message
+        return `${problemIntro}: ${problemText}`
+      }
+      return problemIntro
+    }
+
+    const addTutorFinance = function addTutorFinance(conference) {
+      addTutorFinanceLoadingId.value = conference.id
+      axiosClient
+        .post(`/conferences/${conference.id}/add-tutor-finance`)
+        .then((response) => {
+          const res = response?.data
+          if (res?.success === false) {
+            const msg = getAddTutorFinanceErrorMessage(res.message, res["msg-code"])
+            Swal.fire({
+              icon: "error",
+              text: msg,
+              buttonsStyling: false,
+              customClass: {confirmButton: "btn btn-danger"}
+            })
+            return
+          }
+          const item = data.value.find((c) => c.id === conference.id)
+          if (item) item.has_approved_finance = true
+          Swal.fire({
+            icon: "success",
+            text: t("global.session-calculated-successfully"),
+            buttonsStyling: false,
+            customClass: {confirmButton: "btn btn-success"}
+          })
+        })
+        .catch((error) => {
+          const res = error?.response?.data
+          const msg =
+            res?.success === false
+              ? getAddTutorFinanceErrorMessage(res?.message, res?.["msg-code"])
+              : res?.message || t("global.unknown-error")
+          Swal.fire({
+            icon: "error",
+            text: msg,
+            buttonsStyling: false,
+            customClass: {confirmButton: "btn btn-danger"}
+          })
+        })
+        .finally(() => {
+          addTutorFinanceLoadingId.value = null
+        })
+    }
 
     // get tutors
     const tutorRemoteMethod = function tutorRemoteMethod(query) {
@@ -599,7 +703,10 @@ export default defineComponent({
       handleTabChange,
       getOpenVideoUrl,
       getRecordingMediaUrl,
-      hasAnyRecordings
+      hasAnyRecordings,
+      hasAnyPendingFinance,
+      addTutorFinance,
+      addTutorFinanceLoadingId
     }
   }
 })

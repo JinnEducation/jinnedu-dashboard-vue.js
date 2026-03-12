@@ -110,7 +110,7 @@
                     {
                       required: true,
                       trigger: "change",
-                      message: ${language.name} is required
+                      message: t(`global.${language.name}-is-required`)
                     }
                   ]
                   if (id.value) {

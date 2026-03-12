@@ -53,7 +53,14 @@
                     :on-success="handleOnSuccess"
                     :before-upload="handleBeforeUpload">
                     <div v-if="data.image" class="relative d-inline-block">
-                      <img :src="data.image" alt="Blog Image" class="avatar-image" />
+                      <img
+                        :src="
+                          data.image?.startsWith('http')
+                            ? data.image
+                            : `${STORAGE_BASE}/storage/${data.image}`
+                        "
+                        alt="Blog Image"
+                        class="avatar-image" />
                       <el-button
                         type="danger"
                         size="small"
@@ -137,11 +144,11 @@
                 </div>
               </div>
               <div class="card-body pt-0">
-                <el-form-item label="Date" prop="date">
+                <el-form-item :label="t('global.date')" prop="date">
                   <el-date-picker
                     v-model="data.date"
                     type="date"
-                    placeholder="Select publish date"
+                    :placeholder="t('global.select-publish-date')"
                     format="YYYY-MM-DD"
                     value-format="YYYY-MM-DD"
                     style="width: 100%" />
@@ -253,6 +260,8 @@ export default defineComponent({
     const {languages} = store.state
     const {id} = route.params
     const token = computed(() => store.state.user.token)
+    const STORAGE_BASE =
+      import.meta.env.VITE_APP_Public_URL || "https://learning.jinnedu.com/public"
     const imageUploading = ref(false)
     const {userInfo} = store.state
     const userInfoObject = JSON.parse(userInfo)
@@ -307,23 +316,21 @@ export default defineComponent({
         {
           required: true,
           trigger: "change",
-          message: t(`global.title-in-${name.charAt(0).toUpperCase() + name.slice(1)}-required`)
+          message: t(`global.title-in-${name.toLowerCase()}-required`)
         }
       ]
       rules.value.slug[langId] = [
         {
           required: true,
           trigger: "change",
-          message: t(`global.slug-in-${name.charAt(0).toUpperCase() + name.slice(1)}-required`)
+          message: t(`global.slug-in-${name.toLowerCase()}-required`)
         }
       ]
       rules.value.description[langId] = [
         {
           required: true,
           trigger: "change",
-          message: t(
-            `global.description-in-${name.charAt(0).toUpperCase() + name.slice(1)}-required`
-          )
+          message: t(`global.description-in-${name.toLowerCase()}-required`)
         }
       ]
     })
@@ -606,6 +613,7 @@ export default defineComponent({
     return {
       id,
       API_PATH,
+      STORAGE_BASE,
       t,
       loading,
       form,

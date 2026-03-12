@@ -1,15 +1,35 @@
 <template>
-  <modal-layout id="kt_modal_add_constant" ref="addConstantModal" header-id="kt_modal_add_constant_header"
-    close-id="kt_modal_add_constant_close" title="Add Constant" form-id="kt_modal_add_constant_form"
-    :form-model="constant" :form-model-reset="modelReset" :form-rules="rules" scroll-id="kt_modal_add_constant_scroll"
+  <modal-layout
+    id="kt_modal_add_constant"
+    ref="addConstantModal"
+    header-id="kt_modal_add_constant_header"
+    close-id="kt_modal_add_constant_close"
+    :title="
+      idCurrent
+        ? t('global.edit-button') + ' ' + t('global.level')
+        : t('global.add-button') + ' ' + t('global.level')
+    "
+    form-id="kt_modal_add_constant_form"
+    :form-model="constant"
+    :form-model-reset="modelReset"
+    :form-rules="rules"
+    scroll-id="kt_modal_add_constant_scroll"
     @form-submit="submit">
     <template v-if="constantName === 'currencies'">
       <div class="fv-row mb-7">
         <label for="currency" class="required fw-semibold fs-6 mb-2">
-          {{ t("global.currency") }}</label>
+          {{ t("global.currency") }}</label
+        >
         <el-form-item prop="currency" class="mb-0">
-          <el-select v-model="constant.name" placeholder="Select currency" style="width: 100%" filterable>
-            <el-option v-for="currency in currencies" :key="currency.value" :label="currency.label"
+          <el-select
+            v-model="constant.name"
+            placeholder="Select currency"
+            style="width: 100%"
+            filterable>
+            <el-option
+              v-for="currency in currencies"
+              :key="currency.value"
+              :label="currency.label"
               :value="currency.value" />
           </el-select>
         </el-form-item>
@@ -21,7 +41,11 @@
           {{ t("global.name") }}
         </label>
         <el-form-item prop="name" class="mb-0">
-          <el-input id="constant-name" v-model="constant.name" type="text" name="constant-name"
+          <el-input
+            id="constant-name"
+            v-model="constant.name"
+            type="text"
+            name="constant-name"
             :placeholder="t('global.name')" />
         </el-form-item>
       </div>
@@ -30,8 +54,14 @@
           {{ t("global.level-number") }}
         </label>
         <el-form-item prop="level_number" class="mb-0">
-          <el-input id="constant-number" v-model="constant.level_number" type="number" min="1" max="100"
-            name="constant-number" :placeholder="t('global.level-number')" />
+          <el-input
+            id="constant-number"
+            v-model="constant.level_number"
+            type="number"
+            min="1"
+            max="100"
+            name="constant-number"
+            :placeholder="t('global.level-number')" />
         </el-form-item>
       </div>
       <div v-for="language in languages" :key="language.name" class="fv-row mb-7">
@@ -39,12 +69,18 @@
           {{ language.name.charAt(0).toUpperCase() + language.name.slice(1) }}
         </label>
         <el-form-item :prop="language.name" class="mb-0">
-          <el-input :id="`language-${language.id}`" v-model="constant[language.name]" type="text"
-            :name="`language-${language.id}`" :placeholder="t(
-              `global.${language.name.charAt(0).toLowerCase() + language.name.slice(1)
-              }-translation`
-            )
-              " />
+          <el-input
+            :id="`language-${language.id}`"
+            v-model="constant[language.name]"
+            type="text"
+            :name="`language-${language.id}`"
+            :placeholder="
+              t(
+                `global.${
+                  language.name.charAt(0).toLowerCase() + language.name.slice(1)
+                }-translation`
+              )
+            " />
         </el-form-item>
       </div>
     </template>
@@ -52,23 +88,23 @@
 </template>
 
 <script>
-import { hideModal, removeModalBackdrop } from "@/core/helpers/dom"
-import { defineComponent, onBeforeUpdate, onUpdated, ref, toRef } from "vue"
-import { useI18n } from "vue-i18n"
+import {hideModal, removeModalBackdrop} from "@/core/helpers/dom"
+import {defineComponent, onBeforeUpdate, onUpdated, ref, toRef} from "vue"
+import {useI18n} from "vue-i18n"
 import axiosClient from "../../../../plugins/axios"
 import ModalLayout from "../../../layouts/admin/modal.vue"
 
 export default defineComponent({
   name: "add-constant-modal",
-  components: { ModalLayout },
+  components: {ModalLayout},
   props: {
-    idCurrent: { type: Number, required: false, default: null },
-    constantName: { type: String, require: false, default: null },
-    constantCurrent: { type: Object, require: false, default: null }
+    idCurrent: {type: Number, required: false, default: null},
+    constantName: {type: String, require: false, default: null},
+    constantCurrent: {type: Object, require: false, default: null}
   },
   emits: ["after-on-submit"],
-  setup(props, { emit, expose }) {
-    const { t } = useI18n()
+  setup(props, {emit, expose}) {
+    const {t} = useI18n()
     const addConstantModal = ref(null)
     const id = toRef(props, "idCurrent")
     const constantName = toRef(props, "constantName")
@@ -77,13 +113,16 @@ export default defineComponent({
     const currencies = ref([])
 
     const rules = ref({
-      name: [{ required: true, trigger: "change", message: t("global.name-required") }]
+      name: [{required: true, trigger: "change", message: t("global.name-required")}],
+      level_number: [
+        {required: true, trigger: "change", message: t("global.level-number-is-required")}
+      ]
     })
 
     const fetchCurrencies = async () => {
       try {
         const response = await axiosClient.get(
-          "https://api.fastforex.io/currencies?api_key=4146caa721-7b424cd3a8-sh6gtc"
+          "https://api.fastforex.io/currencies?api_key=2c3d14ce0b-303d068075-tbop50"
         )
         const currencyData = response.data.currencies
         currencies.value = Object.entries(currencyData).map(([value, label]) => ({
@@ -107,7 +146,7 @@ export default defineComponent({
             {
               required: true,
               trigger: "change",
-              message: t(`global.${language.name} is required`)
+              message: t(`global.${language.name}-is-required`)
             }
           ]
           if (id.value) {
@@ -167,7 +206,7 @@ export default defineComponent({
                 text: t("global.constant-added-successfully"),
                 confirmButtonText: t("global.thank-you"),
                 buttonsStyling: false,
-                customClass: { confirmButton: "btn btn-primary" }
+                customClass: {confirmButton: "btn btn-primary"}
               })
 
               hideModal(addConstantModal.value.modal)
@@ -183,7 +222,7 @@ export default defineComponent({
                 text: t("global.errors-detected"),
                 confirmButtonText: t("global.got-it"),
                 buttonsStyling: false,
-                customClass: { confirmButton: "btn btn-danger" }
+                customClass: {confirmButton: "btn btn-danger"}
               })
             })
             .finally(() => {
@@ -199,7 +238,7 @@ export default defineComponent({
             html: errorMessages.join("<br>"),
             confirmButtonText: t("global.got-it"),
             buttonsStyling: false,
-            customClass: { confirmButton: "btn btn-danger" }
+            customClass: {confirmButton: "btn btn-danger"}
           })
 
           button.value.removeAttribute("data-kt-indicator")
@@ -215,7 +254,7 @@ export default defineComponent({
       })
     }
 
-    expose({ addConstantModal })
+    expose({addConstantModal})
     return {
       addConstantModal,
       constant,

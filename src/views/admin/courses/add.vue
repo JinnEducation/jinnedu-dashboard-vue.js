@@ -568,6 +568,7 @@ export default defineComponent({
             await axiosClient.post(`admin/courses`, fd)
           }
 
+          Swal.close()
           Swal.fire({
             icon: "success",
             text: t("global.saved-successfully"),

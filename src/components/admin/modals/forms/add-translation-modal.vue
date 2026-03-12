@@ -5,7 +5,11 @@
     ref="addTranslationModal"
     header-id="kt_modal_add_translation_header"
     close-id="kt_modal_add_translation_close"
-    :title="id ? t('global.edit-translation') : t('global.add-translation')"
+    :title="
+      id
+        ? t('global.edit-button') + ' ' + t('global.translations')
+        : t('global.add-button') + ' ' + t('global.translations')
+    "
     form-id="kt_modal_add_translation_form"
     :form-model="translation"
     :form-model-reset="modelReset"
@@ -26,13 +30,15 @@
       </el-form-item>
     </div>
     <div class="fv-row mb-7">
-      <label for="translation-label-name" class="required fw-semibold fs-6 mb-2">Label</label>
+      <label for="translation-label-name" class="required fw-semibold fs-6 mb-2">{{
+        t("global.label")
+      }}</label>
       <el-form-item prop="label" class="mb-0">
         <el-select
           id="translation-label-name"
           v-model="translation.label"
           name="translation-label-name"
-          placeholder="Enter translation's label"
+          :placeholder="t('global.enter-translation-label')"
           filterable
           remote
           remote-show-suffix
@@ -56,7 +62,7 @@
           id="translation-language-name"
           v-model="translation.language"
           name="translation-language-name"
-          placeholder="Enter translation's language">
+          :placeholder="t('global.enter-translation-language')">
           <el-option
             v-for="language in languages"
             :key="language.id"
@@ -91,9 +97,11 @@ export default defineComponent({
     const {t} = useI18n()
 
     const rules = ref({
-      title: [{required: true, trigger: "change", message: "Title is required"}],
-      label: [{required: true, trigger: "change", message: "Label Name is required"}],
-      language: [{required: true, trigger: "change", message: "Language Name is required"}]
+      title: [{required: true, trigger: "change", message: t("global.title-is-required")}],
+      label: [{required: true, trigger: "change", message: t("global.label-name-is-required")}],
+      language: [
+        {required: true, trigger: "change", message: t("global.language-name-is-required")}
+      ]
     })
 
     const labels = ref()

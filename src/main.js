@@ -10,6 +10,7 @@ import Router from "./router"
 import Store from "./store"
 import "./assets/css/plugins.css"
 import "./assets/css/style1.css" // Default style
+import "./assets/css/swal-overrides.css"
 
 import "@/plugins/echo"
 

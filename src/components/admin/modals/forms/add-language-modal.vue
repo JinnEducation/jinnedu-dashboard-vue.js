@@ -5,12 +5,11 @@
     ref="addLanguageModal"
     header-id="kt_modal_add_language_header"
     close-id="kt_modal_add_language_close"
-    title="Add Language"
+    :title="t('global.add-language')"
     form-id="kt_modal_add_language_form"
     :form-model="language"
     :form-model-reset="modelReset"
     :form-rules="rules"
-    scroll-id="kt_modal_add_language_scroll"
     @form-submit="submit">
     <div class="fv-row mb-7">
       <label for="language-name" class="required fw-semibold fs-6 mb-2">{{
@@ -117,12 +116,31 @@ export default defineComponent({
     const id = toRef(props, "idCurrent")
     const language = toRef(props, "languageCurrent")
 
+    const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/
+
     const rules = ref({
       name: [{required: true, trigger: "change", message: t("global.name-required")}],
       shortname: [{required: true, trigger: "change", message: t("global.short-name-required")}],
       direction: [{required: true, trigger: "change", message: t("global.direction-required")}],
       dirword: [{required: true, trigger: "change", message: t("global.direction-required")}],
-      icon: [{required: true, trigger: "change", message: t("global.icon-required")}],
+      icon: [
+        {required: false, trigger: "change", message: t("global.icon-required")},
+        {
+          validator: (rule, value, callback) => {
+            if (!value) return callback()
+            if (!urlRegex.test(value)) {
+              callback(
+                new Error(
+                  t("global.icon-must-be-url") || "Icon must be a valid URL (http:// or https://)"
+                )
+              )
+            } else {
+              callback()
+            }
+          },
+          trigger: "change"
+        }
+      ],
       status: [{required: false, trigger: "change"}]
     })
 
@@ -163,10 +181,29 @@ export default defineComponent({
               removeModalBackdrop()
               emit("after-on-submit")
             })
-            .catch(() => {
+            .catch((response) => {
+              let errorMessageE = ""
+              switch (response.response.status) {
+                case 555:
+                  errorMessageE = t("errors.book-date-is-old")
+                  break
+                case 666:
+                  errorMessageE = t("errors.book-date-is-same")
+                  break
+                case 777:
+                  errorMessageE = t("errors.book-date-is-not-arranged")
+                  break
+                case 422:
+                  errorMessageE = response.response.data.message
+                  break
+                default:
+                  errorMessageE = t("global.unknown-error")
+                  break
+              }
+              console.log("errorMessageE: ", response.response.status)
               Swal.fire({
                 icon: "error",
-                text: t("global.errors-detected"),
+                text: errorMessageE,
                 confirmButtonText: t("global.got-it"),
                 buttonsStyling: false,
                 customClass: {confirmButton: "btn btn-danger"}

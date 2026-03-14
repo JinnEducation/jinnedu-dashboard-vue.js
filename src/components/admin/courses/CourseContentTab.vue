@@ -44,7 +44,7 @@
 
 <script>
 /* eslint-disable vue/no-mutating-props, no-param-reassign */
-import {defineComponent, ref, computed, onMounted} from "vue"
+import {defineComponent, ref, computed, onMounted, onUnmounted, inject, defineExpose} from "vue"
 import {useI18n} from "vue-i18n"
 import {useRoute} from "vue-router"
 import {useStore} from "vuex"
@@ -108,9 +108,10 @@ export default defineComponent({
       }
     }
 
-    const saveIntroSession = async (session) => {
+    const saveIntroSession = async (session, options = {}) => {
       if (!courseId.value) return
 
+      const {silent = false} = options
       let typeIntro = "intro"
       if (session.content_source === "zoom") {
         typeIntro = "intro_zoom"
@@ -143,22 +144,27 @@ export default defineComponent({
           const res = await axiosClient.post(`/admin/courses/${courseId.value}/items`, payload)
           introSession.value.id = res.data.item?.id || res.data.data.id
         }
-        Swal.fire({
-          icon: "success",
-          text: t("global.saved-successfully"),
-          confirmButtonText: t("global.got-it"),
-          buttonsStyling: false,
-          customClass: {confirmButton: "btn btn-primary"}
-        })
+        if (!silent) {
+          Swal.fire({
+            icon: "success",
+            text: t("global.saved-successfully"),
+            confirmButtonText: t("global.got-it"),
+            buttonsStyling: false,
+            customClass: {confirmButton: "btn btn-primary"}
+          })
+        }
       } catch (e) {
         console.log(e)
-        Swal.fire({
+        if (!silent) {
+          Swal.fire({
           icon: "error",
           text: e.response?.data?.message || t("global.error-saving"),
           confirmButtonText: t("global.got-it"),
           buttonsStyling: false,
           customClass: {confirmButton: "btn btn-danger"}
         })
+        }
+        throw e
       }
     }
 
@@ -313,9 +319,10 @@ export default defineComponent({
       })
     }
 
-    const saveItem = async (item) => {
+    const saveItem = async (item, options = {}) => {
       if (!courseId.value) return
 
+      const {silent = false} = options
       item._saving = true
 
       try {
@@ -364,23 +371,28 @@ export default defineComponent({
           })
         }
 
-        Swal.fire({
-          icon: "success",
-          text: t("global.saved-successfully"),
-          confirmButtonText: t("global.got-it"),
-          buttonsStyling: false,
-          customClass: {confirmButton: "btn btn-primary"}
-        })
+        if (!silent) {
+          Swal.fire({
+            icon: "success",
+            text: t("global.saved-successfully"),
+            confirmButtonText: t("global.got-it"),
+            buttonsStyling: false,
+            customClass: {confirmButton: "btn btn-primary"}
+          })
+        }
         await sortItems()
       } catch (e) {
         console.log(e)
-        Swal.fire({
-          icon: "error",
-          text: e.response?.data?.message || t("global.error-saving"),
-          confirmButtonText: t("global.got-it"),
-          buttonsStyling: false,
-          customClass: {confirmButton: "btn btn-danger"}
-        })
+        if (!silent) {
+          Swal.fire({
+            icon: "error",
+            text: e.response?.data?.message || t("global.error-saving"),
+            confirmButtonText: t("global.got-it"),
+            buttonsStyling: false,
+            customClass: {confirmButton: "btn btn-danger"}
+          })
+        }
+        throw e
       } finally {
         item._saving = false
       }
@@ -493,7 +505,46 @@ export default defineComponent({
       return true
     }
 
+    /**
+     * حفظ كل المحتوى (intro, sections, items, section titles) - يُستدعى من الزر الرئيسي
+     */
+    const saveAllContent = async () => {
+      if (!courseId.value) return
+
+      // 1. Intro session
+      if (introSession.value) {
+        await saveIntroSession(introSession.value, {silent: true})
+      }
+
+      // 2. Sections: إنشاء الجديدة، وتحديث العناوين للموجودة (saveSectionTitle)
+      await sections.value.reduce(
+        async (prev, section) => {
+          await prev
+          if (!section.id) {
+            await saveSection(section)
+          } else {
+            await saveSectionTitle(section)
+          }
+        },
+        Promise.resolve()
+      )
+
+      // 4. Items
+      const allItems = sections.value.flatMap((s) => sectionItems(s.id))
+      await allItems.reduce(
+        async (prev, item) => {
+          await prev
+          await saveItem(item, {silent: true})
+        },
+        Promise.resolve()
+      )
+    }
+
+    const registerContentSave = inject("registerContentSave", null)
     onMounted(() => {
+      if (registerContentSave) {
+        registerContentSave(saveAllContent)
+      }
       if (!courseId.value) return
 
       contentLoading.value = true
@@ -575,6 +626,14 @@ export default defineComponent({
           contentLoading.value = false
         })
     })
+
+    onUnmounted(() => {
+      if (registerContentSave) {
+        registerContentSave(null)
+      }
+    })
+
+    defineExpose({saveAllContent})
 
     return {
       t,

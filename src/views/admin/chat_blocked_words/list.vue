@@ -304,7 +304,7 @@ export default defineComponent({
       else idsSelected.value = [...idsSelected.value, ...itemsSelected]
     }
 
-    const deleteBlockedWord = (id) => {
+    const deleteBlockedWord = function deleteBlockedWord(id) {
       Swal.fire({
         icon: "error",
         text: t("global.ensure-delete"),
@@ -314,7 +314,7 @@ export default defineComponent({
         buttonsStyling: false,
         customClass: {confirmButton: "btn btn-danger", cancelButton: "btn btn-active-light"}
       }).then((result) => {
-        if (result.isConfirmed) {
+        if (result.isConfirmed || result.value) {
           axiosClient.delete(`/chat-blocked-words/${id}`).then(() => {
             Swal.fire({
               icon: "success",

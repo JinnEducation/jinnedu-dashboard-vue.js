@@ -9,7 +9,7 @@
 
       <div class="d-flex gap-2">
         <!-- Edit title (languages tabs فقط للعنوان) -->
-        <el-popover trigger="click" width="420">
+        <el-popover v-model:visible="titlePopoverVisible" trigger="click" width="420">
           <template #reference>
             <el-button type="primary" plain size="small">
               {{ t("global.edit_title") }}
@@ -27,7 +27,7 @@
           </languages-tabs>
 
           <div class="d-flex justify-content-end mt-3">
-            <el-button type="primary" size="small" @click="$emit('save-title', section)">
+            <el-button type="primary" size="small" @click="handleSaveTitle">
               {{ t("global.save") }}
             </el-button>
           </div>
@@ -74,7 +74,7 @@
 
 <script>
 /* eslint-disable vue/no-mutating-props */
-import {defineComponent} from "vue"
+import {defineComponent, ref} from "vue"
 import {useI18n} from "vue-i18n"
 import LanguagesTabs from "@/components/admin/languages-tabs.vue"
 import ItemEditor from "./ItemEditor.vue"
@@ -122,6 +122,12 @@ export default defineComponent({
   emits: ["save-title", "save", "delete", "add-item", "save-item", "delete-item", "move-item"],
   setup(props, {emit}) {
     const {t} = useI18n()
+    const titlePopoverVisible = ref(false)
+
+    const handleSaveTitle = () => {
+      emit("save-title", props.section)
+      titlePopoverVisible.value = false
+    }
 
     const handleItemSave = (item) => {
       emit("save-item", item)
@@ -141,6 +147,8 @@ export default defineComponent({
 
     return {
       t,
+      titlePopoverVisible,
+      handleSaveTitle,
       handleItemSave,
       handleItemDelete,
       handleItemMove

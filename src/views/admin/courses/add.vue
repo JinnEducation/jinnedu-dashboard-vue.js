@@ -268,8 +268,8 @@
                   </el-tab-pane>
 
                   <!-- CONTENT -->
-                  <el-tab-pane :label="t('global.content')" name="content">
-                    <CourseContentTab :id="id" :data="data" />
+                  <el-tab-pane :label="t('global.content')" name="content" :lazy="false">
+                    <CourseContentTab ref="courseContentTabRef" :id="id" :data="data" />
                   </el-tab-pane>
                 </el-tabs>
               </div>
@@ -298,7 +298,7 @@ import LanguagesTabs from "@/components/admin/languages-tabs.vue"
 import CourseContentTab from "@/components/admin/courses/CourseContentTab.vue"
 import VideoUploader from "@/components/admin/VideoUploader.vue"
 import { ElMessage as Message } from "element-plus"
-import { defineComponent, onBeforeMount, onMounted, ref, computed, watch } from "vue"
+import { defineComponent, onBeforeMount, onMounted, ref, computed, provide } from "vue"
 import { useI18n } from "vue-i18n"
 import { useRoute, useRouter } from "vue-router"
 import { useStore } from "vuex"
@@ -334,6 +334,11 @@ export default defineComponent({
     const loading = ref(false)
     const form = ref(null)
     const button = ref(null)
+    const courseContentTabRef = ref(null)
+    const saveAllContentFn = ref(null)
+    provide("registerContentSave", (fn) => {
+      saveAllContentFn.value = fn
+    })
 
     const categories = ref([])
     const instructors = ref([])
@@ -524,6 +529,12 @@ export default defineComponent({
         button.value?.setAttribute("data-kt-indicator", "on")
 
         try {
+          // حفظ كل المحتوى (intro, sections, items) قبل حفظ الكورس الأساسي
+          const saveContent = saveAllContentFn.value || courseContentTabRef.value?.saveAllContent
+          if (id && saveContent) {
+            await saveContent()
+          }
+
           const fd = new FormData()
 
           fd.append("category_id", data.value.category_id ?? "")
@@ -668,6 +679,7 @@ export default defineComponent({
       mediaId,
       form,
       button,
+      courseContentTabRef,
       categories,
       languageId,
       CourseContentTab,

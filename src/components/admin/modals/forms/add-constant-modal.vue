@@ -202,9 +202,6 @@ export default defineComponent({
               hideModal(addConstantModal.value.modal)
               removeModalBackdrop()
               emit("after-on-submit")
-
-              // Reload the page upon success
-              window.location.reload()
             })
             .catch(() => {
               Swal.fire({

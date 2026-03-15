@@ -37,8 +37,8 @@ export default defineComponent({
     const {t} = useI18n()
 
     const statuses = ref([
-      {name: "In-Active", id: 0, color: "bg-danger"},
-      {name: "Active", id: 1, color: "bg-success"}
+      {name: t("global.in-active"), id: 0, color: "bg-danger"},
+      {name: t("global.active"), id: 1, color: "bg-success"}
     ])
 
     const defaultRef = toRef(props, "default")

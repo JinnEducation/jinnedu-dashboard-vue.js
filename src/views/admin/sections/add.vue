@@ -1,6 +1,6 @@
 <!-- DONE REVIEWING: NEW -->
 <template>
-  <toolbar :title="`Add ${section.charAt(0).toUpperCase() + section.slice(1)}`" />
+  <toolbar :title="`${t('global.add')} ${sectionTitle}`" />
   <div class="app-content flex-column-fluid">
     <div class="app-container container-xxl">
       <template v-if="loading">
@@ -36,7 +36,14 @@
                   :before-upload="handleBeforeUpload">
                   <!-- Image Preview + Remove -->
                   <div v-if="data.thumbnail && data.thumbnail.url" class="relative d-inline-block">
-                    <img :src="data.thumbnail.url" alt="Uploading Image" class="avatar" />
+                    <img
+                      :src="
+                        data.thumbnail.url?.startsWith('http')
+                          ? data.thumbnail.url
+                          : `${STORAGE_BASE}/storage/${data.thumbnail.url}`
+                      "
+                      alt="Uploading Image"
+                      class="avatar" />
                     <el-button
                       type="danger"
                       size="small"
@@ -63,7 +70,7 @@
             <div class="card card-flush py-4">
               <div class="card-header">
                 <div class="card-title">
-                  <h2>{{ section.charAt(0).toUpperCase() + section.slice(1) }}</h2>
+                  <h2>{{ sectionTitle }}</h2>
                 </div>
               </div>
               <div class="card-body pt-0">
@@ -106,8 +113,8 @@
                       <rect x="6" y="11" rx="1" width="12" height="2" fill="currentColor" />
                     </svg>
                   </span>
-                  {{ section }}
                   {{ t("global.create-a-new") }}
+                  {{ sectionTitle }}
                 </router-link>
               </div>
             </div>
@@ -136,7 +143,6 @@
                     </template>
                   </el-select>
                 </el-form-item>
-                <div class="text-muted fs-7">{{ t(`global.add-tags-to-${section}`) }}</div>
               </div>
             </div>
 
@@ -164,7 +170,6 @@
                     </template>
                   </el-select>
                 </el-form-item>
-                <div class="text-muted fs-7">{{ t(`global.add-type-to-${section}`) }}</div>
               </div>
             </div>
           </div>
@@ -173,7 +178,7 @@
               <div class="card-body pt-0">
                 <div class="mb-10 fv-row">
                   <label :for="`${section}-title`" class="required form-label">
-                    {{ section.charAt(0).toUpperCase() + section.slice(1) }}
+                    {{ sectionTitle }}
                     {{ t("global.title") }}
                   </label>
                   <el-form-item :prop="`title.${[slot.language.id]}`">
@@ -189,7 +194,7 @@
                 </div>
                 <div class="mb-10 fv-row">
                   <label :for="`${section}-summary`" class="required form-label">
-                    {{ section.charAt(0).toUpperCase() + section.slice(1) }}
+                    {{ sectionTitle }}
                     {{ t("global.summary") }}
                   </label>
                   <el-form-item :prop="`summary.${[slot.language.id]}`">
@@ -205,7 +210,7 @@
                 </div>
                 <div class="fv-row">
                   <label :for="`${section}-description`" class="form-label">
-                    {{ section.charAt(0).toUpperCase() + section.slice(1) }}
+                    {{ sectionTitle }}
                     {{ t("global.description") }}
                   </label>
                   <div
@@ -223,15 +228,6 @@
                     :name="`${section}-description`"
                     :data-language-id="slot.language.id"
                     class="min-h-200px mb-2"></quill-editor> -->
-                  <div class="text-muted fs-7">
-                    {{
-                      t(
-                        `global.set-a-description-to-${
-                          section.charAt(0).toLowerCase() + section.slice(1)
-                        }-for-better-visibility`
-                      )
-                    }}
-                  </div>
                 </div>
               </div>
             </languages-tabs>
@@ -239,7 +235,7 @@
               <div class="card-header">
                 <div class="card-title">
                   <h2 class="required">
-                    {{ section.charAt(0).toUpperCase() + section.slice(1) }}
+                    {{ sectionTitle }}
                     {{ t("global.name") }}
                   </h2>
                 </div>
@@ -328,6 +324,9 @@ export default defineComponent({
     const {section, id} = route.params
     const API_PATH = ref(import.meta.env.VITE_APP_API_BASE_URL)
     const token = computed(() => store.state.user.token)
+    const sectionTitle = computed(() => t(`global.${section}-single`))
+    const STORAGE_BASE =
+      import.meta.env.VITE_APP_Public_URL || "https://learning.jinnedu.com/public"
 
     // Define form necessary data
     const loading = ref(null)
@@ -440,9 +439,7 @@ export default defineComponent({
     // When upload thumbnail successfully add it to thumbnail url property
     const handleOnSuccess = (response) => {
       data.value.thumbnail.id = response.result.id
-      data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/${
-        response.result.path
-      }`
+      data.value.thumbnail.url = `${STORAGE_BASE}/storage/${response.result.path}`
       Swal.fire({
         icon: "success",
         text: t("global.thumbnail-added-successfully"),
@@ -677,6 +674,8 @@ export default defineComponent({
     return {
       section,
       loading,
+      sectionTitle,
+      STORAGE_BASE,
       form,
       rules,
       button,

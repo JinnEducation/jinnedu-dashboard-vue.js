@@ -1,7 +1,7 @@
 // DONE REVIEWING: 23/06/2023
-import { createRouter, createWebHistory } from "vue-router"
+import {createRouter, createWebHistory} from "vue-router"
 
-import i18n, { getI18nLanguages } from "@/plugins/i18n"
+import i18n, {getI18nLanguages} from "@/plugins/i18n"
 import store from "@/store"
 
 // AUTH COMPONENTS
@@ -91,6 +91,12 @@ import MenusAdd from "@/views/admin/menus/add.vue"
 // blog
 import OurBlogList from "@/views/admin/blog/list.vue"
 import OurArticalADD from "@/views/admin/blog/add.vue"
+// faq
+import FaqList from "@/views/admin/faq/list.vue"
+import FaqAdd from "@/views/admin/faq/add.vue"
+// help articles
+import HelpArticlesList from "@/views/admin/help-articles/list.vue"
+import HelpArticlesAdd from "@/views/admin/help-articles/add.vue"
 // cateqblog
 import CateqBlogList from "@/views/admin/cateqblog/list.vue"
 import CateqBlogADD from "@/views/admin/cateqblog/add.vue"
@@ -109,7 +115,6 @@ import CoursePlayer from "@/views/admin/my-courses/CoursePlayer.vue"
 import MyCourseList from "@/views/admin/my-courses/list.vue"
 import MyCertificateList from "@/views/admin/my-courses/certificateList.vue"
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_APP_BASE_DIRECTORY),
   routes: [
@@ -117,13 +122,13 @@ const router = createRouter({
     {
       path: "/",
       name: "root",
-      redirect: { name: "dashboard" }
+      redirect: {name: "dashboard"}
     },
     {
       path: "/dashboard",
       name: "dashboard",
-      meta: { protected: true },
-      redirect: { name: "index" },
+      meta: {protected: true},
+      redirect: {name: "index"},
       component: DashboardLayout,
       children: [
         {
@@ -135,24 +140,24 @@ const router = createRouter({
           path: "/dashboard/my-courses/all",
           name: "my-courses-all",
           component: MyCourseList,
-          meta: { type: 'all' }
+          meta: {type: "all"}
         },
         {
           path: "/dashboard/my-courses/completed",
           name: "my-courses-completed",
           component: MyCourseList,
-          meta: { type: 'completed' }
+          meta: {type: "completed"}
         },
         {
           path: "/dashboard/my-courses/unfinished",
           name: "my-courses-unfinished",
           component: MyCourseList,
-          meta: { type: 'unfinished' }
+          meta: {type: "unfinished"}
         },
         {
           path: "/dashboard/my-courses/certificates",
           name: "my-courses-certificates",
-          component: MyCertificateList,
+          component: MyCertificateList
         },
         // UnAvailable
         {
@@ -417,6 +422,38 @@ const router = createRouter({
           name: "private-artical-update",
           component: OurArticalADD
         },
+        // faq
+        {
+          path: "/dashboard/faq/index",
+          name: "faq-list",
+          component: FaqList
+        },
+        {
+          path: "/dashboard/faq/create",
+          name: "faq-create",
+          component: FaqAdd
+        },
+        {
+          path: "/dashboard/faq/update/:id",
+          name: "faq-update",
+          component: FaqAdd
+        },
+        // help articles
+        {
+          path: "/dashboard/help-articles/index/:audience?",
+          name: "help-articles-list",
+          component: HelpArticlesList
+        },
+        {
+          path: "/dashboard/help-articles/create",
+          name: "help-articles-create",
+          component: HelpArticlesAdd
+        },
+        {
+          path: "/dashboard/help-articles/update/:id",
+          name: "help-articles-update",
+          component: HelpArticlesAdd
+        },
         // cateqblog
         {
           path: "/dashboard/cateqblog/index",
@@ -618,15 +655,15 @@ const router = createRouter({
     {
       path: "/my-courses",
       name: "my-courses",
-      meta: { protected: true },
-      redirect: { name: "my-courses-index" },
+      meta: {protected: true},
+      redirect: {name: "my-courses-index"},
       component: MyCoursesLayout,
       children: [
         {
           path: "/my-courses/:id/index",
           name: "my-courses-index",
           component: CoursePlayer
-        },
+        }
       ]
     },
     // AUTH ROUTES,
@@ -637,15 +674,15 @@ const router = createRouter({
     },
     {
       path: "/sign-in-check",
-      meta: { protected: false },
+      meta: {protected: false},
       name: "sign-in-check",
       component: StudentSignInCheck
     },
     {
       path: "/auth",
       name: "auth",
-      meta: { protected: false },
-      redirect: { name: "sign-in" },
+      meta: {protected: false},
+      redirect: {name: "sign-in"},
       component: AuthLayout,
       children: [
         {
@@ -690,14 +727,14 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (store.state.user.token) {
-    if (to.path.split("/")[1] === "auth") next({ name: "root" })
+    if (to.path.split("/")[1] === "auth") next({name: "root"})
     else next()
-  } else if (to.meta.protected) next({ name: "auth" })
+  } else if (to.meta.protected) next({name: "auth"})
   else next()
 })
 
 router.beforeEach((to, from, next) => {
-  let { languages } = store.state
+  let {languages} = store.state
   if (!languages) languages = store.dispatch("getAPILanguages")
 
   Promise.resolve(languages).then(() => {

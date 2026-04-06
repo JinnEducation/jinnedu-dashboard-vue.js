@@ -19,6 +19,7 @@ import {defineComponent, ref} from "vue"
 import {useI18n} from "vue-i18n"
 import {auth, provider, signInWithPopup} from "../../../../firebase"
 import {useStore} from "vuex"
+import {useRouter} from "vue-router"
 
 export default defineComponent({
   name: "form-button",
@@ -26,6 +27,7 @@ export default defineComponent({
     const {t} = useI18n() // Access translations
     const button = ref(null) // Reference to the button
     const store = useStore()
+    const router = useRouter()
 
     expose({button}) // Expose the button reference for parent components
 
@@ -49,7 +51,7 @@ export default defineComponent({
 
         store.dispatch("signInWithGoogle", postData).then((response) => {
           if (response.token) {
-            window.location.assign(window.location.origin)
+            router.replace("/dashboard/index")
           } else {
             Swal.fire({
               icon: "error",

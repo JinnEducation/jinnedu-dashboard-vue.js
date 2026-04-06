@@ -14,6 +14,25 @@ const i18n = createI18n({
 
 const i18nLanguages = []
 
+const getI18nCacheKey = (language) => `I18N_LANG_${language}`
+
+const getCachedI18nMessages = (language) => {
+  try {
+    const cached = localStorage.getItem(getI18nCacheKey(language))
+    return cached ? JSON.parse(cached) : null
+  } catch {
+    return null
+  }
+}
+
+const setCachedI18nMessages = (language, messagesData) => {
+  try {
+    localStorage.setItem(getI18nCacheKey(language), JSON.stringify(messagesData))
+  } catch {
+    // ignore storage quota/runtime issues
+  }
+}
+
 export const setI18nDirections = function setI18nDirections(language, direction) {
   // eslint-disable-next-line
   direction = direction === "rtl" ? direction : ""
@@ -64,9 +83,9 @@ export const setI18nLanguages = function setI18nLanguages(language, direction) {
 }
 
 export const getI18nLanguages = async function getI18nLanguages(language) {
-  try {
-    store.state.loading = true
+  if (!language) return
 
+  try {
     // حمّل اللغات لو مش موجودة
     let languages = store.state.languages
     if (!Array.isArray(languages) || !languages.length) {
@@ -74,9 +93,9 @@ export const getI18nLanguages = async function getI18nLanguages(language) {
     }
 
     // طابق بالـ lowercase لتفادي اختلافات مثل ar vs ar-SA
-    const langKey = String(language || '').toLowerCase()
-    const matched = languages.find(l =>
-      String(l.shortname || l.short_name || '').toLowerCase() === langKey
+    const langKey = String(language || "").toLowerCase()
+    const matched = languages.find(
+      (l) => String(l.shortname || l.short_name || "").toLowerCase() === langKey
     )
 
     if (!matched) {
@@ -86,22 +105,32 @@ export const getI18nLanguages = async function getI18nLanguages(language) {
       return
     }
 
-    const direction = matched.direction || 'ltr'
+    const direction = matched.direction || "ltr"
+    const localeMessages = i18n.global.getLocaleMessage(language)
+    const hasLocaleMessages = localeMessages && Object.keys(localeMessages).length > 0
 
-    if (i18nLanguages.includes(language)) {
+    if (i18nLanguages.includes(language) || hasLocaleMessages) {
       if (language !== i18n.locale) setI18nLanguages(language, direction)
       return
     }
 
-    const { data } = await axiosClient.get(`/locales/lang/${language}?v=${Date.now()}`)
+    const cachedMessages = getCachedI18nMessages(language)
+    if (cachedMessages) {
+      i18nLanguages.push(language)
+      i18n.global.setLocaleMessage(language, cachedMessages)
+      return setI18nLanguages(language, direction)
+    }
+
+    store.state.loading = true
+
+    const {data} = await axiosClient.get(`/locales/lang/${language}`)
     i18nLanguages.push(language)
     i18n.global.setLocaleMessage(language, data)
+    setCachedI18nMessages(language, data)
     return setI18nLanguages(language, direction)
-
   } finally {
-    setTimeout(() => { store.state.loading = false }, 1500)
+    store.state.loading = false
   }
 }
-
 
 export default i18n

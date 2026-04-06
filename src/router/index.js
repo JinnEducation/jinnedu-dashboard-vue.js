@@ -5,115 +5,116 @@ import i18n, {getI18nLanguages} from "@/plugins/i18n"
 import store from "@/store"
 
 // AUTH COMPONENTS
-import AuthLayout from "@/components/layouts/admin/auth.vue"
-import MyCoursesLayout from "@/components/layouts/admin/my-courses.vue"
-import DashboardLayout from "@/components/layouts/admin/dashboard.vue"
-import ForgotPassword from "@/views/admin/auth/forgot-password.vue"
-import NewPassword from "@/views/admin/auth/new-password.vue"
-import StudentSignIn from "@/views/admin/auth/student-sign-in.vue"
-import StudentSignInCheck from "@/views/admin/auth/student-sign-in-check.vue"
-import AdminSignIn from "@/views/admin/auth/admin-sign-in.vue"
+const AuthLayout = () => import("@/components/layouts/admin/auth.vue")
+const MyCoursesLayout = () => import("@/components/layouts/admin/my-courses.vue")
+const DashboardLayout = () => import("@/components/layouts/admin/dashboard.vue")
+const ForgotPassword = () => import("@/views/admin/auth/forgot-password.vue")
+const NewPassword = () => import("@/views/admin/auth/new-password.vue")
+const StudentSignIn = () => import("@/views/admin/auth/student-sign-in.vue")
+const StudentSignInCheck = () => import("@/views/admin/auth/student-sign-in-check.vue")
+const AdminSignIn = () => import("@/views/admin/auth/admin-sign-in.vue")
 
 // import AdminSignIn from "@/views/admin/admin-sign-in.vue"sign-up-17-2-2025
-import SignUp from "@/views/admin/auth/sign-up.vue"
+const SignUp = () => import("@/views/admin/auth/sign-up.vue")
 // import Profile from "@/views/admin/profile.vue"
-import EmailVerify from "@/views/admin/auth/verify-email.vue"
+const EmailVerify = () => import("@/views/admin/auth/verify-email.vue")
 
 // GLOBAL COMPONENTS
-import PrivateChat from "@/views/admin/chats/private-chat.vue"
-import AdminChat from "@/views/admin/chats/admin-chat.vue"
-import Index from "@/views/admin/index.vue"
+const PrivateChat = () => import("@/views/admin/chats/private-chat.vue")
+const AdminChat = () => import("@/views/admin/chats/admin-chat.vue")
+const Index = () => import("@/views/admin/index.vue")
 
 // LIST COMPONENTS
-import ComplaintsList from "@/views/admin/complaints/list.vue"
-import ConstantsList from "@/views/admin/constants/list.vue"
-import ContentList from "@/views/admin/contents/list.vue"
-import ExamList from "@/views/admin/exams/list.vue"
-import GroupCLassExam from "@/views/admin/exams/exam-group-class.vue"
-import ForbiddenWords from "@/views/admin/words/list.vue"
-import TransactionsList from "@/views/admin/transactions/list.vue"
-import PaymentTransactionsList from "@/views/admin/paymentTransactions/list.vue"
-import GroupClassList from "@/views/admin/group-classes/list.vue"
-import LabelsList from "@/views/admin/labels/list.vue"
-import LanguagesList from "@/views/admin/languages/list.vue"
-import CourseList from "@/views/admin/courses/list.vue"
+const ComplaintsList = () => import("@/views/admin/complaints/list.vue")
+const ConstantsList = () => import("@/views/admin/constants/list.vue")
+const ContentList = () => import("@/views/admin/contents/list.vue")
+const ExamList = () => import("@/views/admin/exams/list.vue")
+const GroupCLassExam = () => import("@/views/admin/exams/exam-group-class.vue")
+const ForbiddenWords = () => import("@/views/admin/words/list.vue")
+const TransactionsList = () => import("@/views/admin/transactions/list.vue")
+const PaymentTransactionsList = () => import("@/views/admin/paymentTransactions/list.vue")
+const GroupClassList = () => import("@/views/admin/group-classes/list.vue")
+const LabelsList = () => import("@/views/admin/labels/list.vue")
+const LanguagesList = () => import("@/views/admin/languages/list.vue")
+const CourseList = () => import("@/views/admin/courses/list.vue")
 // import TutorOurCourse from "@/views/admin/courses/tutor-index.vue"
-import RolesList from "@/views/admin/roles/list.vue"
-import SectionList from "@/views/admin/sections/list.vue"
-import TranslationsList from "@/views/admin/translations/list.vue"
-import UsersList from "@/views/admin/users/list.vue"
-import FavoritesList from "@/views/admin/favorites/list.vue"
-import MailingList from "@/views/admin/mailing-list/list.vue"
+const RolesList = () => import("@/views/admin/roles/list.vue")
+const SectionList = () => import("@/views/admin/sections/list.vue")
+const TranslationsList = () => import("@/views/admin/translations/list.vue")
+const UsersList = () => import("@/views/admin/users/list.vue")
+const FavoritesList = () => import("@/views/admin/favorites/list.vue")
+const MailingList = () => import("@/views/admin/mailing-list/list.vue")
 
 // CONFERENCE COMPONENTS
-import AddComplaintConferences from "@/views/admin/conferences/add-complaint.vue"
-import AddNoteConferences from "@/views/admin/conferences/add-note.vue"
-import AddReviewConferences from "@/views/admin/conferences/add-review.vue"
-import AdminConferences from "@/views/admin/conferences/admin-list.vue"
-import StudentConferences from "@/views/admin/conferences/student-list.vue"
-import StudentRecordingsList from "@/views/admin/conferences/student-recordings-list.vue"
-import TutorConferences from "@/views/admin/conferences/tutor-list.vue"
-import TutorConferenceDetials from "@/views/admin/conferences/tutorConferenceDetials/tutorConferenceDetials.vue"
-import UploadFileConferences from "@/views/admin/conferences/upload-file.vue"
-import UploadVideoConferences from "@/views/admin/conferences/upload-video.vue"
-import ViewComplaintConferences from "@/views/admin/conferences/view-complaint.vue"
+const AddComplaintConferences = () => import("@/views/admin/conferences/add-complaint.vue")
+const AddNoteConferences = () => import("@/views/admin/conferences/add-note.vue")
+const AddReviewConferences = () => import("@/views/admin/conferences/add-review.vue")
+const AdminConferences = () => import("@/views/admin/conferences/admin-list.vue")
+const StudentConferences = () => import("@/views/admin/conferences/student-list.vue")
+const StudentRecordingsList = () => import("@/views/admin/conferences/student-recordings-list.vue")
+const TutorConferences = () => import("@/views/admin/conferences/tutor-list.vue")
+const TutorConferenceDetials = () =>
+  import("@/views/admin/conferences/tutorConferenceDetials/tutorConferenceDetials.vue")
+const UploadFileConferences = () => import("@/views/admin/conferences/upload-file.vue")
+const UploadVideoConferences = () => import("@/views/admin/conferences/upload-video.vue")
+const ViewComplaintConferences = () => import("@/views/admin/conferences/view-complaint.vue")
 
 // ORDER COMPONENTS
-import AdminOrders from "@/views/admin/orders/admin-list.vue"
-import MyOrders from "@/views/admin/orders/my-list.vue"
+const AdminOrders = () => import("@/views/admin/orders/admin-list.vue")
+const MyOrders = () => import("@/views/admin/orders/my-list.vue")
 
 // ADD COMPONENTS
-import ContentAdd from "@/views/admin/contents/add.vue"
-import ExamAdd from "@/views/admin/exams/add.vue"
-import GroupClassAdd from "@/views/admin/group-classes/add.vue"
-import CourseADD from "@/views/admin/courses/add.vue"
-import RoleAdd from "@/views/admin/roles/add.vue"
-import SectionAdd from "@/views/admin/sections/add.vue"
-import payoutAdd from "@/views/admin/payout/add.vue"
-import payoutList from "@/views/admin/payout/list.vue"
-import tutorFinancesList from "@/views/admin/tutor-finances/list.vue"
-import UserInfo from "@/views/admin/user-info.vue"
-import TutorInformation from "@/views/admin/users/tutor-information.vue"
-import StudentInformation from "@/views/admin/users/student-information.vue"
+const ContentAdd = () => import("@/views/admin/contents/add.vue")
+const ExamAdd = () => import("@/views/admin/exams/add.vue")
+const GroupClassAdd = () => import("@/views/admin/group-classes/add.vue")
+const CourseADD = () => import("@/views/admin/courses/add.vue")
+const RoleAdd = () => import("@/views/admin/roles/add.vue")
+const SectionAdd = () => import("@/views/admin/sections/add.vue")
+const payoutAdd = () => import("@/views/admin/payout/add.vue")
+const payoutList = () => import("@/views/admin/payout/list.vue")
+const tutorFinancesList = () => import("@/views/admin/tutor-finances/list.vue")
+const UserInfo = () => import("@/views/admin/user-info.vue")
+const TutorInformation = () => import("@/views/admin/users/tutor-information.vue")
+const StudentInformation = () => import("@/views/admin/users/student-information.vue")
 
-import Settings from "@/views/admin/settings/list.vue"
-import SettingUpdate from "@/views/admin/settings/edit.vue"
-import ContactUs from "@/views/admin/contact-us/index.vue"
-import Accounting from "@/views/admin/accounting/list.vue"
-import tutorFinancesAccounting from "@/views/admin/tutor-finances/accounting.vue"
-import TutorFinance from "@/views/admin/finance/tutorFinance.vue"
+const Settings = () => import("@/views/admin/settings/list.vue")
+const SettingUpdate = () => import("@/views/admin/settings/edit.vue")
+const ContactUs = () => import("@/views/admin/contact-us/index.vue")
+const Accounting = () => import("@/views/admin/accounting/list.vue")
+const tutorFinancesAccounting = () => import("@/views/admin/tutor-finances/accounting.vue")
+const TutorFinance = () => import("@/views/admin/finance/tutorFinance.vue")
 
-import UnAvailable from "@/views/admin/unAvailable.vue"
+const UnAvailable = () => import("@/views/admin/unAvailable.vue")
 
-import MenusList from "@/views/admin/menus/list.vue"
-import MenusAdd from "@/views/admin/menus/add.vue"
+const MenusList = () => import("@/views/admin/menus/list.vue")
+const MenusAdd = () => import("@/views/admin/menus/add.vue")
 
 // blog
-import OurBlogList from "@/views/admin/blog/list.vue"
-import OurArticalADD from "@/views/admin/blog/add.vue"
+const OurBlogList = () => import("@/views/admin/blog/list.vue")
+const OurArticalADD = () => import("@/views/admin/blog/add.vue")
 // faq
-import FaqList from "@/views/admin/faq/list.vue"
-import FaqAdd from "@/views/admin/faq/add.vue"
+const FaqList = () => import("@/views/admin/faq/list.vue")
+const FaqAdd = () => import("@/views/admin/faq/add.vue")
 // help articles
-import HelpArticlesList from "@/views/admin/help-articles/list.vue"
-import HelpArticlesAdd from "@/views/admin/help-articles/add.vue"
+const HelpArticlesList = () => import("@/views/admin/help-articles/list.vue")
+const HelpArticlesAdd = () => import("@/views/admin/help-articles/add.vue")
 // cateqblog
-import CateqBlogList from "@/views/admin/cateqblog/list.vue"
-import CateqBlogADD from "@/views/admin/cateqblog/add.vue"
+const CateqBlogList = () => import("@/views/admin/cateqblog/list.vue")
+const CateqBlogADD = () => import("@/views/admin/cateqblog/add.vue")
 // sliders
-import SlidersList from "@/views/admin/slider/list.vue"
-import SliderAdd from "@/views/admin/slider/add.vue"
+const SlidersList = () => import("@/views/admin/slider/list.vue")
+const SliderAdd = () => import("@/views/admin/slider/add.vue")
 // discount_codes
-import DiscountCodesList from "@/views/admin/discount_codes/list.vue"
-import DiscountCodesAdd from "@/views/admin/discount_codes/add.vue"
+const DiscountCodesList = () => import("@/views/admin/discount_codes/list.vue")
+const DiscountCodesAdd = () => import("@/views/admin/discount_codes/add.vue")
 // discount_codes
-import ChatBlockedWordsList from "@/views/admin/chat_blocked_words/list.vue"
-import ChatBlockedWordsAdd from "@/views/admin/chat_blocked_words/add.vue"
+const ChatBlockedWordsList = () => import("@/views/admin/chat_blocked_words/list.vue")
+const ChatBlockedWordsAdd = () => import("@/views/admin/chat_blocked_words/add.vue")
 
 // My Courses
-import CoursePlayer from "@/views/admin/my-courses/CoursePlayer.vue"
-import MyCourseList from "@/views/admin/my-courses/list.vue"
-import MyCertificateList from "@/views/admin/my-courses/certificateList.vue"
+const CoursePlayer = () => import("@/views/admin/my-courses/CoursePlayer.vue")
+const MyCourseList = () => import("@/views/admin/my-courses/list.vue")
+const MyCertificateList = () => import("@/views/admin/my-courses/certificateList.vue")
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_APP_BASE_DIRECTORY),
@@ -620,7 +621,7 @@ const router = createRouter({
           component: PrivateChat
         },
         {
-          path: "/dashboard/chats/admin-chat/:id",
+          path: "/dashboard/chats/admin-chat",
           name: "admin-chat",
           component: AdminChat
         },

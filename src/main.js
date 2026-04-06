@@ -12,8 +12,6 @@ import "./assets/css/plugins.css"
 import "./assets/css/style1.css" // Default style
 import "./assets/css/swal-overrides.css"
 
-import "@/plugins/echo"
-
 const application = createApp(App)
 application.config.warnHandler = () => null
 
@@ -27,8 +25,6 @@ watchEffect(() => {
   const {language} = Store.state // Directly access store state
   if (language === "ar") {
     import("./assets/css/ar_style.css")
-  } else {
-    import("./assets/css/style1.css")
   }
 })
 

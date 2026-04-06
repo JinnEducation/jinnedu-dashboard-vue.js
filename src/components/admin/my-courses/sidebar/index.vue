@@ -13,7 +13,7 @@
     <sidebar-menu />
   </div> -->
   <sidebar-toggle v-if="isMobile" />
-  <div class="app-sidebar flex-column pt-20 mt-16">
+  <div class="app-sidebar flex-column">
     <!-- <sidebar-logo /> -->
     <sidebar-menu />
   </div>

@@ -5,10 +5,27 @@ import axiosClient from "../plugins/axios"
 const serverUrl = import.meta.env.VITE_APP_API_BASE_URL
 const serverBaseUrl = import.meta.env.VITE_APP_SERVER_BASE_URL
 
+const safeParseJSON = (value, fallback = null) => {
+  try {
+    return value ? JSON.parse(value) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+let languagesRequestPromise = null
+let navigationRequestPromise = null
+
+const initialUserInfo = localStorage.getItem("user")
+const initialParsedUserInfo = safeParseJSON(initialUserInfo, {})
+
 const store = createStore({
   state: {
-    userInfo: localStorage.getItem("user"),
-    user: {token: localStorage.getItem("TOKEN") || null, data: {}},
+    userInfo: initialUserInfo,
+    user: {
+      token: localStorage.getItem("TOKEN") || null,
+      data: initialParsedUserInfo?.user || {}
+    },
     language: localStorage.getItem("LANGUAGE") || null,
     language_id: localStorage.getItem("LANGUAGE_ID") || null,
     languages: JSON.parse(localStorage.getItem("LANGUAGES")) || null,
@@ -80,18 +97,48 @@ const store = createStore({
       }
     },
 
-    async getAPILanguages({commit}) {
-      return axiosClient.get("/locales/langs").then((response) => {
-        commit("SET_LANGUAGES", response.data.data)
-        return response.data.data
-      })
+    async getAPILanguages({commit, state}) {
+      if (Array.isArray(state.languages) && state.languages.length) {
+        return state.languages
+      }
+
+      if (languagesRequestPromise) {
+        return languagesRequestPromise
+      }
+
+      languagesRequestPromise = axiosClient
+        .get("/locales/langs")
+        .then((response) => {
+          commit("SET_LANGUAGES", response.data.data)
+          return response.data.data
+        })
+        .finally(() => {
+          languagesRequestPromise = null
+        })
+
+      return languagesRequestPromise
     },
 
-    async getAPINavigation({commit}) {
-      return axiosClient.get("/navigation").then((response) => {
-        commit("SET_NAVIGATION", response.data)
-        return response.data
-      })
+    async getAPINavigation({commit, state}, {force = false} = {}) {
+      if (!force && Array.isArray(state.navigation) && state.navigation.length) {
+        return state.navigation
+      }
+
+      if (!force && navigationRequestPromise) {
+        return navigationRequestPromise
+      }
+
+      navigationRequestPromise = axiosClient
+        .get("/navigation")
+        .then((response) => {
+          commit("SET_NAVIGATION", response.data)
+          return response.data
+        })
+        .finally(() => {
+          navigationRequestPromise = null
+        })
+
+      return navigationRequestPromise
     },
 
     async changeName(_, data) {
@@ -117,9 +164,10 @@ const store = createStore({
     async signIn({commit, dispatch}, data) {
       try {
         const response = await axiosClient.post("/login", data)
-        
+
         if (response.data.success) {
           commit("SET_USER", response.data.result)
+          await dispatch("getAPINavigation", {force: true})
           window.open(`${serverBaseUrl}/bridge-login/${response.data.result.token}`, "_blank")
           // For SuperAdmin, invalidate any existing sessions
           if (response.data.result.user.role === "SuperAdmin") {
@@ -157,9 +205,10 @@ const store = createStore({
         if (state.warningTimer) clearTimeout(state.warningTimer)
         if (state.sessionCheckInterval) clearInterval(state.sessionCheckInterval)
 
-        const {userInfo} = store.state
-        const userInfoObject = JSON.parse(userInfo)
-        window.open(`${serverBaseUrl}/bridge-logout/${userInfoObject.token}`, "_blank")
+        const bridgeToken = state.user.token || safeParseJSON(state.userInfo, {})?.token
+        if (bridgeToken) {
+          window.open(`${serverBaseUrl}/bridge-logout/${bridgeToken}`, "_blank")
+        }
         commit("UN_SET_USER")
 
         // Return different messages based on logout reason
@@ -296,6 +345,7 @@ const store = createStore({
     SET_USER(state, user) {
       state.user.token = user.token
       state.user.data = user.user
+      state.userInfo = JSON.stringify(user)
       localStorage.removeItem("TOKEN")
       localStorage.removeItem("user")
       sessionStorage.removeItem("activeSession")
@@ -308,8 +358,11 @@ const store = createStore({
     UN_SET_USER(state) {
       state.user.token = null
       state.user.data = {}
+      state.userInfo = null
+      state.navigation = null
       localStorage.removeItem("TOKEN")
       localStorage.removeItem("user")
+      localStorage.removeItem("NAVIGATION")
       sessionStorage.removeItem("activeSession")
       state.lastActivity = null
       state.sessionWarning = false

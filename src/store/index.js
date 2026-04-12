@@ -13,6 +13,24 @@ const safeParseJSON = (value, fallback = null) => {
   }
 }
 
+const clearI18nRuntimeCache = () => {
+  try {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("I18N_LANG_")) {
+        localStorage.removeItem(key)
+      }
+    })
+
+    Object.keys(sessionStorage).forEach((key) => {
+      if (key.startsWith("I18N_FETCHED_")) {
+        sessionStorage.removeItem(key)
+      }
+    })
+  } catch {
+    // ignore storage access/runtime exceptions
+  }
+}
+
 let languagesRequestPromise = null
 let navigationRequestPromise = null
 
@@ -167,7 +185,8 @@ const store = createStore({
 
         if (response.data.success) {
           commit("SET_USER", response.data.result)
-          await dispatch("getAPINavigation", {force: true})
+          clearI18nRuntimeCache()
+          dispatch("getAPINavigation", {force: true}).catch(() => {})
           window.open(`${serverBaseUrl}/bridge-login/${response.data.result.token}`, "_blank")
           // For SuperAdmin, invalidate any existing sessions
           if (response.data.result.user.role === "SuperAdmin") {
@@ -189,6 +208,7 @@ const store = createStore({
       return axiosClient.post("/social_login", data).then((response) => {
         if (response.data.success) {
           commit("SET_USER", response.data.result)
+          clearI18nRuntimeCache()
           return response.data.result
         }
         return response
@@ -210,6 +230,7 @@ const store = createStore({
           window.open(`${serverBaseUrl}/bridge-logout/${bridgeToken}`, "_blank")
         }
         commit("UN_SET_USER")
+        clearI18nRuntimeCache()
 
         // Return different messages based on logout reason
         if (reason === "inactivity") {
@@ -222,6 +243,7 @@ const store = createStore({
       } catch (error) {
         if (error.response?.data?.message === "Unauthenticated.") {
           commit("UN_SET_USER")
+          clearI18nRuntimeCache()
         }
         throw error
       }

@@ -13,8 +13,10 @@ const i18n = createI18n({
 })
 
 const i18nLanguages = []
+const languageRequests = new Map()
 
 const getI18nCacheKey = (language) => `I18N_LANG_${language}`
+const getI18nSessionFetchKey = (language) => `I18N_FETCHED_${language}`
 
 const getCachedI18nMessages = (language) => {
   try {
@@ -31,6 +33,45 @@ const setCachedI18nMessages = (language, messagesData) => {
   } catch {
     // ignore storage quota/runtime issues
   }
+}
+
+const markLanguageFetchedThisSession = (language) => {
+  try {
+    sessionStorage.setItem(getI18nSessionFetchKey(language), String(Date.now()))
+  } catch {
+    // ignore
+  }
+}
+
+const wasLanguageFetchedThisSession = (language) => {
+  try {
+    return !!sessionStorage.getItem(getI18nSessionFetchKey(language))
+  } catch {
+    return false
+  }
+}
+
+const fetchAndStoreLanguage = async (language, direction) => {
+  if (languageRequests.has(language)) {
+    return languageRequests.get(language)
+  }
+
+  const requestPromise = axiosClient
+    .get(`/locales/lang/${language}?v=${Date.now()}`)
+    .then(({data}) => {
+      if (!i18nLanguages.includes(language)) i18nLanguages.push(language)
+      i18n.global.setLocaleMessage(language, data)
+      setCachedI18nMessages(language, data)
+      markLanguageFetchedThisSession(language)
+      setI18nLanguages(language, direction)
+      return data
+    })
+    .finally(() => {
+      languageRequests.delete(language)
+    })
+
+  languageRequests.set(language, requestPromise)
+  return requestPromise
 }
 
 export const setI18nDirections = function setI18nDirections(language, direction) {
@@ -82,7 +123,10 @@ export const setI18nLanguages = function setI18nLanguages(language, direction) {
   return language
 }
 
-export const getI18nLanguages = async function getI18nLanguages(language) {
+export const getI18nLanguages = async function getI18nLanguages(
+  language,
+  {forceRefresh = false} = {}
+) {
   if (!language) return
 
   try {
@@ -108,9 +152,14 @@ export const getI18nLanguages = async function getI18nLanguages(language) {
     const direction = matched.direction || "ltr"
     const localeMessages = i18n.global.getLocaleMessage(language)
     const hasLocaleMessages = localeMessages && Object.keys(localeMessages).length > 0
+    const fetchedThisSession = wasLanguageFetchedThisSession(language)
+    const shouldRefreshFromApi = forceRefresh || !fetchedThisSession
 
     if (i18nLanguages.includes(language) || hasLocaleMessages) {
       if (language !== i18n.locale) setI18nLanguages(language, direction)
+      if (shouldRefreshFromApi) {
+        fetchAndStoreLanguage(language, direction).catch(() => {})
+      }
       return
     }
 
@@ -118,16 +167,16 @@ export const getI18nLanguages = async function getI18nLanguages(language) {
     if (cachedMessages) {
       i18nLanguages.push(language)
       i18n.global.setLocaleMessage(language, cachedMessages)
-      return setI18nLanguages(language, direction)
+      setI18nLanguages(language, direction)
+
+      if (shouldRefreshFromApi) {
+        fetchAndStoreLanguage(language, direction).catch(() => {})
+      }
+      return
     }
 
     store.state.loading = true
-
-    const {data} = await axiosClient.get(`/locales/lang/${language}`)
-    i18nLanguages.push(language)
-    i18n.global.setLocaleMessage(language, data)
-    setCachedI18nMessages(language, data)
-    return setI18nLanguages(language, direction)
+    await fetchAndStoreLanguage(language, direction)
   } finally {
     store.state.loading = false
   }

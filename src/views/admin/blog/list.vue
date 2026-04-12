@@ -8,8 +8,20 @@
           <div class="card-title">
             <div class="d-flex align-items-center position-relative my-1">
               <span class="svg-icon svg-icon-1 position-absolute ms-6">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
-                  <rect x="17" y="15" rx="1" width="8" height="2" transform="rotate(45 17 15)" fill="currentColor"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                  fill="none">
+                  <rect
+                    x="17"
+                    y="15"
+                    rx="1"
+                    width="8"
+                    height="2"
+                    transform="rotate(45 17 15)"
+                    fill="currentColor"
                     opacity="0.5" />
                   <path
                     d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z"
@@ -17,8 +29,13 @@
                 </svg>
               </span>
               <label for="search-blog" class="sr-only">{{ t("global.search-blog") }}</label>
-              <input id="search-blog" type="text" name="search-blog" :placeholder="t('global.search-blog')"
-                data-kt-content-table-filter="search" class="form-control form-control-solid w-250px ps-14"
+              <input
+                id="search-blog"
+                type="text"
+                name="search-blog"
+                :placeholder="t('global.search-blog')"
+                data-kt-content-table-filter="search"
+                class="form-control form-control-solid w-250px ps-14"
                 @keyup.enter="searchDataTableBodyRows" />
             </div>
           </div>
@@ -27,8 +44,20 @@
               <template v-if="abilities.create">
                 <router-link :to="`/dashboard/blog/create`" class="btn btn-primary">
                   <span class="svg-icon svg-icon-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none">
-                      <rect x="11" y="20" rx="1" width="16" height="2" transform="rotate(-90 11 20)" fill="currentColor"
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      height="24"
+                      fill="none">
+                      <rect
+                        x="11"
+                        y="20"
+                        rx="1"
+                        width="16"
+                        height="2"
+                        transform="rotate(-90 11 20)"
+                        fill="currentColor"
                         opacity="0.5" />
                       <rect x="4" y="11" rx="1" width="16" height="2" fill="currentColor" />
                     </svg>
@@ -58,76 +87,112 @@
                 </span>
               </p>
               <template v-if="abilities.create">
-                <router-link :to="`/dashboard/blog/create`" class="btn btn-primary er fs-6 px-8 py-4">
+                <router-link
+                  :to="`/dashboard/blog/create`"
+                  class="btn btn-primary er fs-6 px-8 py-4">
                   {{ t("global.add-button") }} {{ t("global.blog") }}
                 </router-link>
               </template>
             </div>
             <div class="text-center px-5">
-              <img src="@/assets/media/illustrations/welcome.png" :alt="`Add Our blog Illustration`"
+              <img
+                src="@/assets/media/illustrations/welcome.png"
+                :alt="`Add Our blog Illustration`"
                 class="mw-100 mh-300px" />
             </div>
           </div>
         </template>
         <template v-else>
           <div class="card-body py-4">
-            <data-table :data="data" :header="header" :checkbox-enabled="true" checkbox-label="id"
-              :items-total="itemsTotal" :page-current="currentPage" :items-per-page="itemsPerPage"
-              :items-per-page-dropdown-enabled="true" :query-string="currentSearchQuery" @on-sort="onSort"
+            <data-table
+              :data="data"
+              :header="header"
+              :checkbox-enabled="true"
+              checkbox-label="id"
+              :items-total="itemsTotal"
+              :page-current="currentPage"
+              :items-per-page="itemsPerPage"
+              :items-per-page-dropdown-enabled="true"
+              :query-string="currentSearchQuery"
+              @on-sort="onSort"
               @on-items-select="onItemsSelect">
               <!-- رقم تسلسلي -->
-              <template #id="{ row: post }">
+              <template #id="{row: post}">
                 {{ data.indexOf(post) + 1 }}
               </template>
 
               <!-- الصورة والعنوان -->
-              <template #title="{ row: post }">
+              <template #title="{row: post}">
                 <div class="d-flex align-items-center">
-                  <img :src="post.image" alt=""
-                    style="width:80px; height:56px; object-fit:cover; border-radius:6px; margin-right:12px;">
+                  <img
+                    :src="post.image"
+                    alt=""
+                    style="
+                      width: 80px;
+                      height: 56px;
+                      object-fit: cover;
+                      border-radius: 6px;
+                      margin-right: 12px;
+                    " />
                   <div>
                     <div class="fw-bold">
-                      {{ typeof post.title === 'object' ? post.title[languageId] : post.title }}
+                      {{ typeof post.title === "object" ? post.title[languageId] : post.title }}
                     </div>
                     <div class="text-muted small">
-                      {{ typeof post.slug === 'object' ? post.slug[languageId] : post.slug }}
+                      {{ typeof post.slug === "object" ? post.slug[languageId] : post.slug }}
                     </div>
                   </div>
                 </div>
               </template>
 
               <!-- المقتطف القصير -->
-              <template #description="{ row: post }">
-                <div class="text-muted small truncate-lines"
-                  v-html="typeof post.description === 'object' ? post.description[languageId] : post.description"></div>
+              <template #description="{row: post}">
+                <div class="text-muted small truncate-lines">
+                  {{ getDescriptionPreview(post) || "-" }}
+                </div>
               </template>
               <!-- التصنيف والكاتب والتاريخ -->
-              <template #category="{ row: post }">
-                <span class="small text-primary ms-3">{{ post.relations.categ_blog_id?.name }}</span>
+              <template #category="{row: post}">
+                <span class="small text-primary ms-3">{{
+                  post.relations.categ_blog_id?.name
+                }}</span>
               </template>
-              <template #author="{ row: post }">
+              <template #author="{row: post}">
                 <span class="small text-muted ms-2">✍️ {{ post.author }}</span>
               </template>
-              <template #date="{ row: post }">
+              <template #date="{row: post}">
                 <span class="small text-muted">📅 {{ post.date }}</span>
               </template>
 
               <!-- الحالة -->
-              <template #status="{ row: post }">
-                <span v-if="post.status === 'published'" class="text-success">{{ t("global.published") }}</span>
-                <span v-else-if="post.status === 'draft'" class="text-muted">{{ t("global.draft") }}</span>
-                <span v-else-if="post.status === 'archived'" class="text-muted">{{ t("global.archived") }}</span>
+              <template #status="{row: post}">
+                <span v-if="post.status === 'published'" class="text-success">{{
+                  t("global.published")
+                }}</span>
+                <span v-else-if="post.status === 'draft'" class="text-muted">{{
+                  t("global.draft")
+                }}</span>
+                <span v-else-if="post.status === 'archived'" class="text-muted">{{
+                  t("global.archived")
+                }}</span>
               </template>
 
               <!-- الأزرار -->
-              <template v-if="abilities.edit || abilities.destroy" #actions="{ row: post }">
-                <router-link v-if="abilities.edit" :to="`/dashboard/blog/update/${post.id}`" aria-label="Update"
+              <template v-if="abilities.edit || abilities.destroy" #actions="{row: post}">
+                <router-link
+                  v-if="abilities.edit"
+                  :to="`/dashboard/blog/update/${post.id}`"
+                  aria-label="Update"
                   class="btn btn-icon btn-light-success edittooltip me-2">
                   <span class="svg-icon svg-icon-success">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      style="width: 1.5rem; height: 1.5rem">
                       <path
                         d="M3,16 L5,16 C5.55228475,16 6,15.5522847 6,15 C6,14.4477153 5.55228475,14 5,14 L3,14 L3,12 L5,12 C5.55228475,12 6,11.5522847 6,11 C6,10.4477153 5.55228475,10 5,10 L3,10 L3,8 L5,8 C5.55228475,8 6,7.55228475 6,7 C6,6.44771525 5.55228475,6 5,6 L3,6 L3,4 C3,3.44771525 3.44771525,3 4,3 L10,3 C10.5522847,3 11,3.44771525 11,4 L11,19 C11,19.5522847 10.5522847,20 10,20 L4,20 C3.44771525,20 3,19.5522847 3,19 L3,16 Z"
-                        fill="currentColor" opacity="0.5" />
+                        fill="currentColor"
+                        opacity="0.5" />
                       <path
                         d="M16,3 L19,3 C20.1045695,3 21,3.8954305 21,5 L21,15.2485298 C21,15.7329761 20.8241635,16.200956 20.5051534,16.565539 L17.8762883,19.5699562 C17.6944473,19.7777745 17.378566,19.7988332 17.1707477,19.6169922 C17.1540423,19.602375 17.1383289,19.5866616 17.1237117,19.5699562 L14.4948466,16.565539 C14.1758365,16.200956 14,15.7329761 14,15.2485298 L14,5 C14,3.8954305 14.8954305,3 16,3 Z"
                         fill="currentColor" />
@@ -136,16 +201,25 @@
                   <span class="edittooltiptext">{{ t("global.edit") }}</span>
                 </router-link>
 
-                <button v-if="abilities.destroy" type="button" aria-label="Delete"
-                  class="btn btn-icon btn-light-danger deletetooltip" @click="deleteBlog(post.id)">
+                <button
+                  v-if="abilities.destroy"
+                  type="button"
+                  aria-label="Delete"
+                  class="btn btn-icon btn-light-danger deletetooltip"
+                  @click="deleteBlog(post.id)">
                   <span class="svg-icon svg-icon-danger">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      style="width: 1.5rem; height: 1.5rem">
                       <path
                         d="M6,8 L18,8 L17.106535,19.6150447 C17.04642,20.3965405 16.3947578,21 15.6109533,21 L8.38904671,21 C7.60524225,21 6.95358004,20.3965405 6.89346498,19.6150447 L6,8 Z M8,10 L8.45438229,14.0894406 L15.5517885,14.0339036 L16,10 L8,10 Z"
-                        fill="currentColor" fill-rule="nonzero" />
+                        fill="currentColor"
+                        fill-rule="nonzero" />
                       <path
                         d="M14,4.5 L14,3.5 C14,3.22385763 13.7761424,3 13.5,3 L10.5,3 C10.2238576,3 10,3.22385763 10,3.5 L10,4.5 L5.5,4.5 C5.22385763,4.5 5,4.72385763 5,5 L5,5.5 C5,5.77614237 5.22385763,6 5.5,6 L18.5,6 C18.7761424,6 19,5.77614237 19,5.5 L19,5 C19,4.72385763 18.7761424,4.5 18.5,4.5 L14,4.5 Z"
-                        fill="currentColor" opacity="0.5" />
+                        fill="currentColor"
+                        opacity="0.5" />
                     </svg>
                   </span>
                   <span class="deletetooltiptext">{{ t("global.delete") }}</span>
@@ -165,14 +239,14 @@ import DataTable from "@/components/admin/data-table/index.vue"
 import axiosClient from "@/plugins/axios"
 import getMenuAbilities from "@/plugins/get-menu-abilities"
 import arraySort from "array-sort"
-import { computed, defineComponent, onBeforeMount, onMounted, provide, ref } from "vue"
-import { useI18n } from "vue-i18n"
-import { useRoute } from "vue-router"
-import { useStore } from "vuex"
+import {computed, defineComponent, onBeforeMount, onMounted, provide, ref} from "vue"
+import {useI18n} from "vue-i18n"
+import {useRoute} from "vue-router"
+import {useStore} from "vuex"
 
 export default defineComponent({
   name: "contents-list",
-  components: { Toolbar, DataTable },
+  components: {Toolbar, DataTable},
   setup() {
     const route = useRoute()
     const path = computed(() => route.path)
@@ -183,10 +257,10 @@ export default defineComponent({
     const lang = languages.value.find((element) => element.shortname === store.state.language)
     languageId.value = lang ? lang.id : null
 
-    const { userInfo } = store.state
+    const {userInfo} = store.state
     const userInfoObject = JSON.parse(userInfo)
     const userType = userInfoObject.user.type
-    const { t } = useI18n()
+    const {t} = useI18n()
     const loading = ref(false)
     const header = ref([
       {
@@ -290,12 +364,34 @@ export default defineComponent({
 
     const onSort = function onSort(sort) {
       const reverse = sort.order === "ASC".toLowerCase()
-      if (sort.label) arraySort(data.value, sort.label, { reverse })
+      if (sort.label) arraySort(data.value, sort.label, {reverse})
     }
 
     const onItemsSelect = function onItemsSelect(itemsSelected) {
       if (itemsSelected.length === 0) idsSelected.value = []
       else idsSelected.value = [...idsSelected.value, ...itemsSelected]
+    }
+
+    const getTranslatedValue = (valueObject) => {
+      if (!valueObject || typeof valueObject !== "object") return valueObject
+      if (languageId.value && valueObject[languageId.value]) return valueObject[languageId.value]
+      const firstKey = Object.keys(valueObject)[0]
+      return firstKey ? valueObject[firstKey] : ""
+    }
+
+    const stripHtml = (value) => {
+      if (!value) return ""
+      return String(value)
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+    }
+
+    const getDescriptionPreview = (post) => {
+      const description = getTranslatedValue(post?.description)
+      return stripHtml(description)
     }
 
     const deleteBlog = (id) => {
@@ -306,7 +402,7 @@ export default defineComponent({
         confirmButtonText: t("global.yes-delete"),
         cancelButtonText: t("global.go-back"),
         buttonsStyling: false,
-        customClass: { confirmButton: "btn btn-danger", cancelButton: "btn btn-active-light" }
+        customClass: {confirmButton: "btn btn-danger", cancelButton: "btn btn-active-light"}
       }).then((result) => {
         if (result.isConfirmed) {
           axiosClient.delete(`/blog/${id}`).then(() => {
@@ -315,7 +411,7 @@ export default defineComponent({
               text: t("global.course-deleted-successfully"),
               confirmButtonText: t("global.thank-you"),
               buttonsStyling: false,
-              customClass: { confirmButton: "btn btn-primary" }
+              customClass: {confirmButton: "btn btn-primary"}
             })
             getDataTableBodyRows()
           })
@@ -342,7 +438,7 @@ export default defineComponent({
             text: t("global.course-registered-successfully"),
             confirmButtonText: t("global.thank-you"),
             buttonsStyling: false,
-            customClass: { confirmButton: "btn btn-primary" }
+            customClass: {confirmButton: "btn btn-primary"}
           })
         })
         .catch(() => {
@@ -351,7 +447,7 @@ export default defineComponent({
             text: t("global.errors-detected"),
             confirmButtonText: t("global.got-it"),
             buttonsStyling: false,
-            customClass: { confirmButton: "btn btn-danger" }
+            customClass: {confirmButton: "btn btn-danger"}
           })
         })
         .finally(() => {
@@ -389,7 +485,8 @@ export default defineComponent({
       deleteBlog,
       deleteFewOurblog,
       registerblog,
-      languageId
+      languageId,
+      getDescriptionPreview
     }
   }
 })

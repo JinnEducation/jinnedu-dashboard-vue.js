@@ -20,6 +20,14 @@ export default defineComponent({
     const statusTitle = ref("Verifying your sign in...")
     const statusMessage = ref("Please wait while we complete your login.")
 
+    const withTimeout = (promise, ms = 12000) =>
+      Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Request timeout while verifying sign in")), ms)
+        )
+      ])
+
     onMounted(async () => {
       const params = new URLSearchParams(window.location.search)
       const token = params.get("token")
@@ -42,7 +50,12 @@ export default defineComponent({
 
       // قراءة بيانات المستخدم المخزنة
       const savedToken = localStorage.getItem("TOKEN")
-      const savedUser = JSON.parse(localStorage.getItem("user") || "null")
+      let savedUser = null
+      try {
+        savedUser = JSON.parse(localStorage.getItem("user") || "null")
+      } catch {
+        savedUser = null
+      }
 
       // 🧠 تحقق: إذا كان المستخدم القديم مختلف عن الجديد → امسح القديم
       if (savedUser?.user?.email && savedUser.user.email != email) {
@@ -50,14 +63,14 @@ export default defineComponent({
       }
 
       try {
-        const resCheck = await axiosClient.post("/auth/check-token", {token, email})
+        const resCheck = await withTimeout(axiosClient.post("/auth/check-token", {token, email}))
 
         if (savedToken && savedUser?.user?.email == email && resCheck.data.success) {
           store.commit("SET_USER", {
             token,
             user: resCheck.data.user
           })
-          await store.dispatch("getAPINavigation", {force: true})
+          store.dispatch("getAPINavigation", {force: true}).catch(() => {})
           router.replace(resolveRedirectPath())
           return
         }
@@ -75,7 +88,7 @@ export default defineComponent({
             user: resCheck.data.user
           })
 
-          await store.dispatch("getAPINavigation", {force: true})
+          store.dispatch("getAPINavigation", {force: true}).catch(() => {})
 
           // 4️⃣ توجيه
           router.replace(resolveRedirectPath())

@@ -97,7 +97,14 @@
                       v-if="data.thumbnail && data.thumbnail.url"
                       class="relative d-inline-block">
                       <template v-if="ThumbFileType === 'image'">
-                        <img :src="data.thumbnail.url" alt="Uploading Image" class="avatar-image" />
+                        <img
+                          :src="
+                            data.thumbnail.url?.startsWith('http')
+                              ? data.thumbnail.url
+                              : `${STORAGE_BASE}/storage/${data.thumbnail.url}`
+                          "
+                          alt="Uploading Image"
+                          class="avatar-image" />
                       </template>
 
                       <template v-else-if="ThumbFileType === 'video'">
@@ -407,6 +414,8 @@ export default defineComponent({
     // Get necessary data from router/route/store
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
     const API_PATH = ref(import.meta.env.VITE_APP_API_BASE_URL)
+    const STORAGE_BASE =
+      import.meta.env.VITE_APP_Public_URL || "https://learning.jinnedu.com/public"
     const router = useRouter()
     const route = useRoute()
     const store = useStore()
@@ -513,7 +522,7 @@ export default defineComponent({
           required: true,
           trigger: "change",
           message: t(
-            `global.${content}-title-in-${name.charAt(0).toUpperCase() + name.slice(1)}-required`
+            `global.title-in-${name}-required`
           )
         }
       ]
@@ -635,12 +644,10 @@ export default defineComponent({
     // When upload thumbnail successfully add it to media files list
     const handleOnSuccess = (response, file) => {
       // if (content === "videos") {
-        media.value.list.unshift(file)
+      media.value.list.unshift(file)
       // }
       data.value.thumbnail.id = response.result.id
-      data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/${
-        response.result.path
-      }`
+      data.value.thumbnail.url = `${STORAGE_BASE}/storage/${response.result.path}`
       Swal.fire({
         icon: "success",
         text: t("global.thumbnail-added-successfully"),
@@ -939,11 +946,11 @@ export default defineComponent({
       watch(
         () => media.value.list,
         (value) => {
-          if (value[0] && (value[0].raw || value[0].url))
-            data.value.thumbnail.url = value[0].raw
-              ? URL.createObjectURL(value[0].raw)
-              : value[0].url
-          else data.value.thumbnail.url = null
+          console.log(value, "value")
+          // if (value[0] && (value[0].raw || value[0].url)) data.value.thumbnail.url = value[0].url
+          // else data.value.thumbnail.url = null
+
+          console.log(data.value.thumbnail.url, ThumbFileType.value)
         },
         {deep: true}
       )
@@ -1070,7 +1077,7 @@ export default defineComponent({
                   .get(`medias/show/${result.image}`)
                   .then((responseMedia) => {
                     if (responseMedia.data.result?.path) {
-                      data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/${
+                      data.value.thumbnail.url = `${import.meta.env.VITE_APP_SERVER_BASE_URL}/storage/${
                         responseMedia.data.result.path
                       }`
                     }
@@ -1095,6 +1102,7 @@ export default defineComponent({
       endDate,
       options,
       SERVER_PATH,
+      STORAGE_BASE,
       API_PATH,
       t,
       content,

@@ -1,5 +1,34 @@
 import store from "./store/index"
 
+const API_BASE_URL = String(
+  import.meta.env.VITE_APP_API_BASE_URL || "https://learning.jinnedu.com/api"
+).replace(/\/$/, "")
+const PUBLIC_BASE_URL = String(
+  import.meta.env.VITE_APP_Public_URL || "https://learning.jinnedu.com/public"
+).replace(/\/$/, "")
+
+const normalizeMediaPath = (path) => {
+  if (!path) return ""
+
+  const value = String(path).trim()
+  if (!value) return ""
+
+  if (/^https?:\/\//i.test(value)) {
+    return value
+  }
+
+  let cleaned = value.replace(/^\/+/, "")
+  cleaned = cleaned.replace(/^public\/storage\//i, "")
+  cleaned = cleaned.replace(/^storage\//i, "")
+
+  const storageIndex = cleaned.toLowerCase().indexOf("/storage/")
+  if (storageIndex !== -1) {
+    cleaned = cleaned.substring(storageIndex + 9)
+  }
+
+  return `${PUBLIC_BASE_URL}/storage/${cleaned}`
+}
+
 class MyUploadAdapter {
   constructor(loader) {
     // The file loader instance to use during the upload.
@@ -27,7 +56,6 @@ class MyUploadAdapter {
 
   // Initializes the XMLHttpRequest object using the URL passed to the constructor.
   initRequest() {
-
     // eslint-disable-next-line no-multi-assign
     const xhr = (this.xhr = new XMLHttpRequest())
 
@@ -35,7 +63,7 @@ class MyUploadAdapter {
     const {token} = store.state.user
 
     // Configure the request before opening it
-    xhr.open("POST", "https://learning.jinnedu.com/api/medias/create", true)
+    xhr.open("POST", `${API_BASE_URL}/medias/create`, true)
     xhr.setRequestHeader("Authorization", `Bearer ${token}`)
 
     // Set the responseType after setting headers and before sending the request
@@ -48,7 +76,6 @@ class MyUploadAdapter {
 
     xhr.upload.addEventListener("progress", (evt) => {
       if (evt.lengthComputable) {
-        const progress = (evt.loaded / evt.total) * 100
         this.loader.uploadTotal = evt.total
         this.loader.uploaded = evt.loaded
       }
@@ -66,8 +93,15 @@ class MyUploadAdapter {
       if (xhr.readyState === 4) {
         if (xhr.status === 200 || xhr.status === 201) {
           const response = xhr.response
-          const imageUrl = `https://learning.jinnedu.com/${response.result.path}` // Adjust this line based on your actual response structure
-          resolve({default: imageUrl}) // Return the image URL
+          const imagePath = response?.result?.path || response?.path || ""
+          const imageUrl = normalizeMediaPath(imagePath)
+
+          if (!imageUrl) {
+            reject(`Upload failed: invalid media path for ${file.name}`)
+            return
+          }
+
+          resolve({default: imageUrl})
         } else {
           reject(`Upload failed with status ${xhr.status}`)
         }

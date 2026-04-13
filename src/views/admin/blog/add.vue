@@ -200,6 +200,9 @@
                     :id="`blog-${slot.language.name}-description`"
                     :ref="setEditorsRefs"
                     :data-language-id="slot.language.id"
+                    :data-language-name="slot.language.name"
+                    :data-language-shortname="slot.language.shortname"
+                    :data-language-direction="slot.language.direction"
                     data-key="description"></div>
                 </div>
               </div>
@@ -420,8 +423,20 @@ export default defineComponent({
     }
 
     const initializeCKEditor = (editorData) => {
+      const editorDirection = editorData?.editorDirection || "ltr"
+
       ClassicEditor.create(editorData?.editor)
         .then((editor) => {
+          const editableElement = editor.ui.view?.editable?.element
+          if (editableElement) {
+            editableElement.setAttribute("dir", editorDirection)
+            editableElement.style.textAlign = editorDirection === "rtl" ? "right" : "left"
+          }
+
+          editor.editing.view.change((writer) => {
+            writer.setAttribute("dir", editorDirection, editor.editing.view.document.getRoot())
+          })
+
           editors.push({id: editorData?.editorId, key: editorData?.editorKey, editor})
         })
         .catch(() => {
@@ -429,12 +444,33 @@ export default defineComponent({
         })
     }
 
+    const getEditorDirection = ({languageDirection, languageShortname, languageName}) => {
+      const normalizedDirection = String(languageDirection || "").toLowerCase()
+      if (normalizedDirection === "rtl" || normalizedDirection === "ltr") return normalizedDirection
+
+      const normalizedShortname = String(languageShortname || "").toLowerCase()
+      if (normalizedShortname === "ar") return "rtl"
+
+      const normalizedName = String(languageName || "").toLowerCase()
+      if (normalizedName.includes("arab")) return "rtl"
+
+      return "ltr"
+    }
+
     // Get value from editors and add it to editors array
     const setEditorsRefs = function setEditorsRefs(editor) {
       if (editor) {
         const editorId = editor?.getAttribute("data-language-id")
         const editorKey = editor?.getAttribute("data-key")
-        initializeCKEditor({editor, editorId, editorKey})
+        const languageDirection = editor?.getAttribute("data-language-direction")
+        const languageShortname = editor?.getAttribute("data-language-shortname")
+        const languageName = editor?.getAttribute("data-language-name")
+        const editorDirection = getEditorDirection({
+          languageDirection,
+          languageShortname,
+          languageName
+        })
+        initializeCKEditor({editor, editorId, editorKey, editorDirection})
       }
     }
 

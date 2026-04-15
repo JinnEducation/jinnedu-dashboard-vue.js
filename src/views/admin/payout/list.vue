@@ -118,17 +118,6 @@
                   <span>{{ statusLabel(payout.status) }}</span>
                 </template>
 
-                <!-- <template #transfer="{row: payout}">
-                  <button
-                    v-if="payout.method === 'paypal'"
-                    type="button"
-                    aria-label="Update"
-                    class="btn btn-light-primary me-2 p-2"
-                    @click="transferModal(payout.id)">
-                    {{ t("global.transfer") }}
-                  </button>
-                </template> -->
-
                 <template #paypal_status="{row: payout}">
                   <span v-if="payout.method === 'paypal'">{{ payout.paypal_status }}</span>
                 </template>
@@ -141,71 +130,19 @@
                     @click="openModal(payout.id)">
                     {{ t("global.show-details") }}
                   </button>
-                  <button
-                    v-if="userType === 0"
-                    type="button"
-                    aria-label="Update"
-                    class="btn btn-light-success me-2 p-2"
-                    @click="openUpdateModal(payout.id)">
-                    {{ t("global.update") }}
-                  </button>
                 </template>
               </data-table>
-
-              <div
-                id="payoutTransferModal"
-                class="modal fade"
-                tabindex="-1"
-                aria-labelledby="exampleModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 id="exampleModalLabel" class="modal-title">
-                        {{ t("global.payout-transfer") }}
-                      </h5>
-                      <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                      <div v-if="idCurrent !== null">
-                        <template
-                          v-if="data.find((payout) => payout.id === idCurrent).method === 'paypal'">
-                          <p>
-                            {{ t("global.are-you-sure-to-transfer") }}
-                            {{ data.find((payout) => payout.id === idCurrent).amount }}
-                            {{ t("global.to-this-tutor-paypal-account") }}:
-                            {{ data.find((payout) => payout.id === idCurrent).paypal_account }} ?
-                          </p>
-                        </template>
-                        <button
-                          type="button"
-                          aria-label="Update"
-                          class="btn btn-light-success me-2 p-2"
-                          @click="
-                            transferPayout(data.find((payout) => payout.id === idCurrent).id)
-                          ">
-                          {{ t("global.transfer") }}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               <div
                 id="payoutModal"
                 class="modal fade"
                 tabindex="-1"
-                aria-labelledby="exampleModalLabel"
+                aria-labelledby="payoutModalLabel"
                 aria-hidden="true">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-lg modal-dialog-centered payout-details-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 id="exampleModalLabel" class="modal-title">
+                      <h5 id="payoutModalLabel" class="modal-title">
                         {{ t("global.payout-details") }}
                       </h5>
                       <button
@@ -214,74 +151,108 @@
                         data-bs-dismiss="modal"
                         aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                      <!-- Display detailed payout information here -->
-                      <div v-if="idCurrent !== null">
-                        <h4>
-                          Tutor Name :
-                          {{ data.find((payout) => payout.id === idCurrent).tutor.name }}
-                        </h4>
-                        <p>{{ t("global.amount") }} : {{ data.find((payout) => payout.id === idCurrent).amount }}</p>
-                        <p>
-                          {{ t("global.status") }}:
-                          {{
-                            data.find((payout) => payout.id === idCurrent).status === "R"
-                              ? t("global.review")
-                              : data.find((payout) => payout.id === idCurrent).status === "P"
-                              ? t("global.paid")
-                              : t("global.need-to-review")
-                          }}
-                        </p>
-                        <p>{{ t("global.method") }} : {{ data.find((payout) => payout.id === idCurrent).method }}</p>
-
-                        <template
-                          v-if="data.find((payout) => payout.id === idCurrent).method === 'paypal'">
-                          <p>
-                            {{ t("global.paypal-account") }}:
-                            {{ data.find((payout) => payout.id === idCurrent).paypal_account }}
-                          </p>
-                        </template>
-                        <template v-else>
-                          <p>
-                            {{ t("global.bank-name") }}:
-                            {{ data.find((payout) => payout.id === idCurrent).bank_name }}
-                          </p>
-                          <p>
-                            {{ t("global.account-number") }}:
-                            {{ data.find((payout) => payout.id === idCurrent).account_no }}
-                          </p>
-                        </template>
-
-                        <p>{{ t("global.notes") }} : {{ data.find((payout) => payout.id === idCurrent).notes }}</p>
+                    <div v-if="currentPayout" class="modal-body">
+                      <div class="row g-3 border-bottom pb-4 mb-4">
+                        <div class="col-md-6 col-lg-4">
+                          <div class="details-box">
+                            <strong>{{ t("global.tutor-name") }}</strong>
+                            <div class="fs-6 mt-1">{{ currentPayout.tutor?.name || "-" }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                          <div class="details-box">
+                            <strong>{{ t("global.amount") }}</strong>
+                            <div class="fs-6 mt-1 text-success">
+                              {{ currentPayout.amount || "-" }}
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                          <div class="details-box">
+                            <strong>{{ t("global.status") }}</strong>
+                            <div class="fs-6 mt-1">{{ statusLabel(currentPayout.status) }}</div>
+                          </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                          <div class="details-box">
+                            <strong>{{ t("global.method") }}</strong>
+                            <div class="fs-6 mt-1">{{ currentPayout.method || "-" }}</div>
+                          </div>
+                        </div>
+                        <div v-if="currentPayout.method === 'paypal'" class="col-md-6 col-lg-4">
+                          <div class="details-box">
+                            <strong>{{ t("global.paypal-status") }}</strong>
+                            <div class="fs-6 mt-1">{{ currentPayout.paypal_status || "-" }}</div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              <div
-                id="updateModal"
-                class="modal fade"
-                tabindex="-1"
-                aria-labelledby="updateModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                  <div class="modal-content">
-                    <!-- Modal Header, Title, Close Button -->
-                    <div class="modal-header">
-                      <h5 id="updateModalLabel" class="modal-title">
-                        {{ t("global.update-payout") }}
-                      </h5>
-                      <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                    </div>
-                    <!-- Modal Body -->
-                    <div class="modal-body">
-                      <form @submit.prevent="handleUpdate">
-                        <!-- Update Form Fields -->
+                      <div class="row g-3 mb-4">
+                        <div v-if="currentPayout.method === 'paypal'" class="col-12">
+                          <div class="details-box">
+                            <strong>{{ t("global.paypal-account") }}</strong>
+                            <div class="fs-6 mt-1">{{ currentPayout.paypal_account || "-" }}</div>
+                          </div>
+                        </div>
+                        <template v-else>
+                          <div class="col-md-6">
+                            <div class="details-box">
+                              <strong>{{ t("global.bank-name") }}</strong>
+                              <div class="fs-6 mt-1">{{ currentPayout.bank_name || "-" }}</div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="details-box">
+                              <strong>{{ t("global.account-number") }}</strong>
+                              <div class="fs-6 mt-1">{{ currentPayout.account_no || "-" }}</div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="details-box">
+                              <strong>{{ t("global.name") }}</strong>
+                              <div class="fs-6 mt-1">
+                                {{
+                                  currentPayout.bank_account_name ||
+                                  currentPayout.account_name ||
+                                  "-"
+                                }}
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="details-box">
+                              <strong>{{ t("global.country") }}</strong>
+                              <div class="fs-6 mt-1">{{ currentPayout.country || "-" }}</div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="details-box">
+                              <strong>{{ t("global.iban") }}</strong>
+                              <div class="fs-6 mt-1">{{ currentPayout.iban || "-" }}</div>
+                            </div>
+                          </div>
+                          <div class="col-md-6">
+                            <div class="details-box">
+                              <strong>{{ t("global.swift-code") }}</strong>
+                              <div class="fs-6 mt-1">{{ currentPayout.swift_code || "-" }}</div>
+                            </div>
+                          </div>
+                        </template>
+                        <div class="col-12">
+                          <div class="details-box">
+                            <strong>{{ t("global.notes") }}</strong>
+                            <div class="fs-6 mt-1">
+                              {{ currentPayout.note || currentPayout.notes || "-" }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <form
+                        v-if="userType === 0"
+                        class="border-top pt-4"
+                        @submit.prevent="handleUpdate">
+                        <h6 class="fw-bold mb-3">{{ t("global.update-payout") }}</h6>
                         <div class="mb-3">
                           <label for="updateStatus" class="form-label">
                             {{ t("global.update-status") }}
@@ -291,20 +262,32 @@
                             <option value="P">{{ t("global.paid") }}</option>
                           </select>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-4">
                           <label for="updateNotes" class="form-label">
                             {{ t("global.update-notes") }}
                           </label>
                           <textarea
                             id="updateNotes"
                             v-model="updateNotes"
-                            class="form-control"></textarea>
+                            class="form-control"
+                            rows="3"></textarea>
                         </div>
-                        <!-- Update Button -->
-                        <button type="submit" class="btn btn-primary">
-                          {{ t("global.update") }}
-                        </button>
+                        <div class="d-flex flex-wrap gap-2 justify-content-end">
+                          <button type="submit" class="btn btn-primary">
+                            {{ t("global.update") }}
+                          </button>
+                          <button
+                            v-if="canApproveCurrent"
+                            type="button"
+                            class="btn btn-success"
+                            @click="approvePayout">
+                            {{ t("global.approve") }}
+                          </button>
+                        </div>
                       </form>
+                    </div>
+                    <div v-else class="modal-body text-center text-muted py-8">
+                      {{ t("global.no-payouts") }}
                     </div>
                   </div>
                 </div>
@@ -321,9 +304,8 @@
 import Toolbar from "@/components/admin/dashboard/toolbar.vue"
 import DataTable from "@/components/admin/data-table/index.vue"
 import axiosClient from "@/plugins/axios"
-import {defineComponent, onBeforeMount, onMounted, provide, ref, watchEffect} from "vue"
+import {computed, defineComponent, onBeforeMount, provide, ref, watchEffect} from "vue"
 import {useI18n} from "vue-i18n"
-import {useRouter} from "vue-router"
 import {useStore} from "vuex"
 
 export default defineComponent({
@@ -334,7 +316,6 @@ export default defineComponent({
     const {t} = useI18n()
     const data = ref([])
     const loading = ref(false)
-    const router = useRouter()
     const store = useStore()
     const {userInfo} = store.state
     const userInfoObject = JSON.parse(userInfo)
@@ -365,12 +346,6 @@ export default defineComponent({
         columnWidth: 175
       },
       {
-        columnName: t("global.transfer"),
-        columnLabel: "transfer",
-        sortEnabled: true,
-        columnWidth: 175
-      },
-      {
         columnName: t("global.actions"),
         columnLabel: "actions",
         sortEnabled: false,
@@ -378,13 +353,11 @@ export default defineComponent({
       }
     ])
 
-    const updateAmount = ref("")
     const updateStatus = ref("")
     const updateNotes = ref("")
 
     const tutorInfo = ref(null)
 
-    const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
     const itemsTotal = ref(0)
     const idsSelected = ref([])
     const currentPage = ref(1)
@@ -409,7 +382,6 @@ export default defineComponent({
             })
             .then((tutorResponses) => {
               tutorInfo.value = tutorResponses.data
-              console.log(tutorInfo.value)
             })
         })
         .catch((error) => {
@@ -426,11 +398,19 @@ export default defineComponent({
         const selectedPayout = data.value.find((payout) => payout.id === idCurrent.value)
 
         if (selectedPayout) {
-          // Set the values based on the selected payout
           updateStatus.value = selectedPayout.status
-          updateNotes.value = selectedPayout.note
+          updateNotes.value = selectedPayout.note || selectedPayout.notes || ""
         }
       }
+    })
+
+    const currentPayout = computed(() => {
+      if (idCurrent.value === null) return null
+      return data.value.find((payout) => payout.id === idCurrent.value) || null
+    })
+
+    const canApproveCurrent = computed(() => {
+      return userType === 0 && currentPayout.value && currentPayout.value.status !== "P"
     })
 
     const currentSearchQuery = ref("")
@@ -447,111 +427,66 @@ export default defineComponent({
       getDataTableBodyRows() // Make sure it's called in the correct context
     })
 
-    onMounted(() => {})
-
     const openModal = (id) => {
-      // Set the idCurrent to the selected payout id
       idCurrent.value = id
-
-      // Open the Bootstrap modal using jQuery or other methods
       $("#payoutModal").modal("show")
     }
 
-    const transferPayout = (id) => {
-      const payoutToTransfer = data.value.find((payout) => payout.id === id)
-
-      if (payoutToTransfer) {
-        axiosClient
-          .post(`/payouts/${id}/transfer`)
-          .then((response) => {
-            // Handle success
-
-            if (response.data.success) {
-              Swal.fire({
-                icon: "success",
-                text: response.data.message,
-                confirmButtonText: t("global.thank-you"),
-                buttonsStyling: false,
-                customClass: {confirmButton: "btn btn-danger"}
-              })
-              getDataTableBodyRows()
-            }
-
-            if (response.data["msg-code"] === "222") {
-              Swal.fire({
-                icon: "error",
-                text: response.data.message,
-                confirmButtonText: t("global.got-it"),
-                buttonsStyling: false,
-                customClass: {confirmButton: "btn btn-danger"}
-              })
-            } else if (response.data["msg-code"] === "223") {
-              Swal.fire({
-                icon: "error",
-                text: response.data.message,
-                confirmButtonText: t("global.got-it"),
-                buttonsStyling: false,
-                customClass: {confirmButton: "btn btn-danger"}
-              })
-            } else if (response.data["msg-code"] === "224") {
-              Swal.fire({
-                icon: "error",
-                text: response.data.message,
-                confirmButtonText: t("global.got-it"),
-                buttonsStyling: false,
-                customClass: {confirmButton: "btn btn-danger"}
-              })
-            }
-          })
-          .catch((error) => {
-            console.error(error)
-            // Handle error
-          })
-      } else {
-        console.error("Payout not found")
-      }
-    }
-
-    const transferModal = (id) => {
-      idCurrent.value = id
-      $("#payoutTransferModal").modal("show")
-    }
-
-    const openUpdateModal = (id) => {
-      idCurrent.value = id
-      $("#updateModal").modal("show")
-    }
-
     const handleUpdate = () => {
-      // Implement your update logic here
       if (idCurrent.value !== null) {
-        // For example, update the amount for the current payout
         const updatedPayout = {
           id: idCurrent.value,
-          // amount: updateAmount.value,
           status: updateStatus.value,
+          note: updateNotes.value,
           notes: updateNotes.value
         }
 
-        // Make an API call to update the payout
         axiosClient
           .post(`/payouts/update/${idCurrent.value}`, updatedPayout)
-          .then((response) => {
-            // Handle success, e.g., show a success message
-            // Swal.fire("Success", "Payout updated successfully", "success");
-            // Close the update modal
-            $("#updateModal").modal("hide")
+          .then(() => {
             getDataTableBodyRows()
+            $("#payoutModal").modal("hide")
           })
-          .catch((error) => {
-            // Handle error, e.g., show an error message
-            Swal.fire("Error", "Failed to update payout", "error")
+          .catch(() => {
+            Swal.fire({
+              icon: "error",
+              text: t("global.errors-detected"),
+              confirmButtonText: t("global.got-it"),
+              buttonsStyling: false,
+              customClass: {confirmButton: "btn btn-danger"}
+            })
           })
       }
     }
 
+    const approvePayout = () => {
+      if (!canApproveCurrent.value) return
+
+      axiosClient
+        .post(`/payouts/${idCurrent.value}/approve`)
+        .then((response) => {
+          Swal.fire({
+            icon: "success",
+            text: response.data.message || t("global.thank-you"),
+            confirmButtonText: t("global.thank-you"),
+            buttonsStyling: false,
+            customClass: {confirmButton: "btn btn-primary"}
+          })
+          getDataTableBodyRows()
+          $("#payoutModal").modal("hide")
+        })
+        .catch(() => {
+          Swal.fire({
+            icon: "error",
+            text: t("global.errors-detected"),
+            confirmButtonText: t("global.got-it"),
+            buttonsStyling: false,
+            customClass: {confirmButton: "btn btn-danger"}
+          })
+        })
+    }
+
     const statusLabel = (status) => {
-      return status
       switch (status) {
         case "R":
           return t("global.review")
@@ -563,7 +498,6 @@ export default defineComponent({
     }
 
     return {
-      SERVER_PATH,
       statusLabel,
       t,
       loading,
@@ -577,18 +511,34 @@ export default defineComponent({
       currentSearchQuery,
       searchDataTableBodyRows,
       getDataTableBodyRows,
-      updateAmount,
       updateStatus,
       updateNotes,
-      router,
       openModal,
-      transferModal,
-      openUpdateModal,
       handleUpdate,
+      approvePayout,
+      currentPayout,
+      canApproveCurrent,
       userType,
-      tutorInfo,
-      transferPayout
+      tutorInfo
     }
   }
 })
 </script>
+
+<style scoped>
+.payout-details-dialog {
+  max-width: 720px;
+}
+
+.details-box {
+  padding: 0.7rem 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e7edf3;
+  border-radius: 0.65rem;
+  min-height: 62px;
+}
+
+.details-box strong {
+  color: #3f4254;
+}
+</style>

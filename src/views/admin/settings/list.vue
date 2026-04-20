@@ -1,6 +1,6 @@
 <template>
   <div>
-    <toolbar :title="t('global.settings')" />
+    <toolbar :title="t('global.settings-list')" />
     <div class="app-content flex-column-fluid">
       <div class="app-container container-xxl">
         <div class="card">
@@ -51,7 +51,7 @@
                 @on-sort="onSort"
                 @on-items-select="onItemsSelect">
                 <template #name="{row: setting}">
-                  {{ setting.name }}
+                  {{ getTranslatedName(setting) }}
                 </template>
                 <template #value="{row: setting}">
                   {{ setting.value }}
@@ -92,9 +92,10 @@ import Toolbar from "@/components/admin/dashboard/toolbar.vue"
 import DataTable from "@/components/admin/data-table/index.vue"
 import axiosClient from "@/plugins/axios"
 import arraySort from "array-sort"
-import {defineComponent, onBeforeMount, provide, ref} from "vue"
+import {computed, defineComponent, onBeforeMount, provide, ref} from "vue"
 import {useI18n} from "vue-i18n"
 import {showModal} from "@/core/helpers/dom"
+import {useStore} from "vuex"
 
 export default defineComponent({
   name: "settings",
@@ -102,6 +103,7 @@ export default defineComponent({
   props: {idCurrent: {type: String, required: false, default: null}},
   setup(props, {emit, expose}) {
     const {t} = useI18n()
+    const store = useStore()
     const loading = ref(false)
     const words = ref({word: "", status: false}) // Define the words ref here
     const header = ref([
@@ -133,6 +135,32 @@ export default defineComponent({
     const idsSelected = ref([])
     const addSettingsModal = ref(null)
     const idCurrent = ref(null)
+    const languages = computed(() => store.state.languages || [])
+    const languageId = computed(() => {
+      const directLanguageId = Number(store.state.language_id)
+      if (directLanguageId) return directLanguageId
+
+      const currentLang = String(store.state.language || "").toLowerCase()
+      const languageItem = languages.value.find(
+        (item) => String(item.shortname || "").toLowerCase() === currentLang
+      )
+
+      return languageItem ? Number(languageItem.id) : null
+    })
+
+    const getTranslatedName = (setting) => {
+      if (!setting || !Array.isArray(setting.trans)) return setting?.name || "-"
+
+      if (languageId.value) {
+        const directMatch = setting.trans.find(
+          (item) => Number(item.langid) === Number(languageId.value) && item.title
+        )
+        if (directMatch) return directMatch.title
+      }
+
+      const firstWithTitle = setting.trans.find((item) => item?.title)
+      return firstWithTitle?.title || setting.name || "-"
+    }
 
     const getDataTableBodyRows = function getDataTableBodyRows(queryString = "") {
       loading.value = true
@@ -174,6 +202,11 @@ export default defineComponent({
     onBeforeMount(() => {
       data.value = []
       loading.value = false
+
+      if (!Array.isArray(store.state.languages) || store.state.languages.length === 0) {
+        store.dispatch("getAPILanguages")
+      }
+
       getDataTableBodyRows()
     })
 
@@ -194,6 +227,7 @@ export default defineComponent({
       getDataTableBodyRows,
       onSort,
       onItemsSelect,
+      getTranslatedName,
       // updateSettings,
       showUpdateModal
     }

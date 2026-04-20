@@ -65,7 +65,7 @@
               </ul>
             </div>
           </div>
-          <a class="custom-btn-header-style" :href="`${baseUrl}${language}/checkout/`">
+          <a class="custom-btn-header-style" :href="frontUrl('checkout')">
             {{ $t("global.buy-points") }}</a
           >
         </div>
@@ -313,7 +313,7 @@
     <div class="second-header">
       <div class="second-header-content">
         <div class="left-content-second-header">
-          <a :href="BASE_URL" class="logo-header">
+          <a :href="frontUrl()" class="logo-header">
             <img alt="Logo" :src="`${PUBLIC_PATH}/front/assets/imgs/logo.png`" loading="lazy" />
           </a>
           <!-- <div ref="navbarCategoriesRef" style="position: relative">
@@ -415,17 +415,22 @@
                 </router-link>
               </li>
               <li>
-                <a class="navbar-link" target="_blank" :href="`${baseUrl}/${language}/`">
+                <a class="navbar-link" target="_blank" :href="frontUrl()">
                   {{ $t("global.home") }}</a
                 >
               </li>
               <li>
-                <a class="navbar-link" target="_blank" :href="`${baseUrl}/${language}/`">
+                <a class="navbar-link" target="_blank" :href="frontUrl('categories')">
+                  {{ $t("global.categories") }}</a
+                >
+              </li>
+              <li>
+                <a class="navbar-link" target="_blank" :href="frontUrl('coming_soon')">
                   {{ $t("global.k-12") }}</a
                 >
               </li>
               <li>
-                <a class="navbar-link" :href="`${baseUrl}/${language}/blog/`">
+                <a class="navbar-link" :href="frontUrl('blog')">
                   {{ $t("global.blog") }}
                 </a>
               </li>
@@ -452,27 +457,27 @@
                   <li aria-hidden="true">
                     <a
                       class="navbar-menu-link"
-                      :href="`${baseUrl}/${language}/online-group-classes/`">
+                      :href="frontUrl('online-group-classes')">
                       {{ $t("global.group-classes") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
                     <a
                       class="navbar-menu-link"
-                      :href="`${baseUrl}/${language}/online_private_classes/`">
+                      :href="frontUrl('online_private_classes')">
                       {{ $t("global.private-lessons") }}</a
                     >
                   </li>
                 </ul>
               </li>
               <li>
-                <a class="navbar-link" target="_blank" :href="`${baseUrl}/${language}/`">
+                <a class="navbar-link" target="_blank" :href="frontUrl('coming_soon')">
                   {{ $t("global.events") }}</a
                 >
               </li>
               <li ref="helpRef" class="position-relative">
                 <button type="button" @click="toggleHelp">
-                  {{ $t("global.help-center") }}
+                  {{ $t("global.helps") }}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -491,17 +496,17 @@
                   class="navbar-links-custom"
                   :class="{active: isActiveHelp}">
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/help-for-students/`">
-                      {{ $t("global.help-center") }}</a
+                    <a class="navbar-menu-link" :href="frontUrl('help-for-student')">
+                      {{ $t("global.help-for-student") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/contact-us/`">
-                      {{ $t("global.contact-us") }}</a
+                    <a class="navbar-menu-link" :href="frontUrl('help-for-tutor')">
+                      {{ $t("global.help-for-tutor") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/faq/`">
+                    <a class="navbar-menu-link" :href="frontUrl('faq')">
                       {{ $t("global.faq") }}</a
                     >
                   </li>
@@ -509,7 +514,7 @@
               </li>
               <li ref="pagesRef" class="position-relative">
                 <button type="button" @click="togglePages">
-                  {{ $t("global.pages") }}
+                  {{ $t("global.about") }}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -528,29 +533,29 @@
                   class="navbar-links-custom"
                   :class="{active: isActivePages}">
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/about-us/`">
+                    <a class="navbar-menu-link" :href="frontUrl('pages/about-us')">
                       {{ $t("global.about-us") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
                     <a
                       class="navbar-menu-link"
-                      :href="`${baseUrl}/${language}/pages/How-JinnEdu-Works/`">
+                      :href="frontUrl('pages/how-jin-works')">
                       {{ $t("global.how-jin-works") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/terms-of-use`">
+                    <a class="navbar-menu-link" :href="frontUrl('pages/terms-of-use')">
                       {{ $t("global.terms-of-use") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/Policy`">
+                    <a class="navbar-menu-link" :href="frontUrl('pages/Policy')">
                       {{ $t("global.privacy-policy") }}</a
                     >
                   </li>
                   <li aria-hidden="true">
-                    <a class="navbar-menu-link" :href="`${baseUrl}/${language}/pages/contact-us`">
+                    <a class="navbar-menu-link" :href="frontUrl('contact-us')">
                       {{ $t("global.contact-us") }}</a
                     >
                   </li>
@@ -597,7 +602,7 @@
                         </ul>
                       </div>
                     </div>
-                    <a class="custom-btn-header-style" :href="`${baseUrl}${language}/checkout/`">
+                    <a class="custom-btn-header-style" :href="frontUrl('checkout')">
                       {{ $t("global.buy-points") }}</a
                     >
                   </div>
@@ -903,7 +908,6 @@ export default defineComponent({
     const languageId = ref(null)
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
     const PUBLIC_PATH = ref(import.meta.env.VITE_APP_Public_URL)
-    const BASE_URL = ref(import.meta.env.VITE_APP_BASE_URL)
 
     // const favorites = ref([])
 
@@ -1029,6 +1033,19 @@ export default defineComponent({
       await store.dispatch("setLanguage", languageSelected)
       await getI18nLanguages(languageSelected)
       language.value = getLanguage()?.shortname || store.state.language
+    }
+
+    const frontUrl = (path = "") => {
+      const base = String(baseUrl || "").replace(/\/$/, "")
+      const currentLanguage = String(language.value || store.state.language || "").trim()
+      const languageSegment = currentLanguage ? `/${currentLanguage}` : ""
+      const cleanedPath = String(path || "").replace(/^\/+|\/+$/g, "")
+
+      if (!cleanedPath) {
+        return `${base}${languageSegment}/`
+      }
+
+      return `${base}${languageSegment}/${cleanedPath}/`
     }
     const isDropdownOpen = ref(false)
     const dropdownRef = ref(null)
@@ -1229,6 +1246,7 @@ export default defineComponent({
       languages,
       language,
       setLanguage,
+      frontUrl,
       signOut,
       isActiveInviteModal,
       toggleInviteModal,
@@ -1248,7 +1266,6 @@ export default defineComponent({
       favoritesLoading,
       removeFavorite,
       SERVER_PATH,
-      BASE_URL,
       DefaultGroupClassImage,
       DefaultTutorImage
     }

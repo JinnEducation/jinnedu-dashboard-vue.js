@@ -238,12 +238,12 @@
                 {{ conference[["end", "time"].join("_")] }}
               </template>
               <template #tutor="{row: conference}">
-                <template v-if="conference.tutor && conference.tutor?.avatar">
+                <template v-if="conference.tutor && getUserAvatar(conference.tutor)">
                   <div class="symbol symbol-circle symbol-45px overflow-hidden me-3">
                     <div class="symbol-label">
                       <img
-                        :src="`${SERVER_PATH}/storage/${conference.tutor?.avatar}`"
-                        :alt="`${conference.tutor?.name}`"
+                        :src="resolveAvatarUrl(getUserAvatar(conference.tutor))"
+                        :alt="`${conference.tutor?.full_name || conference.tutor?.name || ''}`"
                         class="w-100" />
                     </div>
                   </div>
@@ -624,6 +624,25 @@ export default defineComponent({
       data.value.some((c) => getRecordingMediaUrl(c.recordings))
     )
 
+    const resolveAvatarUrl = (avatarPath) => {
+      if (!avatarPath) return ""
+      if (/^https?:\/\//i.test(avatarPath)) return avatarPath
+
+      const base = String(SERVER_PATH.value || "").replace(/\/$/, "")
+      const cleanPath = String(avatarPath).replace(/^\//, "")
+
+      if (cleanPath.startsWith("storage/")) {
+        return `${base}/${cleanPath}`
+      }
+
+      return `${base}/storage/${cleanPath}`
+    }
+
+    const getUserAvatar = (user) => {
+      if (!user) return ""
+      return user.avatar || user.avatar_path || user.profile?.avatar_path || ""
+    }
+
     const getDataTableBodyRows = function getDataTableBodyRows(queryString = "") {
       loading.value = true
       axiosClient
@@ -789,7 +808,9 @@ export default defineComponent({
       baseUrl,
       getOpenVideoUrl,
       getRecordingMediaUrl,
-      hasAnyRecordings
+      hasAnyRecordings,
+      resolveAvatarUrl,
+      getUserAvatar
     }
   }
 })

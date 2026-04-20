@@ -80,10 +80,33 @@
                 {{ conference[["end", "time"].join("_")] }}
               </template>
               <template #student="{ row: conference }">
-                <template v-if="conference.student && conference.student.avatar">
+                <template v-if="conference.ref_type === 1 && Array.isArray(conference.students) && conference.students.length > 0">
+                  <div class="d-flex align-items-center">
+                    <template v-for="(student, index) in conference.students.slice(0, 3)" :key="student.id || index">
+                      <div class="symbol symbol-circle symbol-35px overflow-hidden me-2">
+                        <div class="symbol-label">
+                          <img
+                            v-if="getUserAvatar(student)"
+                            :src="resolveAvatarUrl(getUserAvatar(student))"
+                            :alt="`${student.full_name || student.name || ''}`"
+                            class="w-100" />
+                          <span v-else class="fs-6 bg-light-warning text-warning">
+                            {{ (student.full_name || student.name || "").charAt(0).toUpperCase() }}
+                          </span>
+                        </div>
+                      </div>
+                    </template>
+                    <span v-if="conference.students.length > 3" class="badge badge-light-primary fw-semibold">
+                      +{{ conference.students.length - 3 }}
+                    </span>
+                  </div>
+                </template>
+                <template v-else-if="conference.student && getUserAvatar(conference.student)">
                   <div class="symbol symbol-circle symbol-45px overflow-hidden me-3">
                     <div class="symbol-label">
-                      <img :src="`${conference.student.avatar}`" :alt="`${conference.student.name}`"
+                      <img
+                        :src="resolveAvatarUrl(getUserAvatar(conference.student))"
+                        :alt="`${conference.student.full_name || conference.student.name || ''}`"
                         class="w-100" />
                     </div>
                   </div>
@@ -92,8 +115,8 @@
                   <div class="symbol symbol-circle symbol-50px overflow-hidden me-3"
                     style="background: url('/src/assets/media/svg/files/blank-image.svg')">
                     <div class="symbol-label fs-3 bg-light-warning text-warning">
-                      <template v-if="conference.student && conference.student.name">
-                        {{ conference?.student?.full_name?.charAt(0)?.toUpperCase() || "" }}
+                      <template v-if="conference.student && (conference.student.full_name || conference.student.name)">
+                        {{ (conference.student.full_name || conference.student.name).charAt(0).toUpperCase() }}
                       </template>
                     </div>
                   </div>
@@ -140,12 +163,9 @@
                   :title="t('global.conference-add-video')">
                   <span class="svg-icon svg-icon-info">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem">
+                      <path fill="none" d="M0 0H24V24H0z" />
                       <path
-                        d="M3,16 L5,16 C5.55228475,16 6,15.5522847 6,15 C6,14.4477153 5.55228475,14 5,14 L3,14 L3,12 L5,12 C5.55228475,12 6,11.5522847 6,11 C6,10.4477153 5.55228475,10 5,10 L3,10 L3,8 L5,8 C5.55228475,8 6,7.55228475 6,7 C6,6.44771525 5.55228475,6 5,6 L3,6 L3,4 C3,3.44771525 3.44771525,3 4,3 L10,3 C10.5522847,3 11,3.44771525 11,4 L11,19 C11,19.5522847 10.5522847,20 10,20 L4,20 C3.44771525,20 3,19.5522847 3,19 L3,16 Z"
-                        fill="currentColor"
-                        opacity="0.5" />
-                      <path
-                        d="M16,3 L19,3 C20.1045695,3 21,3.8954305 21,5 L21,15.2485298 C21,15.7329761 20.8241635,16.200956 20.5051534,16.565539 L17.8762883,19.5699562 C17.6944473,19.7777745 17.378566,19.7988332 17.1707477,19.6169922 C17.1540423,19.602375 17.1383289,19.5866616 17.1237117,19.5699562 L14.4948466,16.565539 C14.1758365,16.200956 14,15.7329761 14,15.2485298 L14,5 C14,3.8954305 14.8954305,3 16,3 Z"
+                        d="M16 4c.552 0 1 .448 1 1v4.2l5.213-3.65c.226-.158.538-.103.697.124.058.084.09.184.09.286v12.08c0 .276-.224.5-.5.5-.103 0-.203-.032-.287-.09L17 14.8V19c0 .552-.448 1-1 1H2c-.552 0-1-.448-1-1V5c0-.552.448-1 1-1h14zm-1 2H3v12h12V6zM9 8l4 4h-3v4H8v-4H5l4-4zm12 .841l-4 2.8v.718l4 2.8V8.84z"
                         fill="currentColor" />
                     </svg>
                   </span>
@@ -237,6 +257,25 @@ export default defineComponent({
     const initItems = ref([])
     const idsSelected = ref([])
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
+
+    const resolveAvatarUrl = (avatarPath) => {
+      if (!avatarPath) return ""
+      if (/^https?:\/\//i.test(avatarPath)) return avatarPath
+
+      const base = String(SERVER_PATH.value || "").replace(/\/$/, "")
+      const cleanPath = String(avatarPath).replace(/^\//, "")
+
+      if (cleanPath.startsWith("storage/")) {
+        return `${base}/${cleanPath}`
+      }
+
+      return `${base}/storage/${cleanPath}`
+    }
+
+    const getUserAvatar = (user) => {
+      if (!user) return ""
+      return user.avatar || user.avatar_path || user.profile?.avatar_path || ""
+    }
 
     const getDataTableBodyRows = function getDataTableBodyRows(queryString = "") {
       loading.value = true
@@ -379,7 +418,9 @@ export default defineComponent({
       getConferenceLink,
       deleteItem,
       deleteFewItems,
-      loadingMeetUrl
+      loadingMeetUrl,
+      resolveAvatarUrl,
+      getUserAvatar
     }
   }
 })

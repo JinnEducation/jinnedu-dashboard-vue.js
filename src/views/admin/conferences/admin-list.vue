@@ -165,13 +165,13 @@
                     {{ conference[["end", "time"].join("_")] }}
                   </template>
                   <template #tutor="{row: conference}">
-                    <template v-if="conference.tutor && conference.tutor.avatar">
+                    <template v-if="conference.tutor && getUserAvatar(conference.tutor)">
                       <div class="symbol symbol-circle symbol-45px overflow-hidden me-3">
                         <div class="symbol-label">
                           <img
-                            :src="`${SERVER_PATH}/${conference.tutor.avatar}`"
-                            :alt="`${conference.tutor.name}`"
-                            :title="`${conference.tutor.name}`"
+                            :src="resolveAvatarUrl(getUserAvatar(conference.tutor))"
+                            :alt="`${conference.tutor.full_name || conference.tutor.name || ''}`"
+                            :title="`${conference.tutor.full_name || conference.tutor.name || ''}`"
                             class="w-100" />
                         </div>
                       </div>
@@ -192,15 +192,15 @@
                   <template #student="{row: conference}">
                     <template v-if="conference.ref_type === 1">
                       <template v-if="conference.students && conference.students.length > 0">
-                        <template v-for="(student, index) in conference.students" :key="index">
-                          <template v-if="student.avatar">
+                        <template v-for="(student, index) in conference.students.slice(0, 3)" :key="index">
+                          <template v-if="getUserAvatar(student)">
                             <div class="symbol symbol-circle symbol-45px overflow-hidden me-3">
                               <div class="symbol-label">
-                                <img
-                                  :src="`${SERVER_PATH}/${student.avatar}`"
-                                  :alt="`${student.name}`"
-                                  :title="`${student.name}`"
-                                  class="w-100" />
+                                 <img
+                                   :src="resolveAvatarUrl(getUserAvatar(student))"
+                                   :alt="`${student.full_name || student.name || ''}`"
+                                   :title="`${student.full_name || student.name || ''}`"
+                                   class="w-100" />
                               </div>
                             </div>
                           </template>
@@ -216,6 +216,11 @@
                             </div>
                           </template>
                         </template>
+                        <span
+                          v-if="conference.students.length > 3"
+                          class="badge badge-light-primary fw-semibold">
+                          +{{ conference.students.length - 3 }}
+                        </span>
                       </template>
                       <template v-else>
                         <div>
@@ -275,13 +280,17 @@
                     "
                     #actions="{row: conference}">
                     <button
-                      v-if="selectedType !== 'Trial Lesson' && !conference.has_approved_finance"
+                      v-if="
+                        selectedType !== 'Trial Lesson' &&
+                        !conference.has_approved_finance &&
+                        getRecordingMediaUrl(conference.recordings)
+                      "
                       type="button"
                       class="btn btn-icon btn-light-success me-2"
                       :title="t('global.calculate-session')"
                       :aria-label="t('global.calculate-session')"
                       :disabled="addTutorFinanceLoadingId === conference.id"
-                      @click="addTutorFinance(conference)">
+                      @click.stop="addTutorFinance(conference)">
                       <span
                         v-if="addTutorFinanceLoadingId === conference.id"
                         class="spinner-border spinner-border-sm"
@@ -323,7 +332,7 @@
                       type="button"
                       aria-label="Delete"
                       class="btn btn-icon btn-light-danger"
-                      @click="deleteItem(conference.id)">
+                      @click.stop="deleteItem(conference.id)">
                       <span class="svg-icon svg-icon-danger">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -476,6 +485,25 @@ export default defineComponent({
     )
 
     const hasAnyPendingFinance = computed(() => data.value.some((c) => !c.has_approved_finance))
+
+    const resolveAvatarUrl = (avatarPath) => {
+      if (!avatarPath) return ""
+      if (/^https?:\/\//i.test(avatarPath)) return avatarPath
+
+      const base = String(SERVER_PATH.value || "").replace(/\/$/, "")
+      const cleanPath = String(avatarPath).replace(/^\//, "")
+
+      if (cleanPath.startsWith("storage/")) {
+        return `${base}/${cleanPath}`
+      }
+
+      return `${base}/storage/${cleanPath}`
+    }
+
+    const getUserAvatar = (user) => {
+      if (!user) return ""
+      return user.avatar || user.avatar_path || user.profile?.avatar_path || ""
+    }
 
     const addTutorFinanceLoadingId = ref(null)
 
@@ -706,7 +734,9 @@ export default defineComponent({
       hasAnyRecordings,
       hasAnyPendingFinance,
       addTutorFinance,
-      addTutorFinanceLoadingId
+      addTutorFinanceLoadingId,
+      resolveAvatarUrl,
+      getUserAvatar
     }
   }
 })

@@ -25,12 +25,15 @@
                   name="search-private-chats" :placeholder="t('global.search-name-email')"
                   class="form-control form-control-solid px-13" @keyup.enter.prevent="searchUsersPrivateChats" />
               </div>
-              <button class="btn btn-light-primary w-100 mb-3" @click="openNewChat = !openNewChat">
+              <button
+                v-if="currentUserType === 0"
+                class="btn btn-light-primary w-100 mb-3"
+                @click="openNewChat = !openNewChat">
                 {{ t('global.start-new-chat') }}
               </button>
 
               <!-- Start New Chat Users -->
-              <div v-if="openNewChat" class="mb-5">
+              <div v-if="currentUserType === 0 && openNewChat" class="mb-5">
 
                 <div class="mb-3">
                   <input v-model="newChatSearch" type="text" class="form-control form-control-solid"
@@ -330,6 +333,9 @@ export default defineComponent({
 
     const authUserId = () => Number(store.state.user?.user?.id || JSON.parse(localStorage.getItem("user")).user?.id || 0)
     const authToken = () => store.state.user?.token || JSON.parse(localStorage.getItem("user")).token || ""
+    const currentUserType = Number(
+      store.state.user?.user?.type || JSON.parse(localStorage.getItem("user"))?.user?.type || 0
+    )
     // ========= Helpers =========
     const normalizeList = (payload) => {
       // supports: paginator {data:[]}, {data:{data:[]}}, {result:{data:[]}}, []
@@ -746,6 +752,7 @@ export default defineComponent({
       newChatSearch,
       getNewChatUsers,
       startChatWithUser,
+      currentUserType,
 
       // for template initials (if used)
       displayName

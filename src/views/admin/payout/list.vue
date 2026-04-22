@@ -11,7 +11,8 @@
                 <div class="flex-grow-1">
                   <div class="d-flex flex-wrap flex-stack">
                     <div class="d-flex flex-column flex-grow-1 pe-8">
-                      <div class="d-flex flex-wrap">
+                      <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                        <div class="d-flex flex-wrap">
                         <div
                           class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
                           <div class="d-flex align-items-center">
@@ -35,6 +36,34 @@
                             {{ t("global.withdraw-amount") }}
                           </div>
                         </div>
+                        <div
+                          class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                          <div class="d-flex align-items-center">
+                            <div class="fs-2 fw-bold">
+                              {{ tutorInfo?.pending_balance || 0 }}
+                            </div>
+                          </div>
+                          <div class="fw-semibold fs-6 text-gray-500">
+                            {{ t("global.pending-balance") }}
+                          </div>
+                        </div>
+                        <div
+                          class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                          <div class="d-flex align-items-center">
+                            <div class="fs-2 fw-bold">
+                              {{ tutorInfo?.requested_balance || 0 }}
+                            </div>
+                          </div>
+                          <div class="fw-semibold fs-6 text-gray-500">
+                            {{ t("global.requested-balance") }}
+                          </div>
+                        </div>
+                        </div>
+                        <router-link
+                          :to="{name: 'accounting-balance-report', params: {id: userInfoObject.user.id}}"
+                          class="btn btn-light-primary btn-sm mt-2">
+                          {{ t("global.balance-report") }}
+                        </router-link>
                       </div>
                     </div>
                   </div>
@@ -118,8 +147,12 @@
                   <span>{{ statusLabel(payout.status) }}</span>
                 </template>
 
-                <template #paypal_status="{row: payout}">
-                  <span v-if="payout.method === 'paypal'">{{ payout.paypal_status }}</span>
+                <template #created_at="{row: payout}">
+                  <span>{{ formatDate(payout.created_at) }}</span>
+                </template>
+
+                <template #payout_status="{row: payout}">
+                  <span>{{ payoutStatusLabel(payout.payout_status) }}</span>
                 </template>
 
                 <template #actions="{row: payout}">
@@ -129,6 +162,13 @@
                     class="btn btn-light-info me-2 p-2"
                     @click="openModal(payout.id)">
                     {{ t("global.show-details") }}
+                  </button>
+                  <button
+                    v-if="userType === 0 && payout.status === 'P' && payout.payout_status !== 'transferred'"
+                    type="button"
+                    class="btn btn-light-success p-2"
+                    @click="markPayoutTransferred(payout.id)">
+                    {{ t("global.mark-as-transferred") }}
                   </button>
                 </template>
               </data-table>
@@ -175,14 +215,16 @@
                         </div>
                         <div class="col-md-6 col-lg-4">
                           <div class="details-box">
-                            <strong>{{ t("global.method") }}</strong>
-                            <div class="fs-6 mt-1">{{ currentPayout.method || "-" }}</div>
+                            <strong>{{ t("global.payout-status") }}</strong>
+                            <div class="fs-6 mt-1">
+                              {{ payoutStatusLabel(currentPayout.payout_status) }}
+                            </div>
                           </div>
                         </div>
-                        <div v-if="currentPayout.method === 'paypal'" class="col-md-6 col-lg-4">
+                        <div class="col-md-6 col-lg-4">
                           <div class="details-box">
-                            <strong>{{ t("global.paypal-status") }}</strong>
-                            <div class="fs-6 mt-1">{{ currentPayout.paypal_status || "-" }}</div>
+                            <strong>{{ t("global.method") }}</strong>
+                            <div class="fs-6 mt-1">{{ currentPayout.method || "-" }}</div>
                           </div>
                         </div>
                       </div>
@@ -199,12 +241,6 @@
                             <div class="details-box">
                               <strong>{{ t("global.bank-name") }}</strong>
                               <div class="fs-6 mt-1">{{ currentPayout.bank_name || "-" }}</div>
-                            </div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="details-box">
-                              <strong>{{ t("global.account-number") }}</strong>
-                              <div class="fs-6 mt-1">{{ currentPayout.account_no || "-" }}</div>
                             </div>
                           </div>
                           <div class="col-md-6">
@@ -283,6 +319,13 @@
                             @click="approvePayout">
                             {{ t("global.approve") }}
                           </button>
+                          <button
+                            v-if="canTransferCurrent"
+                            type="button"
+                            class="btn btn-light-success"
+                            @click="markPayoutTransferred(idCurrent)">
+                            {{ t("global.mark-as-transferred") }}
+                          </button>
                         </div>
                       </form>
                     </div>
@@ -322,12 +365,6 @@ export default defineComponent({
     const userType = userInfoObject.user.type
     const header = ref([
       {
-        columnName: t("global.tutor-name"),
-        columnLabel: "tutor",
-        sortEnabled: true,
-        columnWidth: 175
-      },
-      {
         columnName: t("global.amount"),
         columnLabel: "amount",
         sortEnabled: true,
@@ -340,8 +377,14 @@ export default defineComponent({
         columnWidth: 175
       },
       {
-        columnName: t("global.paypal-status"),
-        columnLabel: "paypal_status",
+        columnName: t("global.payout-status"),
+        columnLabel: "payout_status",
+        sortEnabled: true,
+        columnWidth: 175
+      },
+      {
+        columnName: t("global.payout-date"),
+        columnLabel: "created_at",
         sortEnabled: true,
         columnWidth: 175
       },
@@ -352,6 +395,15 @@ export default defineComponent({
         columnWidth: 175
       }
     ])
+
+    if (userType === 0) {
+      header.value.unshift({
+        columnName: t("global.tutor-name"),
+        columnLabel: "tutor",
+        sortEnabled: true,
+        columnWidth: 175
+      })
+    }
 
     const updateStatus = ref("")
     const updateNotes = ref("")
@@ -381,7 +433,7 @@ export default defineComponent({
               params: {user_id: userInfoObject.user.id}
             })
             .then((tutorResponses) => {
-              tutorInfo.value = tutorResponses.data
+              tutorInfo.value = tutorResponses.data?.result || tutorResponses.data
             })
         })
         .catch((error) => {
@@ -411,6 +463,15 @@ export default defineComponent({
 
     const canApproveCurrent = computed(() => {
       return userType === 0 && currentPayout.value && currentPayout.value.status !== "P"
+    })
+
+    const canTransferCurrent = computed(() => {
+      return (
+        userType === 0 &&
+        currentPayout.value &&
+        currentPayout.value.status === "P" &&
+        currentPayout.value.payout_status !== "transferred"
+      )
     })
 
     const currentSearchQuery = ref("")
@@ -486,15 +547,54 @@ export default defineComponent({
         })
     }
 
+    const markPayoutTransferred = (id) => {
+      if (!id) return
+
+      axiosClient
+        .post(`/payouts/${id}/payout-status`, {payout_status: "transferred"})
+        .then((response) => {
+          Swal.fire({
+            icon: "success",
+            text: response.data.message || t("global.thank-you"),
+            confirmButtonText: t("global.thank-you"),
+            buttonsStyling: false,
+            customClass: {confirmButton: "btn btn-primary"}
+          })
+          getDataTableBodyRows()
+        })
+        .catch(() => {
+          Swal.fire({
+            icon: "error",
+            text: t("global.errors-detected"),
+            confirmButtonText: t("global.got-it"),
+            buttonsStyling: false,
+            customClass: {confirmButton: "btn btn-danger"}
+          })
+        })
+    }
+
     const statusLabel = (status) => {
       switch (status) {
         case "R":
-          return t("global.review")
+          return t("global.under-review")
         case "P":
-          return t("global.paid")
+          return t("global.approved")
         default:
-          return t("global.need-to-review")
+          return t("global.under-review")
       }
+    }
+
+    const payoutStatusLabel = (payoutStatus) => {
+      return payoutStatus === "transferred"
+        ? t("global.transferred")
+        : t("global.in-transfer")
+    }
+
+    const formatDate = (value) => {
+      if (!value) return "-"
+      const date = new Date(value)
+      if (Number.isNaN(date.getTime())) return value
+      return date.toLocaleDateString("en-GB")
     }
 
     return {
@@ -516,10 +616,15 @@ export default defineComponent({
       openModal,
       handleUpdate,
       approvePayout,
+      markPayoutTransferred,
       currentPayout,
       canApproveCurrent,
+      canTransferCurrent,
+      payoutStatusLabel,
+      formatDate,
       userType,
-      tutorInfo
+      tutorInfo,
+      userInfoObject
     }
   }
 })

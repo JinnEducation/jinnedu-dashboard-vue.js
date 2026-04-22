@@ -51,6 +51,7 @@
                       v-model="data.quantity"
                       type="number"
                       :min="1"
+                      :max="1000000"
                       :step="1"
                       controls-position="right" />
                   </el-form-item>
@@ -159,7 +160,7 @@
                           </span>
                           <div>
                             <div class="fw-bold">{{ t("global.bank-name") }}</div>
-                            <small class="text-muted">{{ t("global.account-number") }}</small>
+                            <small class="text-muted">Bank Transfer</small>
                           </div>
                         </label>
                       </div>
@@ -188,19 +189,6 @@
                     <div class="card card-flush p-4 payout-method-card">
                       <div class="row g-4">
                         <div class="col-md-6">
-                          <label for="bank-name" class="required form-label">{{
-                            t("global.bank-name")
-                          }}</label>
-                          <el-form-item prop="bankName">
-                            <el-input
-                              id="bank-name"
-                              v-model="data.bankName"
-                              type="text"
-                              name="bank-name"
-                              :placeholder="t('global.bank-name')" />
-                          </el-form-item>
-                        </div>
-                        <div class="col-md-6">
                           <label for="bank-account-name" class="required form-label">{{
                             t("global.name")
                           }}</label>
@@ -211,45 +199,6 @@
                               type="text"
                               name="bank-account-name"
                               :placeholder="t('global.name')" />
-                          </el-form-item>
-                        </div>
-                        <div class="col-md-6">
-                          <label for="bank-account-number" class="required form-label">
-                            {{ t("global.bank-account-number") }}
-                          </label>
-                          <el-form-item prop="bankAccountNumber">
-                            <el-input
-                              id="bank-account-number"
-                              v-model="data.bankAccountNumber"
-                              type="text"
-                              name="bank-account-number"
-                              :placeholder="t('global.bank-account-number')" />
-                          </el-form-item>
-                        </div>
-                        <div class="col-md-6">
-                          <label for="iban" class="required form-label">{{
-                            t("global.iban")
-                          }}</label>
-                          <el-form-item prop="iban">
-                            <el-input
-                              id="iban"
-                              v-model="data.iban"
-                              type="text"
-                              name="iban"
-                              :placeholder="t('global.iban')" />
-                          </el-form-item>
-                        </div>
-                        <div class="col-md-6">
-                          <label for="swift-code" class="required form-label">{{
-                            t("global.swift-code")
-                          }}</label>
-                          <el-form-item prop="swiftCode">
-                            <el-input
-                              id="swift-code"
-                              v-model="data.swiftCode"
-                              type="text"
-                              name="swift-code"
-                              :placeholder="t('global.swift-code')" />
                           </el-form-item>
                         </div>
                         <div class="col-md-6">
@@ -270,6 +219,45 @@
                                 :label="countryOption.name"
                                 :value="countryOption.id" />
                             </el-select>
+                          </el-form-item>
+                        </div>
+                        <div class="col-md-6">
+                          <label for="bank-name" class="required form-label">{{
+                            t("global.bank-name")
+                          }}</label>
+                          <el-form-item prop="bankName">
+                            <el-input
+                              id="bank-name"
+                              v-model="data.bankName"
+                              type="text"
+                              name="bank-name"
+                              :placeholder="t('global.bank-name')" />
+                          </el-form-item>
+                        </div>
+                        <div class="col-md-6">
+                          <label for="swift-code" class="required form-label">{{
+                            t("global.swift-code")
+                          }}</label>
+                          <el-form-item prop="swiftCode">
+                            <el-input
+                              id="swift-code"
+                              v-model="data.swiftCode"
+                              type="text"
+                              name="swift-code"
+                              :placeholder="t('global.swift-code')" />
+                          </el-form-item>
+                        </div>
+                        <div class="col-md-6">
+                          <label for="iban" class="required form-label">{{
+                            t("global.iban")
+                          }}</label>
+                          <el-form-item prop="iban">
+                            <el-input
+                              id="iban"
+                              v-model="data.iban"
+                              type="text"
+                              name="iban"
+                              :placeholder="t('global.iban')" />
                           </el-form-item>
                         </div>
                       </div>
@@ -338,7 +326,6 @@ export default defineComponent({
       paypalAccount: "",
       bankName: "",
       bankAccountName: "",
-      bankAccountNumber: "",
       iban: "",
       swiftCode: "",
       country: "",
@@ -366,7 +353,6 @@ export default defineComponent({
       paypalAccount: [{validator: requiredForMethod("paypal"), trigger: ["blur", "change"]}],
       bankName: [{validator: requiredForMethod("bank"), trigger: ["blur", "change"]}],
       bankAccountName: [{validator: requiredForMethod("bank"), trigger: ["blur", "change"]}],
-      bankAccountNumber: [{validator: requiredForMethod("bank"), trigger: ["blur", "change"]}],
       iban: [{validator: requiredForMethod("bank"), trigger: ["blur", "change"]}],
       swiftCode: [{validator: requiredForMethod("bank"), trigger: ["blur", "change"]}],
       countryId: [{validator: requiredForMethod("bank"), trigger: ["blur", "change"]}]
@@ -379,9 +365,7 @@ export default defineComponent({
 
     const checkForTutor = function checkForTutor() {
       if (userInfoObject.user.type === 2) {
-        axiosClient.get(`/users?type=2&tutor_id=${userInfoObject.user.id}`).then((response) => {
-          data.value.tutor = response.data.result.data.id
-        })
+        data.value.tutor = userInfoObject.user.id
       } else {
         data.value.user = userInfoObject.user.id
       }
@@ -410,7 +394,6 @@ export default defineComponent({
         if (paymentType === "paypal") {
           data.value.bankName = ""
           data.value.bankAccountName = ""
-          data.value.bankAccountNumber = ""
           data.value.iban = ""
           data.value.swiftCode = ""
           data.value.country = ""
@@ -458,7 +441,6 @@ export default defineComponent({
               paypal_account: data.value.paypalAccount ? data.value.paypalAccount : "",
               bank_name: data.value.bankName ? data.value.bankName : "",
               bank_account_name: data.value.bankAccountName ? data.value.bankAccountName : "",
-              account_no: data.value.bankAccountNumber ? data.value.bankAccountNumber : "",
               iban: data.value.iban ? data.value.iban : "",
               swift_code: data.value.swiftCode ? data.value.swiftCode : "",
               country: data.value.country ? data.value.country : "",
@@ -473,7 +455,7 @@ export default defineComponent({
                   buttonsStyling: false,
                   customClass: {confirmButton: "btn btn-primary"}
                 })
-                router.push({name: "dashboard"})
+                router.push({name: "payout-list"})
               } else {
                 let errorMessage = ""
                 switch (response.data["msg-code"]) {
@@ -577,7 +559,7 @@ export default defineComponent({
 }
 
 .payout-amount-field .el-input-number {
-  width: 100%;
+  width: 220px;
 }
 
 .payment-option {

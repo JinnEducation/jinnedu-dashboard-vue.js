@@ -27,8 +27,7 @@
         </div> -->
       </div>
       <div class="right-content">
-        <!-- notifications appear in student dashboard only -->
-        <div v-if="userType === 1" class="balance-flex-content">
+        <div v-if="userType === 1 || userType === 2" class="balance-flex-content">
           <div style="position: relative">
             <button type="button" class="balance-flex" @click="toggleNavbarMenu">
               <svg
@@ -65,7 +64,7 @@
               </ul>
             </div>
           </div>
-          <a class="custom-btn-header-style" :href="frontUrl('checkout')">
+          <a v-if="userType === 1" class="custom-btn-header-style" :href="frontUrl('checkout')">
             {{ $t("global.buy-points") }}</a
           >
         </div>
@@ -563,7 +562,7 @@
               </li>
               <li class="responsive-links">
                 <div class="right-content">
-                  <div class="balance-flex-content">
+                  <div v-if="userType === 1 || userType === 2" class="balance-flex-content">
                     <div style="position: relative">
                       <button type="button" class="balance-flex" @click="toggleNavbarMenu">
                         <svg
@@ -602,7 +601,10 @@
                         </ul>
                       </div>
                     </div>
-                    <a class="custom-btn-header-style" :href="frontUrl('checkout')">
+                    <a
+                      v-if="userType === 1"
+                      class="custom-btn-header-style"
+                      :href="frontUrl('checkout')">
                       {{ $t("global.buy-points") }}</a
                     >
                   </div>

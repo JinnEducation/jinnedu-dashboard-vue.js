@@ -93,8 +93,8 @@
                 {{ user.private_lesson_count }}
               </template>
               <template #actions="{ row: user }">
-                <button type="button" class="btn btn-light-primary p-3 me-2" @click="gotoUserInformation(user.id)">
-                  {{ t("global.tutor-information") }}
+                <button type="button" class="btn btn-light-primary p-3 me-2" @click="gotoBalanceReport(user.id)">
+                  {{ t("global.balance-report") }}
                 </button>
               </template>
             </data-table>
@@ -199,9 +199,8 @@ export default defineComponent({
       else idsSelected.value = [...idsSelected.value, ...itemsSelected]
     }
 
-    const gotoUserInformation = (userId) => {
-      // Navigate to the userInformation route with the user ID as a parameter
-      router.push({ name: "tutorInformation", params: { id: userId } })
+    const gotoBalanceReport = (userId) => {
+      router.push({ name: "accounting-balance-report", params: { id: userId } })
     }
 
     provide("getDataTableBodyRows", getDataTableBodyRows)
@@ -233,7 +232,7 @@ export default defineComponent({
       onSort,
       onItemsSelect,
 
-      gotoUserInformation
+      gotoBalanceReport
     }
   }
 })

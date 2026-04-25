@@ -334,6 +334,7 @@ export default defineComponent({
       user: null
     })
     const countries = ref([])
+    const availableBalance = ref(null)
     const defaultCountryId = ref(null)
     const defaultCountryName = ref("")
 
@@ -388,6 +389,30 @@ export default defineComponent({
       }
     }
 
+    const loadWalletBalance = async () => {
+      try {
+        const response = await axiosClient.get("/wallet/balance")
+        const balance =
+          response?.data?.result?.balance ?? response?.data?.balance ?? response?.data?.result?.amount
+        availableBalance.value = Number(balance ?? 0)
+      } catch (e) {
+        availableBalance.value = null
+      }
+    }
+
+    const getApiErrorMessage = (responseData) => {
+      const message = responseData?.message
+      if (message === "you-don't-have-enough-balance") {
+        const key = "errors.you-don't-have-enough-balance"
+        const translated = t(key)
+        return translated !== key ? translated : t("errors.you-don't-have-a-balance")
+      }
+      if (message === "you-don't-have-a-balance" || responseData?.["msg-code"] === "223") {
+        return t("errors.you-don't-have-a-balance")
+      }
+      return t("global.unknown-error")
+    }
+
     watch(
       () => data.value.paymentType,
       (paymentType) => {
@@ -429,6 +454,24 @@ export default defineComponent({
     )
 
     const submit = function submit() {
+      const requestedAmount = Number(data.value.quantity || 0)
+      if (
+        availableBalance.value !== null &&
+        Number.isFinite(requestedAmount) &&
+        requestedAmount > Number(availableBalance.value)
+      ) {
+        const key = "errors.you-don't-have-enough-balance"
+        const translated = t(key)
+        Swal.fire({
+          icon: "error",
+          text: translated !== key ? translated : t("errors.you-don't-have-a-balance"),
+          confirmButtonText: t("global.got-it"),
+          buttonsStyling: false,
+          customClass: {confirmButton: "btn btn-danger"}
+        })
+        return
+      }
+
       button.value.setAttribute("data-kt-indicator", "on")
       button.value.disabled = true
       button.value.ariaDisabled = true
@@ -457,15 +500,7 @@ export default defineComponent({
                 })
                 router.push({name: "payout-list"})
               } else {
-                let errorMessage = ""
-                switch (response.data["msg-code"]) {
-                  case "223":
-                    errorMessage = t("errors.you-don't-have-a-balance")
-                    break
-                  default:
-                    errorMessage = t("global.unknown-error")
-                    break
-                }
+                const errorMessage = getApiErrorMessage(response.data)
 
                 Swal.fire({
                   icon: "error",
@@ -512,7 +547,7 @@ export default defineComponent({
 
     onMounted(async () => {
       checkForTutor()
-      await Promise.allSettled([loadCountries(), loadProfileCountry()])
+      await Promise.allSettled([loadCountries(), loadProfileCountry(), loadWalletBalance()])
 
       if (defaultCountryId.value && countries.value.length) {
         const countryExists = countries.value.some(

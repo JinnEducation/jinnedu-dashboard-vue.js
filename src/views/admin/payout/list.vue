@@ -528,7 +528,7 @@ export default defineComponent({
         .then((response) => {
           Swal.fire({
             icon: "success",
-            text: response.data.message || t("global.thank-you"),
+            text: resolveApiMessage(response.data.message),
             confirmButtonText: t("global.thank-you"),
             buttonsStyling: false,
             customClass: {confirmButton: "btn btn-primary"}
@@ -555,7 +555,7 @@ export default defineComponent({
         .then((response) => {
           Swal.fire({
             icon: "success",
-            text: response.data.message || t("global.thank-you"),
+            text: resolveApiMessage(response.data.message),
             confirmButtonText: t("global.thank-you"),
             buttonsStyling: false,
             customClass: {confirmButton: "btn btn-primary"}
@@ -590,6 +590,13 @@ export default defineComponent({
         : t("global.in-transfer")
     }
 
+    const resolveApiMessage = (message) => {
+      if (!message) return t("global.thank-you")
+      const translationKey = `global.${message}`
+      const translated = t(translationKey)
+      return translated !== translationKey ? translated : t("global.thank-you")
+    }
+
     const formatDate = (value) => {
       if (!value) return "-"
       const date = new Date(value)
@@ -621,6 +628,7 @@ export default defineComponent({
       canApproveCurrent,
       canTransferCurrent,
       payoutStatusLabel,
+      resolveApiMessage,
       formatDate,
       userType,
       tutorInfo,

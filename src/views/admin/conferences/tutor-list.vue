@@ -4,6 +4,19 @@
   <div class="app-content flex-column-fluid">
     <div class="app-container container-xxl">
       <div class="card">
+        <div class="nav nav-line-tabs">
+          <template v-for="type in orderTypes" :key="type.label">
+            <li class="nav-item">
+              <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+              <a
+                class="nav-link p-3"
+                :class="{ active: selectedType === type.label }"
+                @click="handleTabChange(type)">
+                {{ t(type.labelKey) }}
+              </a>
+            </li>
+          </template>
+        </div>
         <div class="card-header border-0 pt-6">
           <div class="card-title">
             <div class="d-flex align-items-center position-relative my-1">
@@ -64,9 +77,7 @@
                     : 'badge-light-success'
                 ]">
                   {{
-                    conference[["ref", "type"].join("_")] == 1
-                      ? t("global.group-classes")
-                      : t("global.our-courses")
+                    getConferenceTypeLabel(conference)
                   }}
                 </span>
               </template>
@@ -123,8 +134,11 @@
                 </template>
               </template>
               <template v-if="abilities.createTutorLink || abilities.destroy" #actions="{ row: conference }">
-                <button v-if="!conference.meet_url && !conference.is_end" type="button" aria-label="Create Link"
-                  class="btn btn-icon btn-light-success me-2" @click="getConferenceLink(conference.id)">
+                <button v-if="!conference.meet_url && !isConferenceEnded(conference)" type="button" aria-label="Create Link"
+                  class="btn btn-icon me-2"
+                  :class="isConferenceActive(conference) ? 'btn-light-success' : 'btn-light-secondary'"
+                  :title="isConferenceActive(conference) ? t('global.start-class') : t('global.conference-has-not-started-yet')"
+                  @click="getConferenceLink(conference.id)">
                   <span class="svg-icon svg-icon-primary">
                     <svg v-if="loadingMeetUrl === conference.id" id="L9" version="1.1"
                       xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -145,8 +159,10 @@
                     </svg>
                   </span>
                 </button>
-                <a v-if="conference.meet_url && !conference.is_end" :href="conference.meet_url" aria-label="Create Link"
-                  target="_blank" class="btn btn-icon btn-light-primary me-2">
+                <a v-if="conference.meet_url && !isConferenceEnded(conference)" :href="conference.meet_url" aria-label="Create Link"
+                  target="_blank" class="btn btn-icon me-2"
+                  :class="conference.is_meeting_started ? 'btn-light-danger' : 'btn-light-primary'"
+                  :title="t('global.class-is-live')">
                   <span class="svg-icon svg-icon-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 1.5rem; height: 1.5rem">
                       <rect x="2" y="6" rx="2" width="13" height="12" fill="currentColor" />
@@ -158,7 +174,8 @@
                 </a>
                 <router-link
                   :to="`/dashboard/conferences/${conference.id}/recordings`"
-                  class="btn btn-icon btn-light-info me-2"
+                  class="btn btn-icon me-2"
+                  :class="isConferenceEnded(conference) && !hasRecording(conference) ? 'btn-light-warning' : 'btn-light-info'"
                   aria-label="Upload Recording"
                   :title="t('global.conference-add-video')">
                   <span class="svg-icon svg-icon-info">
@@ -220,6 +237,13 @@ export default defineComponent({
 
     const { t } = useI18n()
     const loading = ref(false)
+    const orderTypes = [
+      { label: "All", labelKey: "global.all", value: "" },
+      { label: "Group Class", labelKey: "global.group-class", value: 1 },
+      { label: "Trial Lesson", labelKey: "global.trial-lesson", value: 3 },
+      { label: "Private Lesson", labelKey: "global.private-lesson", value: 4 }
+    ]
+    const selectedType = ref("All")
     const header = ref([
       { columnName: t("global.title"), columnLabel: "title", sortEnabled: false, columnWidth: 200 },
       { columnName: t("global.type"), columnLabel: "ref_type", sortEnabled: false, columnWidth: 150 },
@@ -258,6 +282,42 @@ export default defineComponent({
     const idsSelected = ref([])
     const SERVER_PATH = ref(import.meta.env.VITE_APP_SERVER_BASE_URL)
 
+    const getConferenceTypeLabel = (conference) => {
+      const refType = Number(conference?.ref_type)
+      if (refType === 1) return t("global.group-class")
+      if (refType === 2) return t("global.our-courses")
+      if (refType === 3) return t("global.trial-lesson")
+      if (refType === 4) return t("global.private-lesson")
+      return t("global.other")
+    }
+
+    const isConferenceEnded = (conference) => {
+      if (conference?.is_end !== undefined) return Boolean(conference.is_end)
+      const endDateTime = conference?.end_date_time || `${conference?.date || ""} ${conference?.end_time || ""}`
+      const endTime = Date.parse(endDateTime)
+      return Number.isNaN(endTime) ? false : endTime <= Date.now()
+    }
+
+    const isConferenceActive = (conference) => {
+      if (conference?.is_active !== undefined) return Boolean(conference.is_active)
+      const startTime = Date.parse(conference?.start_date_time || `${conference?.date || ""} ${conference?.start_time || ""}`)
+      const endTime = Date.parse(conference?.end_date_time || `${conference?.date || ""} ${conference?.end_time || ""}`)
+      if (Number.isNaN(startTime) || Number.isNaN(endTime)) return false
+      return startTime <= Date.now() && endTime > Date.now()
+    }
+
+    const hasRecording = (conference) => {
+      if (!conference?.recordings) return false
+      return Array.isArray(conference.recordings) ? conference.recordings.length > 0 : Boolean(conference.recordings)
+    }
+
+    const getTranslatedMessage = (message) => {
+      if (!message) return ""
+      const key = `global.${message}`
+      const translated = t(key)
+      return translated === key ? message : translated
+    }
+
     const resolveAvatarUrl = (avatarPath) => {
       if (!avatarPath) return ""
       if (/^https?:\/\//i.test(avatarPath)) return avatarPath
@@ -279,8 +339,11 @@ export default defineComponent({
 
     const getDataTableBodyRows = function getDataTableBodyRows(queryString = "") {
       loading.value = true
+      const type = orderTypes.find((item) => item.label === selectedType.value)?.value ?? ""
+      const params = new URLSearchParams(queryString.replace(/^\?/, ""))
+      if (type) params.set("ref_type", type)
       axiosClient
-        .get(`/conferences/tutor-index${queryString}`)
+        .get(`/conferences/tutor-index?${params.toString()}`)
         .then((response) => {
           data.value = response.data.result.data
           itemsTotal.value = response.data.result.total
@@ -294,6 +357,11 @@ export default defineComponent({
 
     const searchDataTableBodyRows = function searchDataTableBodyRows(e) {
       getDataTableBodyRows(`?${["q", e.target.value].join("=")}`)
+    }
+
+    const handleTabChange = function handleTabChange(type) {
+      selectedType.value = type.label
+      getDataTableBodyRows()
     }
 
     const onSort = function onSort(sort) {
@@ -350,8 +418,11 @@ export default defineComponent({
       axiosClient
         .get(`/conferences/create-tutor-link/${id}`)
         .then((response) => {
-          // eslint-disable-next-line no-console
-          console.log(response)
+          if (!response.data.success) {
+            Swal.fire(getTranslatedMessage(response.data.message), "", "info")
+            loadingMeetUrl.value = null
+            return
+          }
           try {
             const errorResponse = JSON.parse(response.data.result.response)
 
@@ -364,17 +435,15 @@ export default defineComponent({
               window.open(errorResponse.data.start_url, "_blank")
               // eslint-disable-next-line no-use-before-define
               getDataTableBodyRows()
+              loadingMeetUrl.value = null
             }
           } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error("Error parsing JSON:", error)
             Swal.fire("Error parsing JSON", "", "error")
+            loadingMeetUrl.value = null
           }
         })
         .catch((error) => {
           // Handle errors from the API request
-          // eslint-disable-next-line no-console
-          console.error("Error fetching conference link:", error)
           Swal.fire(t("errors.error-fetching-conference-link"), "", "error")
           loadingMeetUrl.value = false
         })
@@ -406,12 +475,15 @@ export default defineComponent({
       loading,
       header,
       data,
+      orderTypes,
+      selectedType,
       itemsTotal,
       currentPage,
       itemsPerPage,
       idsSelected,
       abilities,
       searchDataTableBodyRows,
+      handleTabChange,
       getDataTableBodyRows,
       onSort,
       onItemsSelect,
@@ -420,7 +492,12 @@ export default defineComponent({
       deleteFewItems,
       loadingMeetUrl,
       resolveAvatarUrl,
-      getUserAvatar
+      getUserAvatar,
+      getConferenceTypeLabel,
+      isConferenceEnded,
+      isConferenceActive,
+      hasRecording,
+      getTranslatedMessage
     }
   }
 })

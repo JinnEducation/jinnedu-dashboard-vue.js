@@ -5,14 +5,14 @@
     <div class="app-container container-xxl">
       <div class="card">
         <div class="nav nav-line-tabs">
-          <template v-for="type in orderTypes" :key="type">
+          <template v-for="type in orderTypes" :key="type.label">
             <li class="nav-item">
               <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
               <a
                 class="nav-link p-3"
-                :class="{active: selectedType === type}"
+                :class="{active: selectedType === type.label}"
                 @click="handleTabChange(type)">
-                {{ type }}
+                {{ t(type.labelKey) }}
               </a>
             </li>
           </template>
@@ -104,13 +104,13 @@
         </template>
         <template v-else>
           <div class="card-body py-4">
-            <template v-for="type in orderTypes" :key="type">
+            <template v-for="type in orderTypes" :key="type.label">
               <div
-                :id="`${type.toLowerCase().replace(/\s/g, '-')}-tab-content`"
+                :id="`${type.label.toLowerCase().replace(/\s/g, '-')}-tab-content`"
                 class="tab-pane"
-                :class="{active: selectedType === type}">
+                :class="{active: selectedType === type.label}">
                 <data-table
-                  v-if="selectedType === type"
+                  v-if="selectedType === type.label"
                   :data="data"
                   :header="header"
                   :checkbox-enabled="true"
@@ -139,19 +139,7 @@
                           : 'badge-light-success'
                       ]">
                       {{
-                        conference[["ref", "type"].join("_")] === 1
-                          ? "Group Class"
-                          : conference[["ref", "type"].join("_")] === 3
-                          ? "Trial Lesson"
-                          : conference[["ref", "type"].join("_")] === 4
-                          ? "Private Lesson"
-                          : conference[["ref", "type"].join("_")] === 5
-                          ? "Top Up"
-                          : conference[["ref", "type"].join("_")] === 6
-                          ? "Refund"
-                          : conference[["ref", "type"].join("_")] === 7
-                          ? "Package"
-                          : "Other"
+                        getConferenceTypeLabel(conference)
                       }}
                     </span>
                   </template>
@@ -388,24 +376,12 @@ export default defineComponent({
     })
 
     const orderTypes = [
-      "Group Class",
-      "Trial Lesson",
-      "Private Lesson"
-      // "Top Up",
-      // "Refund",
-      // "Package"
-      // "Other"
+      {label: "All", labelKey: "global.all", value: ""},
+      {label: "Group Class", labelKey: "global.group-class", value: 1},
+      {label: "Trial Lesson", labelKey: "global.trial-lesson", value: 3},
+      {label: "Private Lesson", labelKey: "global.private-lesson", value: 4}
     ]
-    const orderTypeIndices = {
-      "Group Class": 1,
-      "Trial Lesson": 3,
-      "Private Lesson": 4
-      // "Top Up": 5,
-      // "Refund": 6,
-      // "Package": 7
-      // "Other": -1 // Set a default value in case the selected type is not found
-    }
-    const selectedType = ref("Group Class") // Default selected type
+    const selectedType = ref("All")
 
     const {t} = useI18n()
     const loading = ref(false)
@@ -473,6 +449,18 @@ export default defineComponent({
       {label: "Private Lesson", value: 4},
       {label: "Package", value: 7}
     ])
+
+    const getConferenceTypeLabel = (conference) => {
+      const refType = Number(conference?.ref_type)
+      if (refType === 1) return t("global.group-class")
+      if (refType === 2) return t("global.our-courses")
+      if (refType === 3) return t("global.trial-lesson")
+      if (refType === 4) return t("global.private-lesson")
+      if (refType === 5) return t("global.top-up")
+      if (refType === 6) return t("global.refund")
+      if (refType === 7) return t("global.package")
+      return t("global.other")
+    }
 
     const getRecordingMediaUrl = (recordings) => {
       if (!recordings) return null
@@ -579,10 +567,11 @@ export default defineComponent({
       // const query = selectedTutor.value
       //   ? `&tutor_id=${selectedTutor.value}&ref_type=${refType}`
       //   : ""
-      const type = orderTypeIndices[selectedType.value]
-      const url = `/conferences/admin-index${queryString}${queryString ? "&" : "?"}&tutor_id=${
-        selectedTutor.value
-      }&ref_type=${type}`
+      const type = orderTypes.find((item) => item.label === selectedType.value)?.value ?? ""
+      const params = new URLSearchParams(queryString.replace(/^\?/, ""))
+      if (selectedTutor.value) params.set("tutor_id", selectedTutor.value)
+      if (type) params.set("ref_type", type)
+      const url = `/conferences/admin-index?${params.toString()}`
       loading.value = true
       axiosClient
         .get(url)
@@ -598,19 +587,15 @@ export default defineComponent({
     }
 
     const handleTabChange = function handleTabChange(type) {
-      // Get the corresponding index for the selected type
-      // const selectedIndex = orderTypeIndices[type]
-      // Call getDataTableBodyRows with the selectedIndex
-      // getDataTableBodyRows(`?ref_type=${selectedIndex}`)
-      // Update the selectedType
-      selectedType.value = type
+      selectedType.value = type.label
       getDataTableBodyRows()
     }
 
     const clearSearch = () => {
-      getDataTableBodyRows("?ref_type=1") // Call your method to get all data
+      selectedType.value = "All"
       selectedTutor.value = "" // Clear selected tutor
       selectedRefType.value = "" // Clear selected refType
+      getDataTableBodyRows()
     }
 
     const currentSearchQuery = ref("")
@@ -736,7 +721,8 @@ export default defineComponent({
       addTutorFinance,
       addTutorFinanceLoadingId,
       resolveAvatarUrl,
-      getUserAvatar
+      getUserAvatar,
+      getConferenceTypeLabel
     }
   }
 })

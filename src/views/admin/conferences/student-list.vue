@@ -116,6 +116,19 @@
   <div class="app-content flex-column-fluid">
     <div class="app-container container-xxl">
       <div class="card">
+        <div class="nav nav-line-tabs">
+          <template v-for="type in orderTypes" :key="type.label">
+            <li class="nav-item">
+              <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+              <a
+                class="nav-link p-3"
+                :class="{active: selectedType === type.label}"
+                @click="handleTabChange(type)">
+                {{ t(type.labelKey) }}
+              </a>
+            </li>
+          </template>
+        </div>
         <div class="card-header border-0 pt-6">
           <div class="card-title" style="flex: 1">
             <div class="d-flex align-items-center justify-content-between position-relative my-1">
@@ -220,11 +233,7 @@
                       : 'badge-light-warning'
                   ]">
                   {{
-                    conference[["ref", "type"].join("_")] === 1
-                      ? "Group Class"
-                      : conference[["ref", "type"].join("_")] === 2
-                      ? "Our Courses"
-                      : "Trial Lesson"
+                    getConferenceTypeLabel(conference)
                   }}
                 </span>
               </template>
@@ -303,10 +312,12 @@
                   </span>
                 </button>
                 <button
-                  v-if="!conference.meet_url && !conference.is_end && conference.is_available"
+                  v-if="!conference.meet_url && !isConferenceEnded(conference)"
                   type="button"
                   aria-label="Create Link"
-                  class="btn btn-icon btn-light-success me-2"
+                  class="btn btn-icon me-2"
+                  :class="isConferenceActive(conference) ? 'btn-light-warning' : 'btn-light-secondary'"
+                  :title="getJoinButtonTitle(conference)"
                   @click="getConferenceLink(conference.id)">
                   <span class="svg-icon svg-icon-primary">
                     <svg
@@ -349,11 +360,12 @@
                 </button>
 
                 <a
-                  v-if="conference.meet_url && !conference.is_end"
+                  v-if="conference.meet_url && !isConferenceEnded(conference)"
                   :href="conference.meet_url"
                   aria-label="Create Link"
                   target="_blank"
-                  class="btn btn-icon btn-light-primary me-2">
+                  class="btn btn-icon btn-light-danger me-2"
+                  :title="t('global.join')">
                   <span class="svg-icon svg-icon-primary">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -570,6 +582,13 @@ export default defineComponent({
 
     const {t} = useI18n()
     const loading = ref(false)
+    const orderTypes = [
+      {label: "All", labelKey: "global.all", value: ""},
+      {label: "Group Class", labelKey: "global.group-class", value: 1},
+      {label: "Trial Lesson", labelKey: "global.trial-lesson", value: 3},
+      {label: "Private Lesson", labelKey: "global.private-lesson", value: 4}
+    ]
+    const selectedType = ref("All")
     const header = ref([
       {
         columnName: t("global.conference_title"),
@@ -614,6 +633,42 @@ export default defineComponent({
     const initItems = ref([])
     const idsSelected = ref([])
 
+    const getConferenceTypeLabel = (conference) => {
+      const refType = Number(conference?.ref_type)
+      if (refType === 1) return t("global.group-class")
+      if (refType === 2) return t("global.our-courses")
+      if (refType === 3) return t("global.trial-lesson")
+      if (refType === 4) return t("global.private-lesson")
+      return t("global.other")
+    }
+
+    const isConferenceEnded = (conference) => {
+      if (conference?.is_end !== undefined) return Boolean(conference.is_end)
+      const endDateTime = conference?.end_date_time || `${conference?.date || ""} ${conference?.end_time || ""}`
+      const endTime = Date.parse(endDateTime)
+      return Number.isNaN(endTime) ? false : endTime <= Date.now()
+    }
+
+    const isConferenceActive = (conference) => {
+      const startTime = Date.parse(conference?.start_date_time || `${conference?.date || ""} ${conference?.start_time || ""}`)
+      const endTime = Date.parse(conference?.end_date_time || `${conference?.date || ""} ${conference?.end_time || ""}`)
+      if (Number.isNaN(startTime) || Number.isNaN(endTime)) return false
+      return startTime <= Date.now() && endTime > Date.now()
+    }
+
+    const getJoinButtonTitle = (conference) => {
+      if (!isConferenceActive(conference)) return t("global.conference-has-not-started-yet")
+      if (!conference?.is_meeting_started) return t("global.waiting-for-tutor-to-start-class")
+      return t("global.join-class")
+    }
+
+    const getTranslatedMessage = (message) => {
+      if (!message) return ""
+      const key = `global.${message}`
+      const translated = t(key)
+      return translated === key ? message : translated
+    }
+
     const getRecordingMediaUrl = (recordings) => {
       if (!recordings) return null
       const first = Array.isArray(recordings) ? recordings[0] : recordings
@@ -645,8 +700,11 @@ export default defineComponent({
 
     const getDataTableBodyRows = function getDataTableBodyRows(queryString = "") {
       loading.value = true
+      const type = orderTypes.find((item) => item.label === selectedType.value)?.value ?? ""
+      const params = new URLSearchParams(queryString.replace(/^\?/, ""))
+      if (type) params.set("ref_type", type)
       axiosClient
-        .get(`/conferences/student-index${queryString}`)
+        .get(`/conferences/student-index?${params.toString()}`)
         .then((response) => {
           data.value = response.data.result.data
           itemsTotal.value = response.data.result.total
@@ -660,6 +718,11 @@ export default defineComponent({
 
     const searchDataTableBodyRows = function searchDataTableBodyRows(e) {
       getDataTableBodyRows(["?", ["q", e.target.value].join("=")].join(""))
+    }
+
+    const handleTabChange = function handleTabChange(type) {
+      selectedType.value = type.label
+      getDataTableBodyRows()
     }
 
     const onSort = function onSort(sort) {
@@ -693,6 +756,11 @@ export default defineComponent({
     const getConferenceLink = function getConferenceLink(id) {
       loadingMeetUrl.value = id
       axiosClient.get(`/conferences/create-student-link/${id}`).then((response) => {
+        if (!response.data.success) {
+          Swal.fire(getTranslatedMessage(response.data.message), "", "info")
+          loadingMeetUrl.value = null
+          return
+        }
         // let link = null
         // if (!response.data.success) {
         //   Swal.fire(response.data.message, "", "info")
@@ -714,6 +782,7 @@ export default defineComponent({
           // eslint-disable-next-line no-use-before-define
           getDataTableBodyRows()
         }
+        loadingMeetUrl.value = null
       })
     }
 
@@ -742,7 +811,7 @@ export default defineComponent({
           if (response.data["msg-code"] === "111") {
             Swal.fire({
               icon: "error",
-              text: response.data.message,
+              text: getTranslatedMessage(response.data.message),
               confirmButtonText: t("global.got-it"),
               buttonsStyling: false,
               customClass: {confirmButton: "btn btn-danger"}
@@ -790,12 +859,15 @@ export default defineComponent({
       loading,
       header,
       data,
+      orderTypes,
+      selectedType,
       itemsTotal,
       currentPage,
       itemsPerPage,
       idsSelected,
       abilities,
       searchDataTableBodyRows,
+      handleTabChange,
       getDataTableBodyRows,
       onSort,
       onItemsSelect,
@@ -810,7 +882,12 @@ export default defineComponent({
       getRecordingMediaUrl,
       hasAnyRecordings,
       resolveAvatarUrl,
-      getUserAvatar
+      getUserAvatar,
+      getConferenceTypeLabel,
+      isConferenceEnded,
+      isConferenceActive,
+      getJoinButtonTitle,
+      getTranslatedMessage
     }
   }
 })

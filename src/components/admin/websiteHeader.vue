@@ -97,6 +97,15 @@
             </svg>
             <span>{{ $t("global.my-profile") }}</span>
           </button>
+          <router-link
+            v-if="userType === 1 && currentActiveConference"
+            :to="currentActiveConferenceLink"
+            class="active-class-hint">
+            <span></span>
+            <strong>{{ t("global.live-class-now") }}</strong>
+            <small>{{ activeClassTimer }}</small>
+            <em>{{ currentActiveConference.title }}</em>
+          </router-link>
 
           <!-- Dropdown Menu -->
           <div
@@ -870,7 +879,7 @@
 </template>
 <script>
 import {getI18nLanguages} from "@/plugins/i18n"
-import {defineComponent, ref, onMounted, computed, onBeforeMount, watch} from "vue"
+import {defineComponent, ref, onMounted, computed, onBeforeMount, onUnmounted, watch} from "vue"
 import {onClickOutside} from "@vueuse/core"
 import axiosClient from "@/plugins/axios"
 import {useI18n} from "vue-i18n"
@@ -1079,6 +1088,10 @@ export default defineComponent({
     }
 
     const wallet = ref(null)
+    const currentActiveConference = ref(null)
+    const activeClassElapsedSeconds = ref(0)
+    const activeClassTimerInterval = ref(null)
+    const activeClassPollingInterval = ref(null)
     const hasFetchedInitialData = ref(false)
 
     const ensureInitialData = () => {
@@ -1087,6 +1100,7 @@ export default defineComponent({
       fetchCategories()
       fetchWallet()
       getNotifications()
+      getCurrentActiveConference()
     }
 
     const fetchWallet = async () => {
@@ -1100,6 +1114,56 @@ export default defineComponent({
     }
 
     const categories = ref([])
+
+    const currentActiveConferenceLink = computed(() =>
+      userType === 2 ? "/dashboard/conferences/tutor-index" : "/dashboard/conferences/student-index"
+    )
+
+    const activeClassTimer = computed(() => {
+      const totalSeconds = Math.max(0, Number(activeClassElapsedSeconds.value) || 0)
+      const hours = Math.floor(totalSeconds / 3600)
+      const minutes = Math.floor((totalSeconds % 3600) / 60)
+      const seconds = totalSeconds % 60
+      const parts = hours > 0 ? [hours, minutes, seconds] : [minutes, seconds]
+
+      return parts.map((part) => String(part).padStart(2, "0")).join(":")
+    })
+
+    const stopActiveClassTimer = () => {
+      if (!activeClassTimerInterval.value) return
+      clearInterval(activeClassTimerInterval.value)
+      activeClassTimerInterval.value = null
+    }
+
+    const startActiveClassTimer = () => {
+      stopActiveClassTimer()
+      activeClassTimerInterval.value = setInterval(() => {
+        if (!currentActiveConference.value) {
+          stopActiveClassTimer()
+          return
+        }
+        activeClassElapsedSeconds.value += 1
+      }, 1000)
+    }
+
+    const getCurrentActiveConference = function getCurrentActiveConference() {
+      if (userType !== 1) return
+      axiosClient.get("/conferences/current-active").then((response) => {
+        currentActiveConference.value = response.data.result || null
+        activeClassElapsedSeconds.value = Number(
+          currentActiveConference.value?.active_elapsed_seconds || 0
+        )
+
+        if (currentActiveConference.value) startActiveClassTimer()
+        else stopActiveClassTimer()
+      })
+    }
+
+    const startActiveClassPolling = () => {
+      if (userType !== 1 || activeClassPollingInterval.value) return
+      getCurrentActiveConference()
+      activeClassPollingInterval.value = setInterval(getCurrentActiveConference, 30000)
+    }
 
     // Fetch categories from the API
     const fetchCategories = async () => {
@@ -1209,7 +1273,16 @@ export default defineComponent({
       setTimeout(() => {
         ensureInitialData()
       }, 350)
+      startActiveClassPolling()
       // getFavorites()
+    })
+
+    onUnmounted(() => {
+      stopActiveClassTimer()
+      if (activeClassPollingInterval.value) {
+        clearInterval(activeClassPollingInterval.value)
+        activeClassPollingInterval.value = null
+      }
     })
 
     return {
@@ -1257,6 +1330,10 @@ export default defineComponent({
       fetchCategories,
       wallet,
       fetchWallet,
+      currentActiveConference,
+      currentActiveConferenceLink,
+      activeClassTimer,
+      getCurrentActiveConference,
       userType,
       languageId,
       toggleDropdown,
@@ -1275,6 +1352,60 @@ export default defineComponent({
 })
 </script>
 <style lang="scss">
+.active-class-hint {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  min-width: 300px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #fff1f2;
+  color: #b91c1c;
+  border: 1px solid #fecdd3;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 12;
+  box-shadow: 0 10px 25px rgba(185, 28, 28, 0.12);
+  text-decoration: none;
+  white-space: nowrap;
+
+  span {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #dc2626;
+    box-shadow: 0 0 0 5px rgba(220, 38, 38, 0.12);
+    flex: 0 0 auto;
+  }
+
+  strong {
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  small {
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+
+  em {
+    max-width: 120px;
+    overflow: hidden;
+    color: #7f1d1d;
+    font-style: normal;
+    text-overflow: ellipsis;
+  }
+}
+
 .custom-popup-container {
   position: fixed;
   top: 0;

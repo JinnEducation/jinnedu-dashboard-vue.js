@@ -169,7 +169,7 @@
                     :class="{active: isActiveNotifications}">
                     <ul v-if="notifications && notifications.length > 0">
                       <li v-for="(item, index) in notifications" :key="index">
-                        <button type="button">
+                        <button type="button" @click="openNotification(item)">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
@@ -639,31 +639,9 @@
                           ref="notificationsRef"
                           class="navbar-menu"
                           :class="{active: isActiveNotifications}">
-                          <ul>
-                            <!--                  <li>-->
-                            <!--                    <p>There are no notifications.</p>-->
-                            <!--                  </li>-->
-                            <li>
-                              <button type="button">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  aria-hidden="true"
-                                  fill="currentColor">
-                                  <path
-                                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"></path>
-                                </svg>
-                                <span class="sr-only">login</span>
-                                <div>
-                                  <h3>global.login:</h3>
-                                  <ul>
-                                    <li>new-login</li>
-                                  </ul>
-                                </div>
-                              </button>
-                            </li>
-                            <li>
-                              <button type="button">
+                          <ul v-if="notifications && notifications.length > 0">
+                            <li v-for="(item, index) in notifications" :key="index">
+                              <button type="button" @click="openNotification(item)">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   viewBox="0 0 20 20"
@@ -673,50 +651,15 @@
                                     d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"></path>
                                 </svg>
                                 <div>
-                                  <h3>global.login:</h3>
+                                  <h3>{{ item.data.title }}</h3>
                                   <ul>
-                                    <li>new-login</li>
-                                  </ul>
-                                </div>
-                              </button>
-                            </li>
-                            <li>
-                              <button type="button">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  aria-hidden="true"
-                                  fill="currentColor">
-                                  <path
-                                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"></path>
-                                </svg>
-                                <div>
-                                  <h3>global.login:</h3>
-                                  <ul>
-                                    <li>new-login</li>
-                                  </ul>
-                                </div>
-                              </button>
-                            </li>
-                            <li>
-                              <button type="button">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  aria-hidden="true"
-                                  fill="currentColor">
-                                  <path
-                                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"></path>
-                                </svg>
-                                <div>
-                                  <h3>global.login:</h3>
-                                  <ul>
-                                    <li>new-login</li>
+                                    <li>{{ item.data.details }}</li>
                                   </ul>
                                 </div>
                               </button>
                             </li>
                           </ul>
+                          <p v-else class="text-center">{{ $t("global.no-notifications") }}</p>
                         </div>
                       </div>
                     </li>
@@ -913,6 +856,7 @@ export default defineComponent({
     const store = useStore()
     const {userInfo} = store.state
     const userInfoObject = JSON.parse(userInfo)
+    const currentUserId = userInfoObject.user.id
     const userType = userInfoObject.user.type
     const languages = computed(() => store.state.languages)
     const language = ref(store.state.language)
@@ -1092,6 +1036,7 @@ export default defineComponent({
     const activeClassElapsedSeconds = ref(0)
     const activeClassTimerInterval = ref(null)
     const activeClassPollingInterval = ref(null)
+    const notificationPollingInterval = ref(null)
     const hasFetchedInitialData = ref(false)
 
     const ensureInitialData = () => {
@@ -1204,7 +1149,10 @@ export default defineComponent({
     }
     const toggleNotifications = () => {
       isActiveNotifications.value = !isActiveNotifications.value
-      if (isActiveNotifications.value) ensureInitialData()
+      if (isActiveNotifications.value) {
+        ensureInitialData()
+        getNotifications()
+      }
     }
     const toggleLikes = () => {
       isActiveLikes.value = !isActiveLikes.value
@@ -1256,10 +1204,44 @@ export default defineComponent({
     const toggleInviteModal = () => {
       isActiveInviteModal.value = !isActiveInviteModal.value
     }
+    const belongsToCurrentUser = (notification) => {
+      return String(notification?.notifiable_id) === String(currentUserId)
+    }
+
     const getNotifications = function getNotifications() {
-      axiosClient.get(`/notifications`).then((response) => {
-        notifications.value = response.data.result.data
+      axiosClient.get(`/notifications`, {params: {limit: 10}}).then((response) => {
+        const items = response.data?.result?.data || []
+        notifications.value = items.filter(belongsToCurrentUser)
       })
+    }
+
+    const openNotification = (notification) => {
+      if (!notification?.id) return
+
+      axiosClient.get(`/notifications/read/${notification.id}`).then((response) => {
+        const url = response.data.result?.data?.url || notification.data?.url
+        getNotifications()
+
+        if (!url) return
+
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+          window.location.href = url
+          return
+        }
+
+        if (url.startsWith("/dashboard")) {
+          router.push(url)
+          return
+        }
+
+        window.location.href = url
+      })
+    }
+
+    const startNotificationPolling = () => {
+      if (notificationPollingInterval.value) return
+      getNotifications()
+      notificationPollingInterval.value = setInterval(getNotifications, 15000)
     }
     // const getFavorites = function getFavorites() {
     //   axiosClient.get("/front/tutors-favorites").then((response) => {
@@ -1274,6 +1256,7 @@ export default defineComponent({
         ensureInitialData()
       }, 350)
       startActiveClassPolling()
+      startNotificationPolling()
       // getFavorites()
     })
 
@@ -1282,6 +1265,10 @@ export default defineComponent({
       if (activeClassPollingInterval.value) {
         clearInterval(activeClassPollingInterval.value)
         activeClassPollingInterval.value = null
+      }
+      if (notificationPollingInterval.value) {
+        clearInterval(notificationPollingInterval.value)
+        notificationPollingInterval.value = null
       }
     })
 
@@ -1315,6 +1302,7 @@ export default defineComponent({
       toggleMenuResponsive,
       notifications,
       getNotifications,
+      openNotification,
       // getFavorites,
       favorites,
       t,

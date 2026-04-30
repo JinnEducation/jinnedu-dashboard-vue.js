@@ -9,6 +9,7 @@ const axiosClient = axios.create({baseURL})
 axiosClient.interceptors.request.use((config) => {
   // eslint-disable-next-line
   config.headers.Authorization = `Bearer ${store.state.user.token}`
+  config.headers.lang = store.state.language
   return config
 })
 

@@ -48,7 +48,16 @@
                   <div class="col-12 col-sm-6">
                     <div class="report-metric-card">
                       <div class="fs-2 fw-bold text-gray-900">{{ tutorInfo.pending_balance || 0 }}</div>
-                      <div class="fw-semibold fs-7 text-gray-500">{{ t("global.pending-balance") }}</div>
+                      <div class="fw-semibold fs-7 text-gray-500 mb-3">
+                        {{ t("global.pending-balance") }}
+                      </div>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-light-warning"
+                        :class="{active: reportMode === 'pending'}"
+                        @click="showPendingBalanceReport">
+                        {{ pendingBalanceButtonLabel }}
+                      </button>
                     </div>
                   </div>
                   <div class="col-12 col-sm-6">
@@ -70,19 +79,25 @@
         </div>
 
         <div class="card">
-          <div class="card-header border-0 pt-6">
-            <div class="card-title d-flex flex-wrap gap-3 w-100">
-              <div class="d-flex align-items-center position-relative my-1">
-                <label for="search-balance-report" class="sr-only">
-                  {{ t("global.search-tutor-finances") }}
-                </label>
-                <input
-                  id="search-balance-report"
-                  type="text"
-                  name="search-balance-report"
-                  :placeholder="t('global.search-tutor-finances')"
-                  class="form-control form-control-solid w-250px"
-                  @keyup.enter="searchDataTableBodyRows" />
+            <div class="card-header border-0 pt-6">
+              <div class="card-title d-flex flex-wrap gap-3 w-100">
+                <div v-if="reportMode === 'pending'" class="d-flex align-items-center my-1">
+                  <button type="button" class="btn btn-light-primary" @click="showFinanceReport">
+                    {{ showFinanceTransactionsLabel }}
+                  </button>
+                </div>
+
+                <div class="d-flex align-items-center position-relative my-1">
+                  <label for="search-balance-report" class="sr-only">
+                    {{ searchPlaceholder }}
+                  </label>
+                  <input
+                    id="search-balance-report"
+                    type="text"
+                    name="search-balance-report"
+                    :placeholder="searchPlaceholder"
+                    class="form-control form-control-solid w-250px"
+                    @keyup.enter="searchDataTableBodyRows" />
               </div>
 
               <div class="d-flex align-items-center my-1">
@@ -118,7 +133,7 @@
               <div class="card-px text-center py-20 my-10">
                 <h2 class="fs-2x fw-bold mb-10">{{ t("global.welcome") }}</h2>
                 <p class="text-gray-400 fs-5 fw-semibold mb-13">
-                  <span>{{ t("global.no-tutor-finances") }}</span>
+                  <span>{{ emptyReportMessage }}</span>
                 </p>
               </div>
               <div class="text-center px-5">
@@ -162,12 +177,20 @@
                   {{ money(tutorFinance.fee) }}
                 </template>
 
+                <template #pending_amount="{row: pendingConference}">
+                  {{ money(pendingConference.pending_amount) }}
+                </template>
+
                 <template #class_date="{row: tutorFinance}">
                   {{ formatDateTime(tutorFinance.class_date || tutorFinance.created_at) }}
                 </template>
 
                 <template #status="{row: tutorFinance}">
                   <span>{{ statusLabel(tutorFinance.status) }}</span>
+                </template>
+
+                <template #reason="{row: pendingConference}">
+                  <span class="badge badge-light-warning">{{ pendingReasonLabel(pendingConference.reason) }}</span>
                 </template>
 
                 <template #actions="{row: tutorFinance}">
@@ -334,6 +357,7 @@ export default defineComponent({
 
     const selectedRefType = ref("")
     const currentSearchQuery = ref("")
+    const reportMode = ref("finance")
 
     const effectiveTutorId = ref(null)
 
@@ -349,7 +373,7 @@ export default defineComponent({
     const userType = Number(parsedUserInfo?.user?.type)
     const requestedTutorId = computed(() => Number(route.params.id || 0))
 
-    const header = ref([
+    const financeHeader = ref([
       {
         columnName: t("global.type"),
         columnLabel: "ref_type",
@@ -399,6 +423,65 @@ export default defineComponent({
         columnWidth: 150
       }
     ])
+
+    const pendingHeader = ref([
+      {
+        columnName: t("global.type"),
+        columnLabel: "ref_type",
+        sortEnabled: true,
+        columnWidth: 140
+      },
+      {
+        columnName: t("global.name"),
+        columnLabel: "name",
+        sortEnabled: true,
+        columnWidth: 240
+      },
+      {
+        columnName: t("global.total"),
+        columnLabel: "total",
+        sortEnabled: true,
+        columnWidth: 140
+      },
+      {
+        columnName: t("global.percentage"),
+        columnLabel: "percentage",
+        sortEnabled: true,
+        columnWidth: 120
+      },
+      {
+        columnName: t("global.pending-balance"),
+        columnLabel: "pending_amount",
+        sortEnabled: true,
+        columnWidth: 160
+      },
+      {
+        columnName: t("global.reason"),
+        columnLabel: "reason",
+        sortEnabled: true,
+        columnWidth: 190
+      }
+    ])
+
+    const header = computed(() => (reportMode.value === "pending" ? pendingHeader.value : financeHeader.value))
+    const searchPlaceholder = computed(() =>
+      reportMode.value === "pending"
+        ? t("global.search-pending-balance")
+        : t("global.search-tutor-finances")
+    )
+    const emptyReportMessage = computed(() =>
+      reportMode.value === "pending"
+        ? t("global.no-pending-balance-conferences")
+        : t("global.no-tutor-finances")
+    )
+    const pendingBalanceButtonLabel = computed(() =>
+      reportMode.value === "pending"
+        ? t("global.refresh")
+        : t("global.show-pending-balance")
+    )
+    const showFinanceTransactionsLabel = computed(() =>
+      t("global.show-finance-transactions")
+    )
 
     const about = computed(() => profile.value?.abouts?.[0] || null)
 
@@ -454,6 +537,8 @@ export default defineComponent({
     }
 
     const financeReferenceName = (item) => {
+      if (item?.name) return item.name
+
       if (Number(item?.ref_type) === 1) {
         return item?.group_class?.name || t("global.group-classes")
       }
@@ -478,6 +563,19 @@ export default defineComponent({
           return t("global.rejected")
         default:
           return t("global.need-to-review")
+      }
+    }
+
+    const pendingReasonLabel = (reason) => {
+      switch (reason) {
+        case "has-complaint":
+          return t("global.has-complaint")
+        case "missing-recording":
+          return t("global.missing-recording")
+        case "waiting-admin-approval":
+          return t("global.waiting-admin-approval")
+        default:
+          return "-"
       }
     }
 
@@ -557,7 +655,12 @@ export default defineComponent({
           params.q = currentSearchQuery.value
         }
 
-        const response = await axiosClient.get("/tutor-finance", {params})
+        const endpoint =
+          reportMode.value === "pending"
+            ? "/tutor-statistics/pending-balance-conferences"
+            : "/tutor-finance"
+
+        const response = await axiosClient.get(endpoint, {params})
         data.value = response?.data?.result?.data || []
         itemsTotal.value = response?.data?.result?.total || 0
         currentPage.value = response?.data?.result?.current_page || 1
@@ -595,8 +698,21 @@ export default defineComponent({
     }
 
     const openModal = (id) => {
+      if (reportMode.value === "pending") return
       idCurrent.value = id
       $("#financeDetailsModal").modal("show")
+    }
+
+    const showPendingBalanceReport = () => {
+      reportMode.value = "pending"
+      currentPage.value = 1
+      getDataTableBodyRows()
+    }
+
+    const showFinanceReport = () => {
+      reportMode.value = "finance"
+      currentPage.value = 1
+      getDataTableBodyRows()
     }
 
     watch(
@@ -617,6 +733,7 @@ export default defineComponent({
       loading,
       data,
       header,
+      reportMode,
       itemsTotal,
       currentPage,
       itemsPerPage,
@@ -629,15 +746,22 @@ export default defineComponent({
       profileCountry,
       profileAvatar,
       currentFinance,
+      searchPlaceholder,
+      emptyReportMessage,
+      pendingBalanceButtonLabel,
+      showFinanceTransactionsLabel,
       money,
       financeTypeLabel,
       financeReferenceName,
       statusLabel,
+      pendingReasonLabel,
       formatDateTime,
       searchDataTableBodyRows,
       onFilterChange,
       onSort,
-      openModal
+      openModal,
+      showPendingBalanceReport,
+      showFinanceReport
     }
   }
 })

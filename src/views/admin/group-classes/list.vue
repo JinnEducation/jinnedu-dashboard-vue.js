@@ -877,7 +877,18 @@ export default defineComponent({
       loading.value = true
       axiosClient
         .post(`/group-classes/register-as-tutor/${id}`)
-        .then(() => {
+        .then((response) => {
+          if (!response.data.success) {
+            Swal.fire({
+              icon: "error",
+              text: response.data.message || t("global.errors-detected"),
+              confirmButtonText: t("global.got-it"),
+              buttonsStyling: false,
+              customClass: {confirmButton: "btn btn-danger"}
+            })
+            return
+          }
+
           getDataTableBodyRows()
           Swal.fire({
             icon: "success",

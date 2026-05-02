@@ -42,6 +42,11 @@
                 @keyup.enter="searchDataTableBodyRows" />
             </div>
           </div>
+          <div class="card-toolbar">
+            <button type="button" class="btn btn-light-primary" @click="gotoSiteBalanceReport">
+              {{ t("global.site-balance-report") }}
+            </button>
+          </div>
         </div>
         <template v-if="loading">
           <div class="card-body p-0">
@@ -237,6 +242,10 @@ export default defineComponent({
       router.push({name: "accounting-balance-report", params: {id: userId}})
     }
 
+    const gotoSiteBalanceReport = () => {
+      router.push({name: "accounting-site-balance-report"})
+    }
+
     provide("getDataTableBodyRows", getDataTableBodyRows)
     onBeforeMount(() => {
       data.value = []
@@ -266,7 +275,8 @@ export default defineComponent({
       onSort,
       onItemsSelect,
 
-      gotoBalanceReport
+      gotoBalanceReport,
+      gotoSiteBalanceReport
     }
   }
 })

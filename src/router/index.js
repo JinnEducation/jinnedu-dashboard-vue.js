@@ -82,6 +82,7 @@ const SettingUpdate = () => import("@/views/admin/settings/edit.vue")
 const ContactUs = () => import("@/views/admin/contact-us/index.vue")
 const Accounting = () => import("@/views/admin/accounting/list.vue")
 const AccountingBalanceReport = () => import("@/views/admin/accounting/balance-report.vue")
+const AccountingSiteBalanceReport = () => import("@/views/admin/accounting/site-balance-report.vue")
 const tutorFinancesAccounting = () => import("@/views/admin/tutor-finances/accounting.vue")
 const TutorFinance = () => import("@/views/admin/finance/tutorFinance.vue")
 
@@ -276,6 +277,11 @@ const router = createRouter({
           path: "/dashboard/accounting/balance-report/:id",
           name: "accounting-balance-report",
           component: AccountingBalanceReport
+        },
+        {
+          path: "/dashboard/accounting/site-balance-report",
+          name: "accounting-site-balance-report",
+          component: AccountingSiteBalanceReport
         },
         {
           path: "/dashboard/roles/index",

@@ -79,6 +79,7 @@ const StudentInformation = () => import("@/views/admin/users/student-information
 
 const Settings = () => import("@/views/admin/settings/list.vue")
 const SettingUpdate = () => import("@/views/admin/settings/edit.vue")
+const SocialMediaSettings = () => import("@/views/admin/settings/social-media.vue")
 const ContactUs = () => import("@/views/admin/contact-us/index.vue")
 const Accounting = () => import("@/views/admin/accounting/list.vue")
 const AccountingBalanceReport = () => import("@/views/admin/accounting/balance-report.vue")
@@ -229,6 +230,11 @@ const router = createRouter({
           path: "/dashboard/settings/update/:id",
           name: "settings-update",
           component: SettingUpdate
+        },
+        {
+          path: "/dashboard/settings/social-media",
+          name: "settings-social-media",
+          component: SocialMediaSettings
         },
         {
           path: "/dashboard/contact-us/index",
